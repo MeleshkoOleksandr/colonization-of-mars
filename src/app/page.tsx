@@ -39,23 +39,23 @@ interface UserResult {
 // --- Initial data ---
 const INITIAL_STORY = {
   title: "Sopravvivenza nella Valle Marineris",
-  plot: "Siete i membri di una squadra di coloni d'avanguardia diretti verso la base 'Ares-1'. Dopo una tempesta di sabbia, il vostro rover è distrutto a 150 km dalla destinazione. Risorse limitate, ossigeno scarso. Dovete classificare gli oggetti per sopravvivere."
+  plot: "Siete i membri di una squadra di coloni d'avanguardia diretti verso la cupola principale della base <Ares-1>. Durante la discesa, il vostro rover cargo è stato investito da una violenta tempesta di sabbia e si è ribaltato a 150 chilometri dalla destinazione. I sistemi di supporto vitale del rover sono fuori uso e le comunicazioni con la base sono interrotte. Il vostro obiettivo: percorrere 150 km nel deserto marziano fino alla base. Indossate le tute spaziali, ma le risorse sono limitate. Di seguito sono elencati i 15 oggetti rimasti intatti dopo l'incidente."
 };
 
 const INITIAL_ITEMS: SurvivalItem[] = [
-  { id: 'o2', name: 'Bombole di ossigeno', photo: 'o2.jpg', idealPosition: 1, description: 'Senza ossigeno la morte è immediata. Priorità assoluta.' },
-  { id: 'rtg', name: 'RTG (Generatore termico)', photo: 'rtg.jpg', idealPosition: 2, description: 'Mantiene il calore vitale contro i -60°C di Marte.' },
-  { id: 'nav', name: 'Navigatore inerziale', photo: 'gyro.jpg', idealPosition: 3, description: 'Essenziale per non perdersi: su Marte non c\'è GPS.' },
-  { id: 'water', name: 'Dissalatore portatile', photo: 'water.jpg', idealPosition: 4, description: 'L\'acqua è fondamentale per un viaggio di 150 km.' },
-  { id: 'seal', name: 'Sigillante liquido', photo: 'seal.jpg', idealPosition: 5, description: 'Riparare una microfrattura nella tuta è vitale.' },
-  { id: 'food', name: 'Pasta proteica', photo: 'food.jpg', idealPosition: 6, description: 'Energia per i 3-5 giorni di cammino previsti.' },
-  { id: 'tent', name: 'Tenda gonfiabile', photo: 'tent.jpg', idealPosition: 7, description: 'Permette di riposare fuori dalla tuta spaziale.' },
-  { id: 'solar', name: 'Pannelli solari', photo: 'solar.jpg', idealPosition: 8, description: 'Ricarica i sistemi della tuta nel lungo periodo.' },
+  { id: 'o2', name: 'Bombole di ossigeno compresso ad alta concentrazione', photo: 'item_01.jpg', idealPosition: 1, description: 'Senza ossigeno la morte è immediata. Priorità assoluta.' },
+  { id: 'rtg', name: 'RTG compatto (generatore termico a radioisotopi)', photo: 'rtg.jpg', idealPosition: 2, description: 'Mantiene il calore vitale contro i -60°C di Marte.' },
+  { id: 'nav', name: 'Unità di navigazione inerziale (giroscopio)', photo: 'gyro.jpg', idealPosition: 3, description: 'Essenziale per non perdersi: su Marte non c\'è GPS.' },
+  { id: 'water', name: 'Dissalatore-condensatore portatile (estrae umidità dal suolo)', photo: 'water.jpg', idealPosition: 4, description: 'L\'acqua è fondamentale per un viaggio di 150 km.' },
+  { id: 'seal', name: 'Bomboletta di sigillante liquido per materiali compositi', photo: 'seal.jpg', idealPosition: 5, description: 'Riparare una microfrattura nella tuta è vitale.' },
+  { id: 'food', name: 'Tubetti di pasta proteica ipercalorica', photo: 'food.jpg', idealPosition: 6, description: 'Energia per i 3-5 giorni di cammino previsti.' },
+  { id: 'tent', name: 'Tenda gonfiabile ermetica (camera di compensazione temporanea)', photo: 'tent.jpg', idealPosition: 7, description: 'Permette di riposare fuori dalla tuta spaziale.' },
+  { id: 'solar', name: 'Set di pannelli solari flessibili', photo: 'solar.jpg', idealPosition: 8, description: 'Ricarica i sistemi della tuta nel lungo periodo.' },
   { id: 'med', name: 'Kit pronto soccorso', photo: 'med.jpg', idealPosition: 9, description: 'Per trattare ferite o infezioni durante il tragitto.' },
   { id: 'rope', name: 'Corda in Kevlar (30m)', photo: 'rope.jpg', idealPosition: 10, description: 'Utile per superare canyon e crepacci.' },
-  { id: 'laser', name: 'Puntatore laser', photo: 'laser.jpg', idealPosition: 11, description: 'Segnalazione visiva per squadre di soccorso.' },
-  { id: 'blanket', name: 'Coperta in titanio', photo: 'blanket.jpg', idealPosition: 12, description: 'Isolante extra, ma poco efficace contro il gelo estremo.' },
-  { id: 'n2', name: 'Bombola di azoto', photo: 'n2.jpg', idealPosition: 13, description: 'Non respirabile. Pericolosa se usata come propulsore.' },
+  { id: 'laser', name: 'Telemetro/puntatore laser', photo: 'laser.jpg', idealPosition: 11, description: 'Segnalazione visiva per squadre di soccorso.' },
+  { id: 'blanket', name: 'Foglio metallico con rivestimento in titanio (coperta termica)', photo: 'blanket.jpg', idealPosition: 12, description: 'Isolante extra, ma poco efficace contro il gelo estremo.' },
+  { id: 'n2', name: 'Bombola di azoto compresso', photo: 'n2.jpg', idealPosition: 13, description: 'Non respirabile. Pericolosa se usata come propulsore.' },
   { id: 'comp', name: 'Bussola magnetica', photo: 'compass.jpg', idealPosition: 14, description: 'Inutile: Marte non ha un campo magnetico globale.' },
   { id: 'fire', name: 'Accenditore al plasma', photo: 'lighter.jpg', idealPosition: 15, description: 'Inutile: l\'atmosfera di CO2 non permette combustione.' },
 ];
@@ -160,7 +160,6 @@ export default function MarsSurvivalGame() {
           <ul className="list-disc list-inside text-sm space-y-1 opacity-80">
             <li>Trascina gli oggetti per stabilire l'ordine di importanza.</li>
             <li>Posizione 1 = Vitale, Posizione 15 = Inutile.</li>
-            <li>Il sistema calcolerà la deviazione dai parametri NASA.</li>
           </ul>
         </div>
         <button 
