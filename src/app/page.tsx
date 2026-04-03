@@ -43,7 +43,7 @@ interface UserResult {
   username: string;
   team: string;
   score: number;
-  selections: string[]; 
+  selections: string[];
 }
 
 // --- Initial data ---
@@ -331,6 +331,7 @@ export default function MarsSurvivalGame() {
                   src={`/${item.photo}`}
                   alt={item.name}
                   className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                  draggable="false"
                   onError={(e) => {
                     // No image found
                     (e.target as HTMLImageElement).src =
@@ -369,7 +370,7 @@ export default function MarsSurvivalGame() {
           </p>
         </div>
 
-        <div className="grid gap-4 mb-8 h-64 overflow-y-auto border border-[#00ff41]/30 p-4 bg-black/50">
+        <div className="grid gap-4 mb-8 border border-[#00ff41]/30 p-4 bg-black/50">
           {INITIAL_ITEMS.sort((a, b) => a.idealPosition - b.idealPosition).map(
             (item) => (
               <div
@@ -391,12 +392,6 @@ export default function MarsSurvivalGame() {
             className="flex-1 border-2 border-[#00ff41] py-3 hover:bg-[#00ff41] hover:text-black uppercase font-bold"
           >
             Classifica Team
-          </button>
-          <button
-            onClick={() => window.location.reload()}
-            className="flex-1 border-2 border-[#00ff41]/50 py-3 hover:text-white uppercase font-bold text-xs flex items-center justify-center gap-2"
-          >
-            <RefreshCcw size={14} /> Nuovo Test
           </button>
         </div>
       </CRTWrapper>
@@ -454,6 +449,18 @@ export default function MarsSurvivalGame() {
                 </button>
               </div>
             ))}
+        </div>
+        <div className="mt-8 pt-6 border-t-2 border-[#00ff41]/30">
+          <button
+            onClick={() => window.location.reload()}
+            className="w-full bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors flex items-center justify-center gap-3"
+          >
+            <RefreshCcw size={24} />
+            Inizia Nuova Missione
+          </button>
+          <p className="text-[10px] text-center mt-4 opacity-50 uppercase tracking-widest">
+            Attenzione: il riavvio resetterà la sessione corrente
+          </p>
         </div>
       </CRTWrapper>
     );
