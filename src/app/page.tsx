@@ -43,7 +43,7 @@ interface UserResult {
   username: string;
   team: string;
   score: number;
-  selections: string[]; // Порядок id предметов
+  selections: string[]; 
 }
 
 // --- Initial data ---
@@ -63,98 +63,98 @@ const INITIAL_ITEMS: SurvivalItem[] = [
   {
     id: "rtg",
     name: "RTG compatto (generatore termico a radioisotopi)",
-    photo: "item_02.jpg",
+    photo: "item_06.jpg",
     idealPosition: 2,
     description: "Mantiene il calore vitale contro i -60°C di Marte.",
   },
   {
     id: "nav",
     name: "Unità di navigazione inerziale (giroscopio)",
-    photo: "gyro.jpg",
+    photo: "item_03.jpg",
     idealPosition: 3,
     description: "Essenziale per non perdersi: su Marte non c'è GPS.",
   },
   {
     id: "water",
     name: "Dissalatore-condensatore portatile (estrae umidità dal suolo)",
-    photo: "water.jpg",
+    photo: "item_02.jpg",
     idealPosition: 4,
     description: "L'acqua è fondamentale per un viaggio di 150 km.",
   },
   {
     id: "seal",
     name: "Bomboletta di sigillante liquido per materiali compositi",
-    photo: "seal.jpg",
+    photo: "item_04.jpg",
     idealPosition: 5,
     description: "Riparare una microfrattura nella tuta è vitale.",
   },
   {
     id: "food",
     name: "Tubetti di pasta proteica ipercalorica",
-    photo: "food.jpg",
+    photo: "item_07.jpg",
     idealPosition: 6,
     description: "Energia per i 3-5 giorni di cammino previsti.",
   },
   {
     id: "tent",
     name: "Tenda gonfiabile ermetica (camera di compensazione temporanea)",
-    photo: "tent.jpg",
+    photo: "item_10.jpg",
     idealPosition: 7,
     description: "Permette di riposare fuori dalla tuta spaziale.",
   },
   {
     id: "solar",
     name: "Set di pannelli solari flessibili",
-    photo: "solar.jpg",
+    photo: "item_05.jpg",
     idealPosition: 8,
     description: "Ricarica i sistemi della tuta nel lungo periodo.",
   },
   {
     id: "med",
     name: "Kit pronto soccorso",
-    photo: "med.jpg",
+    photo: "item_12.jpg",
     idealPosition: 9,
     description: "Per trattare ferite o infezioni durante il tragitto.",
   },
   {
     id: "rope",
     name: "Corda in Kevlar (30m)",
-    photo: "rope.jpg",
+    photo: "item_08.jpg",
     idealPosition: 10,
     description: "Utile per superare canyon e crepacci.",
   },
   {
     id: "laser",
     name: "Telemetro/puntatore laser",
-    photo: "laser.jpg",
+    photo: "item_11.jpg",
     idealPosition: 11,
     description: "Segnalazione visiva per squadre di soccorso.",
   },
   {
     id: "blanket",
     name: "Foglio metallico con rivestimento in titanio (coperta termica)",
-    photo: "blanket.jpg",
+    photo: "item_14.jpg",
     idealPosition: 12,
     description: "Isolante extra, ma poco efficace contro il gelo estremo.",
   },
   {
     id: "n2",
     name: "Bombola di azoto compresso",
-    photo: "n2.jpg",
+    photo: "item_09.jpg",
     idealPosition: 13,
     description: "Non respirabile. Pericolosa se usata come propulsore.",
   },
   {
     id: "comp",
     name: "Bussola magnetica",
-    photo: "compass.jpg",
+    photo: "item_15.jpg",
     idealPosition: 14,
     description: "Inutile: Marte non ha un campo magnetico globale.",
   },
   {
     id: "fire",
     name: "Accenditore al plasma",
-    photo: "lighter.jpg",
+    photo: "item_13.jpg",
     idealPosition: 15,
     description: "Inutile: l'atmosfera di CO2 non permette combustione.",
   },
