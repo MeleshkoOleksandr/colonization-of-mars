@@ -3,7 +3,24 @@ import React, { useState, useEffect } from 'react';
 import { Reorder, AnimatePresence, motion } from "framer-motion";
 import { Monitor, Save, ChevronRight, User, Users, Trash2, Edit, RefreshCcw, ArrowLeft } from 'lucide-react';
 
-// --- ТИПЫ ДАННЫХ ---
+  // --- UI COMPONENTS ---
+  const CRTWrapper = ({ children }: { children: React.ReactNode }) => (
+    <div className="min-h-screen bg-[#0a0a0a] text-[#00ff41] font-mono p-4 md:p-8 relative overflow-hidden selection:bg-[#00ff41] selection:text-black">
+      {/* Scanline Effect */}
+      <div className="pointer-events-none fixed inset-0 z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] opacity-30"></div>
+      <div className="max-w-4xl mx-auto border-4 border-[#00ff41] p-6 shadow-[0_0_25px_rgba(0,255,65,0.2)] bg-[#0d0d0d] relative z-10">
+        {children}
+      </div>
+    </div>
+  );
+
+  const Header = ({ title }: { title: string }) => (
+    <h1 className="text-2xl md:text-4xl font-black text-center mb-8 uppercase tracking-tighter italic border-b-2 border-[#00ff41] pb-4">
+      {title}
+    </h1>
+  );
+
+// --- Data types ---
 interface SurvivalItem {
   id: string;
   name: string;
@@ -19,7 +36,7 @@ interface UserResult {
   selections: string[]; // Порядок id предметов
 }
 
-// --- ИСХОДНЫЕ ДАННЫЕ (Эквивалент XML) ---
+// --- Initial data ---
 const INITIAL_STORY = {
   title: "Sopravvivenza nella Valle Marineris",
   plot: "Siete i membri di una squadra di coloni d'avanguardia diretti verso la base 'Ares-1'. Dopo una tempesta di sabbia, il vostro rover è distrutto a 150 km dalla destinazione. Risorse limitate, ossigeno scarso. Dovete classificare gli oggetti per sopravvivere."
@@ -97,26 +114,8 @@ export default function MarsSurvivalGame() {
     return "DISASTRO. I tuoi resti saranno concime per patate marziane.";
   };
 
-  // --- UI COMPONENTS ---
-
-  const CRTWrapper = ({ children }: { children: React.ReactNode }) => (
-    <div className="min-h-screen bg-[#0a0a0a] text-[#00ff41] font-mono p-4 md:p-8 relative overflow-hidden selection:bg-[#00ff41] selection:text-black">
-      {/* Scanline Effect */}
-      <div className="pointer-events-none fixed inset-0 z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] opacity-30"></div>
-      <div className="max-w-4xl mx-auto border-4 border-[#00ff41] p-6 shadow-[0_0_25px_rgba(0,255,65,0.2)] bg-[#0d0d0d] relative z-10">
-        {children}
-      </div>
-    </div>
-  );
-
-  const Header = ({ title }: { title: string }) => (
-    <h1 className="text-2xl md:text-4xl font-black text-center mb-8 uppercase tracking-tighter italic border-b-2 border-[#00ff41] pb-4">
-      {title}
-    </h1>
-  );
-
+  
   // --- VIEWS ---
-
   if (view === 'login') return (
     <CRTWrapper>
       <Header title="Mars Mission Login" />
