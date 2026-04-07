@@ -39,6 +39,12 @@ Before you begin, ensure you have the following installed on your machine:
 
 ---
 
+## Database Setup:
+Create a Postgres database on Vercel or locally.
+Run the initialization script found in /db/init.sql.
+
+---
+
 ## 🚀 Quick Start for VS Code Users
 
 If you have just cloned or downloaded this repository, follow these steps to launch the game:
