@@ -125,7 +125,7 @@ const INITIAL_ITEMS: SurvivalItem[] = [
   },
   {
     id: "laser",
-    name: "Telemetro/puntatore laser",
+    name: "Telemetro / puntatore laser",
     photo: "item_11.jpg",
     idealPosition: 11,
     description: "Segnalazione visiva per squadre di soccorso.",
