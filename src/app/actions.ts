@@ -11,6 +11,8 @@ import { revalidatePath } from "next/cache";
 
 // 1. Get the list of teams for the login screen
 export async function getTeamsAction() {
+  const teams = await db.fetchTeams();
+  console.log("SERVER ACTION: Teams fetched from DB:", teams); // Check your VS Code terminal
   return await db.fetchTeams();
 }
 

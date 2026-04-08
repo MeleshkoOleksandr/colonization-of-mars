@@ -1,5 +1,4 @@
 import { neon } from '@neondatabase/serverless';
-
 /**
  * DATABASE CONFIGURATION
  * The 'neon' function automatically looks for the POSTGRES_URL 
@@ -7,9 +6,7 @@ import { neon } from '@neondatabase/serverless';
  */
 const sql = neon(process.env.POSTGRES_URL!);
 
-/**
- * DATA TYPES (INTERFACES)
- */
+ //   DATA TYPES (INTERFACES)
 export interface Team {
   id: number;
   name: string;
@@ -25,10 +22,7 @@ export interface GameResult {
   created_at?: Date;
 }
 
-/**
- * DATABASE FUNCTIONS
- */
-
+///   DATABASE FUNCTIONS
 /**
  * Fetches all results and joins with teams to get the team names
  */
@@ -46,10 +40,10 @@ export async function fetchAllResults(): Promise<GameResult[]> {
  * Saves the player's result using the selected team_id
  */
 export async function saveGameResult(result: { username: string, team_id: number, score: number, selections: string[] }) {
-  await sql`
-    INSERT INTO results (username, team_id, score, selections)
-    VALUES (${result.username}, ${result.team_id}, ${result.score}, ${JSON.stringify(result.selections)})
-  `;
+  await sql
+    `INSERT INTO results (username, team_id, score, selections)
+    VALUES (${result.username}, ${result.team_id}, ${result.score}, ${JSON.stringify(result.selections)})`
+  ;
 }
 
 /**

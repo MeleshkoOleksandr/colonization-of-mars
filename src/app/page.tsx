@@ -456,6 +456,15 @@ export default function MarsSurvivalGame() {
     return (
       <CRTWrapper>
         <Header title="Analisi Sopravvivenza" />
+
+        {/* PLAYER INFO BAR */}
+        <div className="text-center mb-6">
+          <div className="inline-block border border-[#00ff41] px-4 py-1 text-[10px] uppercase tracking-[0.2em] bg-[#00ff41]/10">
+            Operatore: <span className="text-white">{username}</span> | Team:{" "}
+            <span className="text-white">{currentTeamName}</span>
+          </div>
+        </div>
+
         <div className="text-center mb-8">
           <div className="text-6xl font-black mb-2">{lastResult.score}</div>
           <div className="text-sm uppercase tracking-[0.3em] mb-4">
@@ -625,29 +634,32 @@ export default function MarsSurvivalGame() {
           </button>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="space-y-8">
           {/* Teams Management */}
           <div className="space-y-4 border-2 border-[#00ff41]/30 p-4">
             <h3 className="font-bold uppercase flex items-center gap-2">
               <Users size={18} /> Gestione Team
             </h3>
-            <div className="space-y-2">
-              {teamsList.map((t) => (
-                <div
-                  key={t.id} // 1. Use DB ID as key
-                  className="flex justify-between items-center bg-[#111] p-2 text-sm"
-                >
-                  {/* 2. Access the name property of the object */}
-                  <span>{t.name}</span>
 
-                  <button
-                    // 3. Call a new function to delete from DB
-                    onClick={() => handleDeleteTeam(t.id)}
-                  >
-                    <Trash2 size={14} className="text-red-500" />
-                  </button>
-                </div>
-              ))}
+            <div className="max-h-80 overflow-y-auto pr-2 custom-scrollbar">
+              <div className="space-y-2">
+                {teamsList
+                  .sort((a, b) => a.id - b.id)
+                  .map((t) => (
+                    <div
+                      key={t.id} // 1. Use DB ID as key
+                      className="flex justify-between items-center bg-[#111] p-2 text-sm"  >
+                      {/* 2. Access the name property of the object */}
+                      <span>{t.name}</span>
+                      <button
+                        // 3. Call a new function to delete from DB
+                        onClick={() => handleDeleteTeam(t.id)}
+                      >
+                        <Trash2 size={14} className="text-red-500" />
+                      </button>
+                    </div>
+                  ))}
+              </div>
             </div>
             {/* 4. Update the Add Team button */}
             <button
@@ -656,27 +668,6 @@ export default function MarsSurvivalGame() {
             >
               + AGGIUNGI TEAM
             </button>
-          </div>
-
-          {/* Story Management */}
-          <div className="space-y-4 border-2 border-[#00ff41]/30 p-4">
-            <h3 className="font-bold uppercase flex items-center gap-2">
-              <Edit size={18} /> Editor Scenario
-            </h3>
-            <div className="space-y-2">
-              <label className="text-[10px]">Titolo:</label>
-              <input
-                className="w-full bg-black border border-[#00ff41] p-1 text-sm"
-                value={story.title}
-                onChange={(e) => setStory({ ...story, title: e.target.value })}
-              />
-              <label className="text-[10px]">Plot:</label>
-              <textarea
-                className="w-full bg-black border border-[#00ff41] p-1 text-xs h-24"
-                value={story.plot}
-                onChange={(e) => setStory({ ...story, plot: e.target.value })}
-              />
-            </div>
           </div>
         </div>
 
