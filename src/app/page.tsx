@@ -13,6 +13,17 @@ import {
   ArrowLeft,
 } from "lucide-react";
 
+// --- Working with DB Server Actions ---
+import {
+  getTeamsAction,
+  saveResultAction,
+  getResultsAction,
+  addTeamAction,
+  deleteTeamAction,
+  deleteResultAction,
+} from "./actions";
+import { Team, GameResult } from "../../lib/db";
+
 // --- UI COMPONENTS ---
 const CRTWrapper = ({ children }: { children: React.ReactNode }) => (
   <div className="min-h-screen bg-[#0a0a0a] text-[#00ff41] font-mono p-4 md:p-8 relative overflow-hidden selection:bg-[#00ff41] selection:text-black">
@@ -170,54 +181,93 @@ export default function MarsSurvivalGame() {
     | "leaderboard"
     | "user-detail"
   >("login");
+  // --- Состояния ---
   const [username, setUsername] = useState("");
-  const [team, setTeam] = useState("");
   const [items, setItems] = useState<SurvivalItem[]>([]);
-  const [allResults, setAllResults] = useState<UserResult[]>([]);
+  const [allResults, setAllResults] = useState<GameResult[]>([]);
   const [selectedUserDetail, setSelectedUserDetail] =
-    useState<UserResult | null>(null);
+    useState<GameResult | null>(null);
 
-  // Состояния для админки
+  // ОСТАВЛЯЕМ ТОЛЬКО ЭТО ОБЪЯВЛЕНИЕ:
+  const [teamsList, setTeamsList] = useState<Team[]>([]);
+  const [teamId, setTeamId] = useState<number>(0);
   const [story, setStory] = useState(INITIAL_STORY);
-  const [teamsList, setTeamsList] = useState([
-    "Alfa Centauri",
-    "Marineris Rangers",
-    "Olympus Mons",
-  ]);
 
-  // Инициализация при запуске
+  const currentTeamName =
+    teamsList.find((t) => t.id === teamId)?.name || "Anonimo";
+
+  /**
+   * INITIALIZATION
+   * Loads teams and results from the Database and shuffles items locally.
+   */
   useEffect(() => {
-    const saved = localStorage.getItem("mars_results");
-    if (saved) setAllResults(JSON.parse(saved));
+    async function loadInitialData() {
+      try {
+        // 1. Fetch all teams from DB for the login dropdown
+        const teams = await getTeamsAction();
+        setTeamsList(teams);
+
+        // 2. Fetch all previous results from DB for the leaderboard
+        const results = await getResultsAction();
+        setAllResults(results);
+
+        console.log("Database connection: SUCCESS");
+      } catch (error) {
+        console.error("Database connection: FAILED", error);
+      }
+    }
+    // Start the loading process
+    loadInitialData();
+    // 3. Shuffle game items for the sorting task (local state)
     setItems([...INITIAL_ITEMS].sort(() => Math.random() - 0.5));
   }, []);
 
   const handleStart = () => {
-    if (!username || !team) return alert("Inserire nome e squadra!");
+    // 1. Check if the username is provided
+    if (!username) {
+      return alert("Inserire un nome!");
+    }
+    // 2. Check if it's the administrator
     if (username.toLowerCase() === "admin") {
       setView("admin");
-    } else {
-      setView("story");
+      return; // Exit the function here so it doesn't check for teamId
     }
+    // 3. For regular players, ensure a team is selected
+    if (teamId === 0) {
+      return alert("Selezionare una squadra per iniziare la missione!");
+    }
+    // 4. If everything is valid for a player, proceed to the story
+    setView("story");
   };
 
-  const finishGame = () => {
-    let score = 0;
+  const finishGame = async () => {
+    // Добавляем async, так как работаем с БД
+    let totalScore = 0;
     items.forEach((item, index) => {
-      score += Math.abs(index + 1 - item.idealPosition);
+      totalScore += Math.abs(index + 1 - item.idealPosition);
     });
 
-    const newResult: UserResult = {
+    // Создаем объект результата для базы данных
+    const newResult: GameResult = {
       username,
-      team,
-      score,
+      team_id: teamId, // Используем актуальный ID команды
+      score: totalScore,
       selections: items.map((i) => i.id),
     };
 
-    const updatedResults = [...allResults, newResult];
-    setAllResults(updatedResults);
-    localStorage.setItem("mars_results", JSON.stringify(updatedResults));
-    setView("results");
+    try {
+      // Сохраняем в базу данных через Server Action
+      await saveResultAction(newResult);
+
+      // Сразу обновляем список всех результатов с сервера, чтобы увидеть себя в таблице
+      const updatedResults = await getResultsAction();
+      setAllResults(updatedResults);
+
+      setView("results");
+    } catch (error) {
+      console.error("Failed to save result:", error);
+      alert("Errore nel salvataggio dei dati. Riprova.");
+    }
   };
 
   const getScoreMessage = (s: number) => {
@@ -226,6 +276,48 @@ export default function MarsSurvivalGame() {
     if (s <= 50)
       return "SUFFICIENTE. Probabilmente finirai l'energia a metà strada.";
     return "DISASTRO. I tuoi resti saranno concime per patate marziane.";
+  };
+
+  // ---  Handlers ---
+
+  // Logic for deleting a team
+  const handleDeleteTeam = async (id: number) => {
+    // Confirm dialog works only in browser (page.tsx)
+    if (
+      confirm(
+        "Sei sicuro? Questo cancellerà anche tutti i risultati di questo team!",
+      )
+    ) {
+      await deleteTeamAction(id); // Calling the Server Action
+
+      // Refresh the data from DB to update the screen
+      const updatedTeams = await getTeamsAction();
+      setTeamsList(updatedTeams);
+      const updatedResults = await getResultsAction();
+      setAllResults(updatedResults);
+    }
+  };
+
+  // Logic for adding a team
+  const handleAddTeam = async () => {
+    // Prompt works only in browser (page.tsx)
+    const name = prompt("Nome nuovo team?");
+    if (name) {
+      await addTeamAction(name); // Calling the Server Action
+
+      // Refresh the data from DB
+      const updatedTeams = await getTeamsAction();
+      setTeamsList(updatedTeams);
+    }
+  };
+
+  // Logic for deleting a specific result
+  const handleDeleteResult = async (id: number) => {
+    if (confirm("Eliminare questo risultato?")) {
+      await deleteResultAction(id); // Calling the Server Action
+      const updatedResults = await getResultsAction();
+      setAllResults(updatedResults);
+    }
   };
 
   // --- VIEWS ---
@@ -249,13 +341,17 @@ export default function MarsSurvivalGame() {
             <label className="text-xs uppercase">Unità di Assegnazione:</label>
             <select
               className="w-full bg-black border-2 border-[#00ff41] p-3 outline-none appearance-none cursor-pointer"
-              value={team}
-              onChange={(e) => setTeam(e.target.value)}
+              // 1. Используем teamId (число) вместо team
+              value={teamId}
+              // 2. Преобразуем строку из value в число при выборе
+              onChange={(e) => setTeamId(Number(e.target.value))}
             >
-              <option value="">Seleziona Team...</option>
+              {/* 3. Значение "по умолчанию" теперь 0 (число) */}
+              <option value={0}>Seleziona Team...</option>
+              {/* 4. Проходим по списку объектов команд из базы */}
               {teamsList.map((t) => (
-                <option key={t} value={t}>
-                  {t}
+                <option key={t.id} value={t.id}>
+                  {t.name}
                 </option>
               ))}
             </select>
@@ -304,7 +400,7 @@ export default function MarsSurvivalGame() {
           <div className="text-xs">
             OPERATORE: {username}
             <br />
-            TEAM: {team}
+            TEAM: {currentTeamName}
           </div>
           <h2 className="text-xl font-bold uppercase tracking-widest">
             Configurazione Inventario
@@ -432,11 +528,16 @@ export default function MarsSurvivalGame() {
             .sort((a, b) => a.score - b.score)
             .map((res, i) => (
               <div
-                key={i}
+                key={i} // Better to use {res.id} if it's available from the DB
                 className="grid grid-cols-4 items-center bg-[#111] p-4 border border-[#00ff41]/20 hover:border-[#00ff41]"
               >
                 <span className="font-bold truncate">{res.username}</span>
-                <span className="text-xs opacity-70">{res.team}</span>
+
+                {/* 1. Change res.team to res.team_name */}
+                <span className="text-xs opacity-70">
+                  {res.team_name || "Unknown Team"}
+                </span>
+
                 <span className="text-right font-black">{res.score}</span>
                 <button
                   onClick={() => {
@@ -479,12 +580,14 @@ export default function MarsSurvivalGame() {
             Analisi: {selectedUserDetail.username}
           </h2>
           <div className="text-sm opacity-70 italic">
-            Team: {selectedUserDetail.team} | Score: {selectedUserDetail.score}
+            Team: {selectedUserDetail.team_name} | Score:{" "}
+            {selectedUserDetail.score}
           </div>
         </div>
 
         <div className="space-y-1 text-xs">
-          {selectedUserDetail.selections.map((itemId, idx) => {
+          {selectedUserDetail.selections.map((itemId: string, idx: number) => {
+            // Finding the item details from our local INITIAL_ITEMS array
             const item = INITIAL_ITEMS.find((i) => i.id === itemId);
             const diff = Math.abs(idx + 1 - (item?.idealPosition || 0));
             return (
@@ -531,25 +634,24 @@ export default function MarsSurvivalGame() {
             <div className="space-y-2">
               {teamsList.map((t) => (
                 <div
-                  key={t}
+                  key={t.id} // 1. Use DB ID as key
                   className="flex justify-between items-center bg-[#111] p-2 text-sm"
                 >
-                  <span>{t}</span>
+                  {/* 2. Access the name property of the object */}
+                  <span>{t.name}</span>
+
                   <button
-                    onClick={() =>
-                      setTeamsList(teamsList.filter((i) => i !== t))
-                    }
+                    // 3. Call a new function to delete from DB
+                    onClick={() => handleDeleteTeam(t.id)}
                   >
                     <Trash2 size={14} className="text-red-500" />
                   </button>
                 </div>
               ))}
             </div>
+            {/* 4. Update the Add Team button */}
             <button
-              onClick={() => {
-                const n = prompt("Nome nuovo team?");
-                if (n) setTeamsList([...teamsList, n]);
-              }}
+              onClick={handleAddTeam}
               className="text-[10px] border border-[#00ff41] p-1 w-full hover:bg-[#00ff41] hover:text-black"
             >
               + AGGIUNGI TEAM
@@ -596,7 +698,7 @@ export default function MarsSurvivalGame() {
                 {allResults.map((r, i) => (
                   <tr key={i} className="border-b border-[#00ff41]/20">
                     <td className="p-1">{r.username}</td>
-                    <td className="p-1">{r.team}</td>
+                    <td className="p-1">{r.team_name}</td>
                     <td className="p-1">{r.score}</td>
                     <td className="p-1">
                       <button

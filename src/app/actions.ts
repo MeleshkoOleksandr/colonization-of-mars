@@ -42,3 +42,10 @@ export async function deleteTeamAction(id: number) {
   await db.deleteTeam(id);
   revalidatePath("/");
 }
+
+// 6. Admin: action to delete a result and refresh the cache
+export async function deleteResultAction(id: number) {
+  await db.deleteResult(id);
+  // This tells Next.js to update the data for all users
+  revalidatePath("/");
+}
