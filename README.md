@@ -8,6 +8,16 @@ An interactive web-based survival logic game based on the official **NASA Moon S
 
 The game is designed with a **Retro-Futuristic CRT aesthetic** (inspired by 70s-80s sci-fi) and is fully responsive for both Desktop and Mobile devices.
 
+# Gameplay Instructions
+Identity Check: Enter your name and select your team.
+Secret Admin Mode: Use the username admin to access the Scenario Editor and Results Database.
+Mission Briefing: Read the survival scenario carefully. You are 150km away from the Ares-1 base.
+Inventory Management: Use Drag & Drop to rank 15 items.
+Position 1: Life-critical items.
+Position 15: Useless items for this specific mission.
+Survival Analysis: Submit your list to see your score based on official NASA logic (lower score = higher survival chance).
+Group Rankings: Compare your performance with other colons in the Team Leaderboard.
+
 ---
 
 ## 🛠 Tech Stack & Libraries
@@ -29,6 +39,12 @@ Before you begin, ensure you have the following installed on your machine:
 
 ---
 
+## Database Setup:
+Create a Postgres database on Vercel or locally.
+Run the initialization script found in /db/init.sql.
+
+---
+
 ## 🚀 Quick Start for VS Code Users
 
 If you have just cloned or downloaded this repository, follow these steps to launch the game:
@@ -43,15 +59,3 @@ Press ``Ctrl + ` `` (backtick) or go to `Terminal > New Terminal` in the top men
 In the terminal window, type the following command and press **Enter**:
 ```bash
 npm install
-
-Mars Survival: Valle Marineris (NASA Exercise)
-An interactive, web-based survival logic game inspired by the classic NASA Moon Survival Task, set in the harsh environment of the Marineris Valley on Mars.
-The game features a Retro-Futuristic CRT aesthetic reminiscent of 70s and 80s sci-fi movies, built with modern web technologies for a smooth experience on both desktop and mobile devices.
-
-How to Play
-Login: Enter your name and select a team.
-Note: Enter "admin" as the username to access the Administrator Panel.
-Mission Briefing: Read the scenario and prepare for the 150km journey to the Ares-1 base.
-The Inventory: Drag and drop the 15 items to rank them from 1 (Most Critical) to 15 (Useless).
-Analysis: Click the confirm button to see your score. The score is calculated based on the official NASA survival logic (lower is better).
-Team Leaderboard: Compare your results with other team members in the group rankings.
