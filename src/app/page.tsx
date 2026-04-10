@@ -133,120 +133,6 @@ interface UserResult {
   selections: string[];
 }
 
-// --- Initial data ---
-const INITIAL_STORY = {
-  title: "Sopravvivenza nella Valle Marineris",
-  plot: "Siete i membri di una squadra di coloni d'avanguardia diretti verso la cupola principale della base <Ares-1>. Durante la discesa, il vostro rover cargo è stato investito da una violenta tempesta di sabbia e si è ribaltato a 150 chilometri dalla destinazione. I sistemi di supporto vitale del rover sono fuori uso e le comunicazioni con la base sono interrotte. Il vostro obiettivo: percorrere 150 km nel deserto marziano fino alla base. Indossate le tute spaziali, ma le risorse sono limitate. Di seguito sono elencati i 15 oggetti rimasti intatti dopo l'incidente.",
-};
-
-const INITIAL_ITEMS: SurvivalItem[] = [
-  {
-    id: "o2",
-    name: "Bombole di ossigeno compresso ad alta concentrazione",
-    photo: "item_01.jpg",
-    idealPosition: 1,
-    description: "Senza ossigeno la morte è immediata. Priorità assoluta.",
-  },
-  {
-    id: "rtg",
-    name: "RTG compatto (generatore termico a radioisotopi)",
-    photo: "item_06.jpg",
-    idealPosition: 2,
-    description: "Mantiene il calore vitale contro i -60°C di Marte.",
-  },
-  {
-    id: "nav",
-    name: "Unità di navigazione inerziale (giroscopio)",
-    photo: "item_03.jpg",
-    idealPosition: 3,
-    description: "Essenziale per non perdersi: su Marte non c'è GPS.",
-  },
-  {
-    id: "water",
-    name: "Dissalatore-condensatore portatile (estrae umidità dal suolo)",
-    photo: "item_02.jpg",
-    idealPosition: 4,
-    description: "L'acqua è fondamentale per un viaggio di 150 km.",
-  },
-  {
-    id: "seal",
-    name: "Bomboletta di sigillante liquido per materiali compositi",
-    photo: "item_04.jpg",
-    idealPosition: 5,
-    description: "Riparare una microfrattura nella tuta è vitale.",
-  },
-  {
-    id: "food",
-    name: "Tubetti di pasta proteica ipercalorica",
-    photo: "item_07.jpg",
-    idealPosition: 6,
-    description: "Energia per i 3-5 giorni di cammino previsti.",
-  },
-  {
-    id: "tent",
-    name: "Tenda gonfiabile ermetica (camera di compensazione temporanea)",
-    photo: "item_10.jpg",
-    idealPosition: 7,
-    description: "Permette di riposare fuori dalla tuta spaziale.",
-  },
-  {
-    id: "solar",
-    name: "Set di pannelli solari flessibili",
-    photo: "item_05.jpg",
-    idealPosition: 8,
-    description: "Ricarica i sistemi della tuta nel lungo periodo.",
-  },
-  {
-    id: "med",
-    name: "Kit pronto soccorso",
-    photo: "item_12.jpg",
-    idealPosition: 9,
-    description: "Per trattare ferite o infezioni durante il tragitto.",
-  },
-  {
-    id: "rope",
-    name: "Corda in Kevlar (30m)",
-    photo: "item_08.jpg",
-    idealPosition: 10,
-    description: "Utile per superare canyon e crepacci.",
-  },
-  {
-    id: "laser",
-    name: "Telemetro / puntatore laser",
-    photo: "item_11.jpg",
-    idealPosition: 11,
-    description: "Segnalazione visiva per squadre di soccorso.",
-  },
-  {
-    id: "blanket",
-    name: "Foglio metallico con rivestimento in titanio (coperta termica)",
-    photo: "item_14.jpg",
-    idealPosition: 12,
-    description: "Isolante extra, ma poco efficace contro il gelo estremo.",
-  },
-  {
-    id: "n2",
-    name: "Bombola di azoto compresso",
-    photo: "item_09.jpg",
-    idealPosition: 13,
-    description: "Non respirabile. Pericolosa se usata come propulsore.",
-  },
-  {
-    id: "comp",
-    name: "Bussola magnetica",
-    photo: "item_15.jpg",
-    idealPosition: 14,
-    description: "Inutile: Marte non ha un campo magnetico globale.",
-  },
-  {
-    id: "fire",
-    name: "Accenditore al plasma",
-    photo: "item_13.jpg",
-    idealPosition: 15,
-    description: "Inutile: l'atmosfera di CO2 non permette combustione.",
-  },
-];
-
 export default function MarsSurvivalGame() {
   const [view, setView] = useState<
     | "login"
@@ -257,18 +143,20 @@ export default function MarsSurvivalGame() {
     | "leaderboard"
     | "user-detail"
   >("login");
+
+
+  // Initial empty states
+  const [story, setStory] = useState({ title: "Caricamento...", plot: "" });
   // --- States ---
   const [username, setUsername] = useState("");
-  const [items, setItems] = useState<SurvivalItem[]>([]);
+  const [items, setItems] = useState<SurvivalItem[]>([]); // Drag & Drop list
+  const [staticItems, setStaticItems] = useState<SurvivalItem[]>([]); // To keep original list for deltas
   const [allResults, setAllResults] = useState<GameResult[]>([]);
   const [selectedUserDetail, setSelectedUserDetail] =
     useState<GameResult | null>(null);
-
-  // ОСТАВЛЯЕМ ТОЛЬКО ЭТО ОБЪЯВЛЕНИЕ:
+  // team data
   const [teamsList, setTeamsList] = useState<Team[]>([]);
   const [teamId, setTeamId] = useState<number>(0);
-  const [story, setStory] = useState(INITIAL_STORY);
-
   const currentTeamName =
     teamsList.find((t) => t.id === teamId)?.name || "Anonimo";
 
@@ -295,30 +183,90 @@ export default function MarsSurvivalGame() {
   );
 
   /**
-   * INITIALIZATION
-   * Loads teams and results from the Database and shuffles items locally.
+   * XML PARSER
+   * Converts XML string from public/story.xml into JavaScript objects
+   */
+  const parseStoryXml = (xmlString: string) => {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+    const title = xmlDoc.getElementsByTagName("Title")[0]?.textContent || "";
+    const plot = xmlDoc.getElementsByTagName("Plot")[0]?.textContent || "";
+    const itemNodes = xmlDoc.getElementsByTagName("Item");
+    const items: SurvivalItem[] = [];
+
+    for (let i = 0; i < itemNodes.length; i++) {
+      const node = itemNodes[i];
+      items.push({
+        id: node.getAttribute("id") || "",
+        name: node.getElementsByTagName("Name")[0]?.textContent || "",
+        photo: node.getElementsByTagName("Photo")[0]?.textContent || "",
+        idealPosition: parseInt(
+          node.getElementsByTagName("Position")[0]?.textContent || "15",
+        ),
+        description:
+          node.getElementsByTagName("Description")[0]?.textContent || "",
+      });
+    }
+
+    return { story: { title, plot }, items };
+  };
+
+  /**
+   * INITIALIZATION 
+   * This synchronizes both the static XML story content
+   * and the dynamic Database records (Teams & Results).
    */
   useEffect(() => {
-    async function loadInitialData() {
-      try {
-        // 1. Fetch all teams from DB for the login dropdown
-        const teams = await getTeamsAction();
-        setTeamsList(teams);
+    async function initializeMission() {
+      console.log("SYSTEM: Initializing synchronization sequence...");
 
-        // 2. Fetch all previous results from DB for the leaderboard
-        const results = await getResultsAction();
+      try {
+        // --- STEP 1: LOAD & PARSE XML CONTENT ---
+        const response = await fetch("/story.xml");
+        if (!response.ok)
+          throw new Error("Could not find story.xml in /public");
+
+        const xmlString = await response.text();
+        const parsedData = parseStoryXml(xmlString);
+
+        // Update story and items from XML
+        setStory(parsedData.story);
+        setStaticItems(parsedData.items);
+
+        // Prepare the game items (shuffle logic)
+        // We use the freshly parsed data here instead of old INITIAL_ITEMS
+        setItems([...parsedData.items].sort(() => Math.random() - 0.5));
+
+        // --- STEP 2: FETCH DATABASE RECORDS ---
+        // We run these in parallel to speed up the initialization
+        const [teams, results] = await Promise.all([
+          getTeamsAction(),
+          getResultsAction(),
+        ]);
+
+        setTeamsList(teams);
         setAllResults(results);
 
-        console.log("Database connection: SUCCESS");
+        console.log(
+          "SYSTEM: Synchronization complete. All data modules loaded.",
+        );
       } catch (error) {
-        console.error("Database connection: FAILED", error);
+        console.error("SYSTEM CRITICAL ERROR:", error);
+        // Optional: Show error message to user via our custom Modal
+        setModal({
+          isOpen: true,
+          type: "alert",
+          message:
+            "ERRORE CRITICO: Impossibile sincronizzare i dati con la base. Controllare la connessione.",
+          value: "",
+          action: () => setModal((prev) => ({ ...prev, isOpen: false })),
+        });
       }
     }
-    // Start the loading process
-    loadInitialData();
-    // 3. Shuffle game items for the sorting task (local state)
-    setItems([...INITIAL_ITEMS].sort(() => Math.random() - 0.5));
-  }, []);
+
+    // Launch the sequence
+    initializeMission();
+  }, []); // Run only once on mount
 
   const handleStart = () => {
     // Replace standard alert with our new Modal
@@ -355,10 +303,13 @@ export default function MarsSurvivalGame() {
   };
 
   const finishGame = async () => {
-    // Добавляем async, так как работаем с БД
     let totalScore = 0;
     items.forEach((item, index) => {
-      totalScore += Math.abs(index + 1 - item.idealPosition);
+      // Ищем этот предмет в эталонном списке, который мы загрузили из XML
+      const ideal = staticItems.find((si) => si.id === item.id);
+      if (ideal) {
+        totalScore += Math.abs(index + 1 - ideal.idealPosition);
+      }
     });
 
     // Создаем объект результата для базы данных
@@ -610,19 +561,32 @@ export default function MarsSurvivalGame() {
         </div>
 
         <div className="grid gap-4 mb-8 border border-[#00ff41]/30 p-4 bg-black/50">
-          {INITIAL_ITEMS.sort((a, b) => a.idealPosition - b.idealPosition).map(
-            (item) => (
+          {[...staticItems] // Create a copy to avoid mutating state
+            .sort((a, b) => a.idealPosition - b.idealPosition)
+            .map((item) => (
               <div
                 key={item.id}
-                className="text-xs border-b border-[#00ff41]/20 pb-2"
+                className="text-xs border-b border-[#00ff41]/20 pb-4 last:border-0"
               >
-                <span className="text-[#00ff41] font-bold">
-                  {item.idealPosition}. {item.name}
-                </span>
-                <p className="opacity-70 mt-1 italic">{item.description}</p>
+                <div className="flex gap-4 items-start">
+                  <div className="w-10 h-10 border border-[#00ff41]/30 shrink-0">
+                    <img
+                      src={`/${item.photo}`}
+                      alt={item.name}
+                      className="w-full h-full object-cover opacity-50"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <span className="text-[#00ff41] font-bold uppercase block mb-1">
+                      {item.idealPosition}. {item.name}
+                    </span>
+                    <p className="opacity-70 italic leading-relaxed">
+                      {item.description}
+                    </p>
+                  </div>
+                </div>
               </div>
-            ),
-          )}
+            ))}
         </div>
 
         <div className="flex flex-col md:flex-row gap-4">
@@ -743,7 +707,7 @@ export default function MarsSurvivalGame() {
         <div className="space-y-1 text-xs">
           {selectedUserDetail.selections.map((itemId: string, idx: number) => {
             // Finding the item details from our local INITIAL_ITEMS array
-            const item = INITIAL_ITEMS.find((i) => i.id === itemId);
+            const item = staticItems.find((i) => i.id === itemId);
             const diff = Math.abs(idx + 1 - (item?.idealPosition || 0));
             return (
               <div
