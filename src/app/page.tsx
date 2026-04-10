@@ -257,7 +257,7 @@ export default function MarsSurvivalGame() {
     | "leaderboard"
     | "user-detail"
   >("login");
-  // --- Состояния ---
+  // --- States ---
   const [username, setUsername] = useState("");
   const [items, setItems] = useState<SurvivalItem[]>([]);
   const [allResults, setAllResults] = useState<GameResult[]>([]);
@@ -286,6 +286,13 @@ export default function MarsSurvivalGame() {
     value: "",
     action: () => {},
   });
+
+  // Filter for admin view
+  const [adminTeamFilter, setAdminTeamFilter] = useState<number>(0);
+  // Remember where to go back from 'user-detail' view
+  const [prevView, setPrevView] = useState<"leaderboard" | "admin">(
+    "leaderboard",
+  );
 
   /**
    * INITIALIZATION
@@ -421,6 +428,35 @@ export default function MarsSurvivalGame() {
       // Close and clear input
       setModal((prev) => ({ ...prev, isOpen: false, value: "" }));
     }
+  };
+
+  //HANDLER: Delete a specific player result
+  const handleDeleteResult = (id: number) => {
+    setModal({
+      isOpen: true,
+      type: "confirm",
+      message:
+        "ATTENZIONE: Eliminare definitivamente questo record di missione? L'azione è irreversibile.",
+      value: "",
+      action: async () => {
+        try {
+          // 1. Call the server action to delete from DB
+          await deleteResultAction(id);
+          // 2. Refresh the local results list from the DB
+          const updatedResults = await getResultsAction();
+          setAllResults(updatedResults);
+          // 3. Close the modal
+          setModal((prev) => ({ ...prev, isOpen: false }));
+        } catch (error) {
+          console.error("Failed to delete result:", error);
+          setModal((prev) => ({
+            ...prev,
+            type: "alert",
+            message: "ERRORE: Impossibile eliminare il record.",
+          }));
+        }
+      },
+    });
   };
 
   // Define a variable to hold the screen content
@@ -600,6 +636,16 @@ export default function MarsSurvivalGame() {
       </>
     );
   } else if (view === "leaderboard") {
+    const isAdmin = username.toLowerCase() === "admin";
+    const filteredResults = isAdmin
+      ? allResults // Admin sees everyone
+      : allResults.filter((res) => res.team_id === teamId); // Player sees ONLY their team_id
+
+    // Update the Title too:
+    const leaderboardTitle = isAdmin
+      ? "Global Ranking (All Teams)"
+      : `Ranking Team: ${currentTeamName}`;
+
     content = (
       <>
         <div className="flex justify-between items-center mb-6 border-b-2 border-[#00ff41] pb-2">
@@ -611,14 +657,16 @@ export default function MarsSurvivalGame() {
           </button>
           <h2 className="text-xl font-bold uppercase">Status Coloni</h2>
           <button
-            onClick={() =>
-              setAllResults(
-                JSON.parse(localStorage.getItem("mars_results") || "[]"),
-              )
-            }
-            className="p-1 hover:rotate-180 transition-transform"
+            onClick={async () => {
+              // 1. Fetch fresh data from the Database
+              const freshResults = await getResultsAction();
+              // 2. Update the state (this will trigger a re-render)
+              setAllResults(freshResults);
+            }}
+            className="p-2 hover:rotate-180 transition-transform duration-500 border border-[#00ff41]/30 rounded-full"
+            title="Sincronizza con il Database"
           >
-            <RefreshCcw size={18} />
+            <RefreshCcw size={20} />
           </button>
         </div>
 
@@ -629,16 +677,14 @@ export default function MarsSurvivalGame() {
             <span className="text-right">Score</span>
             <span className="text-right">Azione</span>
           </div>
-          {allResults
+          {filteredResults
             .sort((a, b) => a.score - b.score)
             .map((res, i) => (
               <div
-                key={i} // Better to use {res.id} if it's available from the DB
+                key={i}
                 className="grid grid-cols-4 items-center bg-[#111] p-4 border border-[#00ff41]/20 hover:border-[#00ff41]"
               >
                 <span className="font-bold truncate">{res.username}</span>
-
-                {/* 1. Change res.team to res.team_name */}
                 <span className="text-xs opacity-70">
                   {res.team_name || "Unknown Team"}
                 </span>
@@ -647,6 +693,7 @@ export default function MarsSurvivalGame() {
                 <button
                   onClick={() => {
                     setSelectedUserDetail(res);
+                    setPrevView("leaderboard"); // Remember we came from Leaderboard
                     setView("user-detail");
                   }}
                   className="text-right text-[10px] underline hover:text-white"
@@ -675,14 +722,18 @@ export default function MarsSurvivalGame() {
       <>
         <div className="mb-6">
           <button
-            onClick={() => setView("leaderboard")}
+            // We use prevView state to decide where to go back
+            onClick={() => setView(prevView)}
             className="text-xs flex items-center gap-1 hover:underline mb-4"
           >
-            <ArrowLeft size={14} /> Torna alla Classifica
+            <ArrowLeft size={14} /> Torna a{" "}
+            {prevView === "admin" ? "Amministrazione" : "Classifica"}
           </button>
+
           <h2 className="text-2xl font-bold uppercase tracking-tighter">
             Analisi: {selectedUserDetail.username}
           </h2>
+
           <div className="text-sm opacity-70 italic">
             Team: {selectedUserDetail.team_name} | Score:{" "}
             {selectedUserDetail.score}
@@ -714,6 +765,11 @@ export default function MarsSurvivalGame() {
       </>
     );
   } else if (view === "admin") {
+    const filteredAdminResults = (
+      adminTeamFilter === 0
+        ? allResults
+        : allResults.filter((r) => r.team_id === adminTeamFilter)
+    ).sort((a, b) => a.score - b.score); // NASA logic: lower score is better
     content = (
       <>
         <div className="flex justify-between items-center mb-8 border-b-4 border-[#00ff41] pb-2">
@@ -734,7 +790,6 @@ export default function MarsSurvivalGame() {
             <h3 className="font-bold uppercase flex items-center gap-2">
               <Users size={18} /> Gestione Team
             </h3>
-
             <div className="max-h-80 overflow-y-auto pr-2 custom-scrollbar">
               <div className="space-y-2">
                 {teamsList
@@ -756,7 +811,7 @@ export default function MarsSurvivalGame() {
                   ))}
               </div>
             </div>
-            {/* 4. Update the Add Team button */}
+            {/* Update the Add Team button */}
             <button
               onClick={handleAddTeam}
               className="text-[10px] border border-[#00ff41] p-1 w-full hover:bg-[#00ff41] hover:text-black"
@@ -765,42 +820,67 @@ export default function MarsSurvivalGame() {
             </button>
           </div>
         </div>
+        <div className="space-y-4 border-2 border-[#00ff41]/30 p-6 bg-[#111]/50">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-[#00ff41]/30 pb-2 gap-4">
+            <h3 className="font-bold uppercase flex items-center gap-2 text-[#00ff41]">
+              <Save size={18} /> Registro Risultati
+            </h3>
 
-        <div className="mt-8">
-          <h3 className="font-bold uppercase mb-4 flex items-center gap-2">
-            <Save size={18} /> Database Risultati
-          </h3>
-          <div className="max-h-40 overflow-y-auto border border-[#00ff41]/50 text-[10px]">
-            <table className="w-full text-left">
-              <thead className="bg-[#00ff41] text-black">
-                <tr>
-                  <th className="p-1">User</th>
-                  <th className="p-1">Team</th>
-                  <th className="p-1">Score</th>
-                  <th className="p-1">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {allResults.map((r, i) => (
-                  <tr key={i} className="border-b border-[#00ff41]/20">
-                    <td className="p-1">{r.username}</td>
-                    <td className="p-1">{r.team_name}</td>
-                    <td className="p-1">{r.score}</td>
-                    <td className="p-1">
+            {/* TEAM FILTER FOR ADMIN */}
+            <div className="flex items-center gap-2 bg-black border border-[#00ff41]/50 p-1">
+              <span className="text-[10px] px-2 opacity-50 uppercase italic font-bold">
+                Filtra per Team:
+              </span>
+              <select
+                className="bg-transparent text-[#00ff41] text-xs outline-none cursor-pointer uppercase font-bold"
+                value={adminTeamFilter}
+                onChange={(e) => setAdminTeamFilter(Number(e.target.value))}
+              >
+                <option value={0}>Tutti i Team</option>
+                {teamsList.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>{/* ... headers (same as before) ... */}</thead>
+              <tbody className="text-[11px] uppercase">
+                {filteredAdminResults.map((r) => (
+                  <tr
+                    key={r.id}
+                    className="border-b border-[#00ff41]/10 hover:bg-[#00ff41]/5"
+                  >
+                    <td className="p-2 opacity-60">
+                      {r.created_at
+                        ? new Date(r.created_at).toLocaleDateString()
+                        : "N/A"}
+                    </td>
+                    <td className="p-2 font-bold">{r.username}</td>
+                    <td className="p-2 opacity-80">{r.team_name}</td>
+                    <td className="p-2 font-black text-[#00ff41]">{r.score}</td>
+                    <td className="p-2 flex justify-center gap-4">
+                      {/* VIEW DETAILS BUTTON  */}
                       <button
                         onClick={() => {
-                          const updated = allResults.filter(
-                            (_, idx) => idx !== i,
-                          );
-                          setAllResults(updated);
-                          localStorage.setItem(
-                            "mars_results",
-                            JSON.stringify(updated),
-                          );
+                          setSelectedUserDetail(r);
+                          setPrevView("admin"); // Remember we came from Admin
+                          setView("user-detail");
                         }}
-                        className="text-red-500"
+                        className="text-[#00ff41] hover:underline"
                       >
-                        DEL
+                        DETAILS
+                      </button>
+                      {/* DELETE BUTTON */}
+                      <button
+                        onClick={() => handleDeleteResult(r.id!)}
+                        className="text-red-500 hover:underline"
+                      >
+                        DELETE
                       </button>
                     </td>
                   </tr>
@@ -821,10 +901,7 @@ export default function MarsSurvivalGame() {
   }
   return (
     <CRTWrapper>
-      {/* 1. Здесь будет контент из IF (login, story, admin и т.д.) */}
       {content}
-
-      {/* 2. А здесь наше универсальное модальное окно */}
       <RetroModal
         isOpen={modal.isOpen}
         type={modal.type}
@@ -836,4 +913,4 @@ export default function MarsSurvivalGame() {
       />
     </CRTWrapper>
   );
-} // Здесь закрывается основная функция MarsSurvivalGame
+}
