@@ -826,7 +826,11 @@ export default function MarsSurvivalGame() {
                 >
                   <option value={0}>Tutti i Team</option>
                   {teamsList.map((t) => (
-                    <option key={t.id} value={t.id}>
+                    <option
+                      key={t.id}
+                      value={t.id}
+                      className="bg-black text-[#00ff41]"
+                    >
                       {t.name}
                     </option>
                   ))}
