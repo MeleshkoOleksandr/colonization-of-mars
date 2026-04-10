@@ -1,6 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Reorder, AnimatePresence, motion } from "framer-motion";
+import {
+  Reorder,
+  AnimatePresence,
+  motion,
+  useDragControls,
+} from "framer-motion";
+import { GripVertical } from "lucide-react";
+
 import {
   Monitor,
   Save,
@@ -23,6 +30,7 @@ import {
   deleteResultAction,
   deleteAllResultsAction,
 } from "./actions";
+
 import { Team, GameResult } from "../../lib/db";
 
 // --- UI COMPONENTS ---
@@ -41,6 +49,62 @@ const Header = ({ title }: { title: string }) => (
     {title}
   </h1>
 );
+
+/**
+ * DRAGGABLE ITEM COMPONENT
+ * Each item has its own drag controls to allow dragging only via the handle.
+ */
+const DraggableItem = ({
+  item,
+  index,
+}: {
+  item: SurvivalItem;
+  index: number;
+}) => {
+  const controls = useDragControls();
+
+  return (
+    <Reorder.Item
+      value={item}
+      id={item.id}
+      // --- CRITICAL: Disable dragging by clicking anywhere ---
+      dragListener={false}
+      dragControls={controls}
+      className="group bg-[#111] border-2 border-[#00ff41]/30 p-3 flex items-center gap-4 hover:border-[#00ff41]/60 transition-colors"
+    >
+      {/* 1. THE DRAG HANDLE */}
+      <div
+        className="cursor-grab active:cursor-grabbing p-2 text-[#00ff41]/30 hover:text-[#00ff41] transition-colors"
+        // --- CRITICAL: Start dragging only when touching this handle ---
+        onPointerDown={(e) => controls.start(e)}
+      >
+        <GripVertical size={20} />
+      </div>
+
+      {/* 2. INDEX NUMBER */}
+      <span className="text-xl font-black w-8 text-[#00ff41]/40 group-hover:text-[#00ff41]">
+        {index + 1}
+      </span>
+
+      {/* 3. ITEM PHOTO */}
+      <div className="w-16 h-16 border border-[#00ff41]/20 overflow-hidden bg-black shrink-0">
+        <img
+          src={`/${item.photo}`}
+          alt={item.name}
+          draggable="false"
+          className="w-full h-full object-cover opacity-80"
+        />
+      </div>
+
+      {/* 4. ITEM NAME */}
+      <div className="flex-1">
+        <div className="uppercase font-bold text-xs leading-tight">
+          {item.name}
+        </div>
+      </div>
+    </Reorder.Item>
+  );
+};
 
 /**
  * ANALYSIS SEQUENCE COMPONENT
@@ -608,34 +672,10 @@ export default function MarsSurvivalGame() {
           axis="y"
           values={items}
           onReorder={setItems}
-          className="space-y-2"
+          className="space-y-2 select-none" // select-none prevents text selection during drag
         >
           {items.map((item, index) => (
-            <Reorder.Item
-              key={item.id}
-              value={item}
-              className="group bg-[#111] border-2 border-[#00ff41]/30 p-3 flex items-center gap-4 cursor-grab active:cursor-grabbing hover:border-[#00ff41] transition-colors"
-            >
-              <span className="text-2xl font-black w-10 text-[#00ff41]/40 group-hover:text-[#00ff41]">
-                {index + 1}
-              </span>
-              <div className="w-24 h-24 bg-[#222] border border-[#00ff41]/20 flex items-center justify-center text-[10px] text-center">
-                <img
-                  src={`/${item.photo}`}
-                  alt={item.name}
-                  className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                  draggable="false"
-                  onError={(e) => {
-                    // No image found
-                    (e.target as HTMLImageElement).src =
-                      "https://via.placeholder.com/50?text=NA";
-                  }}
-                />
-              </div>
-              <div className="flex-1">
-                <div className="uppercase font-bold text-sm">{item.name}</div>
-              </div>
-            </Reorder.Item>
+            <DraggableItem key={item.id} item={item} index={index} />
           ))}
         </Reorder.Group>
 
@@ -993,11 +1033,11 @@ export default function MarsSurvivalGame() {
 
       {/* 1. ANALYSIS ANIMATION LAYER */}
       {isAnalyzing && (
-        <AnalysisSequence 
+        <AnalysisSequence
           onComplete={() => {
             setIsAnalyzing(false); // Hide animation
-            setView("results");    // Show results
-          }} 
+            setView("results"); // Show results
+          }}
         />
       )}
 
