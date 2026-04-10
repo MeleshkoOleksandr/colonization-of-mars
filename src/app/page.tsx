@@ -21,6 +21,7 @@ import {
   addTeamAction,
   deleteTeamAction,
   deleteResultAction,
+  deleteAllResultsAction,
 } from "./actions";
 import { Team, GameResult } from "../../lib/db";
 
@@ -144,7 +145,6 @@ export default function MarsSurvivalGame() {
     | "user-detail"
   >("login");
 
-
   // Initial empty states
   const [story, setStory] = useState({ title: "Caricamento...", plot: "" });
   // --- States ---
@@ -212,7 +212,7 @@ export default function MarsSurvivalGame() {
   };
 
   /**
-   * INITIALIZATION 
+   * INITIALIZATION
    * This synchronizes both the static XML story content
    * and the dynamic Database records (Teams & Results).
    */
@@ -410,9 +410,24 @@ export default function MarsSurvivalGame() {
     });
   };
 
+  //HANDLER: Delete all result
+  const handleDeleteAllResults = () => {
+    setModal({
+      isOpen: true,
+      type: "confirm",
+      message:
+        "PERICOLO: Sei sicuro di voler cancellare TUTTI i risultati dal database? Questa operazione non può essere annullata.",
+      value: "",
+      action: async () => {
+        await deleteAllResultsAction();
+        setAllResults(await getResultsAction());
+        setModal((prev) => ({ ...prev, isOpen: false }));
+      },
+    });
+  };
+
   // Define a variable to hold the screen content
   let content;
-
   // --- VIEWS ---
   if (view === "login") {
     content = (
@@ -790,23 +805,33 @@ export default function MarsSurvivalGame() {
               <Save size={18} /> Registro Risultati
             </h3>
 
-            {/* TEAM FILTER FOR ADMIN */}
-            <div className="flex items-center gap-2 bg-black border border-[#00ff41]/50 p-1">
-              <span className="text-[10px] px-2 opacity-50 uppercase italic font-bold">
-                Filtra per Team:
-              </span>
-              <select
-                className="bg-transparent text-[#00ff41] text-xs outline-none cursor-pointer uppercase font-bold"
-                value={adminTeamFilter}
-                onChange={(e) => setAdminTeamFilter(Number(e.target.value))}
+            <div className="flex flex-wrap items-center gap-4">
+              {/* DELETE ALL BUTTON */}
+              <button
+                onClick={handleDeleteAllResults}
+                className="text-[10px] border border-red-600 px-2 py-1 text-red-500 hover:bg-red-600 hover:text-white transition-colors uppercase font-bold"
               >
-                <option value={0}>Tutti i Team</option>
-                {teamsList.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name}
-                  </option>
-                ))}
-              </select>
+                Clear All Database
+              </button>
+
+              {/* TEAM FILTER FOR ADMIN */}
+              <div className="flex items-center gap-2 bg-black border border-[#00ff41]/50 p-1">
+                <span className="text-[10px] px-2 opacity-50 uppercase italic font-bold">
+                  Filtra per Team:
+                </span>
+                <select
+                  className="bg-transparent text-[#00ff41] text-xs outline-none cursor-pointer uppercase font-bold"
+                  value={adminTeamFilter}
+                  onChange={(e) => setAdminTeamFilter(Number(e.target.value))}
+                >
+                  <option value={0}>Tutti i Team</option>
+                  {teamsList.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 

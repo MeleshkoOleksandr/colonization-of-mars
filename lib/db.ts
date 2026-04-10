@@ -77,3 +77,11 @@ export async function deleteTeam(id: number) {
 export async function deleteResult(id: number) {
   await sql`DELETE FROM results WHERE id = ${id}`;
 }
+
+/**
+ * 7. Delete all result (Admin Panel)
+ * Removes all result from the database.
+ */
+export async function deleteAllResults() {
+  await sql`DELETE FROM results`;
+}
