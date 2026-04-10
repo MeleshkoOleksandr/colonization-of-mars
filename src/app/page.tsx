@@ -43,6 +43,95 @@ const Header = ({ title }: { title: string }) => (
 );
 
 /**
+ * ANALYSIS SEQUENCE COMPONENT
+ * Displays a retro-loading screen with scrolling logs and a progress bar.
+ */
+const AnalysisSequence = ({ onComplete }: { onComplete: () => void }) => {
+  const [logs, setLogs] = useState<string[]>([]);
+  const [progress, setProgress] = useState(0);
+
+  const phrases = [
+    "> INIZIALIZZAZIONE ANALISI QUANTISTICA...",
+    "> CONNESSIONE AL SATELLITE ARES-1 ESTABILITA",
+    "> SCANSIONE INVENTARIO CARGO...",
+    "> VALUTAZIONE RISORSE OSSIGENO: CRITICO",
+    "> CALCOLO TRAIETTORIA NELLA VALLE MARINERIS",
+    "> ANALISI PRIORITÀ DI SOPRAVVIVENZA NASA...",
+    "> SINCRONIZZAZIONE DATI CON IL DATABASE CENTRALE",
+    "> CALCOLO PROBABILITÀ DI SUCCESSO...",
+    "> GENERAZIONE RAPPORTO FINALE...",
+  ];
+
+  useEffect(() => {
+    // 1. Progress bar simulation
+    const interval = setInterval(() => {
+      setProgress((prev) => (prev < 100 ? prev + 1 : 100));
+    }, 40);
+
+    // 2. Typing logs simulation
+    phrases.forEach((phrase, index) => {
+      setTimeout(() => {
+        setLogs((prev) => [...prev, phrase]);
+      }, index * 450);
+    });
+
+    // 3. Complete after some time
+    const timeout = setTimeout(onComplete, 4500);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [onComplete]);
+
+  return (
+    <div className="fixed inset-0 z-150 bg-black flex flex-col items-center justify-center p-6 font-mono text-[#00ff41]">
+      <div className="w-full max-w-lg">
+        {/* LOG WINDOW */}
+        <div className="h-64 overflow-hidden mb-8 text-xs space-y-2 opacity-80">
+          <AnimatePresence>
+            {logs.map((log, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="flex items-start"
+              >
+                <span className="mr-2 italic opacity-50">
+                  [{new Date().toLocaleTimeString()}]
+                </span>
+                {log}
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+
+        {/* PROGRESS BAR */}
+        <div className="space-y-2">
+          <div className="flex justify-between text-[10px] uppercase font-bold tracking-widest">
+            <span>Analisi in corso...</span>
+            <span>{progress}%</span>
+          </div>
+          <div className="w-full h-4 border-2 border-[#00ff41] p-0.5">
+            <motion.div
+              className="h-full bg-[#00ff41] shadow-[0_0_10px_#00ff41]"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+
+        {/* DECORATIVE ELEMENTS */}
+        <div className="mt-12 grid grid-cols-3 gap-4 opacity-20 text-[8px] uppercase">
+          <div className="animate-pulse">CPU LOAD: 98%</div>
+          <div className="animate-pulse delay-75">O2 SENSOR: OK</div>
+          <div className="animate-pulse delay-150">TEMP: -64C</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/**
  * CUSTOM RETRO MODAL
  * Replaces browser's alert, confirm, and prompt.
  */
@@ -159,6 +248,9 @@ export default function MarsSurvivalGame() {
   const [teamId, setTeamId] = useState<number>(0);
   const currentTeamName =
     teamsList.find((t) => t.id === teamId)?.name || "Anonimo";
+
+  //For results loading aniamtion
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   // Inside MarsSurvivalGame component:
   const [modal, setModal] = useState<{
@@ -311,6 +403,9 @@ export default function MarsSurvivalGame() {
         totalScore += Math.abs(index + 1 - ideal.idealPosition);
       }
     });
+
+    // Start the loading animation
+    setIsAnalyzing(true);
 
     // Создаем объект результата для базы данных
     const newResult: GameResult = {
@@ -895,6 +990,18 @@ export default function MarsSurvivalGame() {
   return (
     <CRTWrapper>
       {content}
+
+      {/* 1. ANALYSIS ANIMATION LAYER */}
+      {isAnalyzing && (
+        <AnalysisSequence 
+          onComplete={() => {
+            setIsAnalyzing(false); // Hide animation
+            setView("results");    // Show results
+          }} 
+        />
+      )}
+
+      {/* 2. MODAL LAYER */}
       <RetroModal
         isOpen={modal.isOpen}
         type={modal.type}
