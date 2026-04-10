@@ -50,7 +50,7 @@ export async function saveGameResult(result: { username: string, team_id: number
  * Fetches the list of teams for the dropdown menu
  */
 export async function fetchTeams(): Promise<Team[]> {
-  const rows = await sql`SELECT * FROM teams ORDER BY name ASC`;
+  const rows = await sql`SELECT * FROM teams ORDER BY id ASC`;
   return rows as unknown as Team[];
 }
 

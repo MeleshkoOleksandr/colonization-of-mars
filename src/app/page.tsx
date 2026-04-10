@@ -41,6 +41,82 @@ const Header = ({ title }: { title: string }) => (
   </h1>
 );
 
+/**
+ * CUSTOM RETRO MODAL
+ * Replaces browser's alert, confirm, and prompt.
+ */
+const RetroModal = ({
+  isOpen,
+  type,
+  message,
+  value,
+  onClose,
+  onConfirm,
+  onChange,
+}: {
+  isOpen: boolean;
+  type: "alert" | "confirm" | "prompt";
+  message: string;
+  value?: string;
+  onClose: () => void;
+  onConfirm: () => void;
+  onChange?: (val: string) => void;
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="w-full max-w-md border-4 border-[#00ff41] bg-black p-6 shadow-[0_0_50px_rgba(0,255,65,0.3)] relative"
+      >
+        {/* Scanline overlay for modal */}
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] opacity-20"></div>
+
+        <h3 className="text-[#00ff41] font-black uppercase tracking-tighter mb-4 text-xl italic border-b border-[#00ff41]/30 pb-2">
+          {type === "confirm"
+            ? "> Richiesta Conferma"
+            : type === "prompt"
+              ? "> Input Richiesto"
+              : "> Messaggio Sistema"}
+        </h3>
+
+        <p className="text-[#00ff41] mb-6 uppercase text-sm leading-relaxed tracking-wide">
+          {message}
+        </p>
+
+        {type === "prompt" && (
+          <input
+            autoFocus
+            className="w-full bg-[#001100] border-2 border-[#00ff41] p-2 text-[#00ff41] outline-none mb-6 focus:bg-[#003300] uppercase"
+            value={value}
+            onChange={(e) => onChange?.(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && onConfirm()}
+          />
+        )}
+
+        <div className="flex justify-end gap-4">
+          {type !== "alert" && (
+            <button
+              onClick={onClose}
+              className="px-4 py-2 border border-[#00ff41]/50 text-[#00ff41]/50 hover:text-[#00ff41] uppercase text-xs font-bold"
+            >
+              Annulla
+            </button>
+          )}
+          <button
+            onClick={onConfirm}
+            className="px-6 py-2 bg-[#00ff41] text-black font-black uppercase text-xs hover:bg-white transition-colors"
+          >
+            {type === "confirm" ? "Conferma" : "Esegui"}
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
 // --- Data types ---
 interface SurvivalItem {
   id: string;
@@ -196,6 +272,21 @@ export default function MarsSurvivalGame() {
   const currentTeamName =
     teamsList.find((t) => t.id === teamId)?.name || "Anonimo";
 
+  // Inside MarsSurvivalGame component:
+  const [modal, setModal] = useState<{
+    isOpen: boolean;
+    type: "alert" | "confirm" | "prompt";
+    message: string;
+    value: string;
+    action: () => void;
+  }>({
+    isOpen: false,
+    type: "alert",
+    message: "",
+    value: "",
+    action: () => {},
+  });
+
   /**
    * INITIALIZATION
    * Loads teams and results from the Database and shuffles items locally.
@@ -223,20 +314,36 @@ export default function MarsSurvivalGame() {
   }, []);
 
   const handleStart = () => {
-    // 1. Check if the username is provided
+    // Replace standard alert with our new Modal
     if (!username) {
-      return alert("Inserire un nome!");
+      setModal({
+        isOpen: true,
+        type: "alert",
+        message:
+          "Identificazione fallita. Inserire un nome operatore per procedere.",
+        value: "",
+        action: () => setModal((prev) => ({ ...prev, isOpen: false })),
+      });
+      return;
     }
-    // 2. Check if it's the administrator
+
     if (username.toLowerCase() === "admin") {
       setView("admin");
-      return; // Exit the function here so it doesn't check for teamId
+      return;
     }
-    // 3. For regular players, ensure a team is selected
+
     if (teamId === 0) {
-      return alert("Selezionare una squadra per iniziare la missione!");
+      setModal({
+        isOpen: true,
+        type: "alert",
+        message:
+          "Unità non selezionata. Selezionare una squadra per la missione.",
+        value: "",
+        action: () => setModal((prev) => ({ ...prev, isOpen: false })),
+      });
+      return;
     }
-    // 4. If everything is valid for a player, proceed to the story
+
     setView("story");
   };
 
@@ -279,51 +386,50 @@ export default function MarsSurvivalGame() {
   };
 
   // ---  Handlers ---
-
   // Logic for deleting a team
-  const handleDeleteTeam = async (id: number) => {
-    // Confirm dialog works only in browser (page.tsx)
-    if (
-      confirm(
-        "Sei sicuro? Questo cancellerà anche tutti i risultati di questo team!",
-      )
-    ) {
-      await deleteTeamAction(id); // Calling the Server Action
-
-      // Refresh the data from DB to update the screen
-      const updatedTeams = await getTeamsAction();
-      setTeamsList(updatedTeams);
-      const updatedResults = await getResultsAction();
-      setAllResults(updatedResults);
-    }
+  const handleDeleteTeam = (id: number) => {
+    setModal({
+      isOpen: true,
+      type: "confirm",
+      message:
+        "ATTENZIONE: L'eliminazione del team rimuoverà tutti i record associati. Procedere?",
+      value: "",
+      action: async () => {
+        await deleteTeamAction(id);
+        setTeamsList(await getTeamsAction());
+        setAllResults(await getResultsAction());
+        setModal((prev) => ({ ...prev, isOpen: false }));
+      },
+    });
   };
 
   // Logic for adding a team
-  const handleAddTeam = async () => {
-    // Prompt works only in browser (page.tsx)
-    const name = prompt("Nome nuovo team?");
-    if (name) {
-      await addTeamAction(name); // Calling the Server Action
+  const handleAddTeam = () => {
+    setModal({
+      isOpen: true,
+      type: "prompt",
+      message: "Inserire nome della nuova unità coloniale:",
+      value: "",
+      action: () => {}, // Action for prompt is handled by executeAddTeam
+    });
+  };
 
-      // Refresh the data from DB
-      const updatedTeams = await getTeamsAction();
-      setTeamsList(updatedTeams);
+  const executeAddTeam = async () => {
+    if (modal.value.trim()) {
+      await addTeamAction(modal.value);
+      setTeamsList(await getTeamsAction());
+      // Close and clear input
+      setModal((prev) => ({ ...prev, isOpen: false, value: "" }));
     }
   };
 
-  // Logic for deleting a specific result
-  const handleDeleteResult = async (id: number) => {
-    if (confirm("Eliminare questo risultato?")) {
-      await deleteResultAction(id); // Calling the Server Action
-      const updatedResults = await getResultsAction();
-      setAllResults(updatedResults);
-    }
-  };
+  // Define a variable to hold the screen content
+  let content;
 
   // --- VIEWS ---
-  if (view === "login")
-    return (
-      <CRTWrapper>
+  if (view === "login") {
+    content = (
+      <>
         <Header title="Mars Mission Login" />
         <div className="flex flex-col gap-6 max-w-sm mx-auto py-12">
           <div className="space-y-2">
@@ -341,14 +447,10 @@ export default function MarsSurvivalGame() {
             <label className="text-xs uppercase">Unità di Assegnazione:</label>
             <select
               className="w-full bg-black border-2 border-[#00ff41] p-3 outline-none appearance-none cursor-pointer"
-              // 1. Используем teamId (число) вместо team
               value={teamId}
-              // 2. Преобразуем строку из value в число при выборе
               onChange={(e) => setTeamId(Number(e.target.value))}
             >
-              {/* 3. Значение "по умолчанию" теперь 0 (число) */}
               <option value={0}>Seleziona Team...</option>
-              {/* 4. Проходим по списку объектов команд из базы */}
               {teamsList.map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.name}
@@ -363,12 +465,11 @@ export default function MarsSurvivalGame() {
             Inizializzare Missione
           </button>
         </div>
-      </CRTWrapper>
+      </>
     );
-
-  if (view === "story")
-    return (
-      <CRTWrapper>
+  } else if (view === "story") {
+    content = (
+      <>
         <Header title={story.title} />
         <div className="space-y-6 text-lg leading-relaxed">
           <p className="bg-[#003300] p-4 border-l-8 border-[#00ff41]">
@@ -390,12 +491,11 @@ export default function MarsSurvivalGame() {
             Accedi all'Inventario Cargo <ChevronRight />
           </button>
         </div>
-      </CRTWrapper>
+      </>
     );
-
-  if (view === "game")
-    return (
-      <CRTWrapper>
+  } else if (view === "game") {
+    content = (
+      <>
         <div className="flex justify-between items-end mb-6">
           <div className="text-xs">
             OPERATORE: {username}
@@ -448,15 +548,13 @@ export default function MarsSurvivalGame() {
         >
           Invia Rapporto alla Base
         </button>
-      </CRTWrapper>
+      </>
     );
-
-  if (view === "results") {
+  } else if (view === "results") {
     const lastResult = allResults[allResults.length - 1];
-    return (
-      <CRTWrapper>
+    content = (
+      <>
         <Header title="Analisi Sopravvivenza" />
-
         {/* PLAYER INFO BAR */}
         <div className="text-center mb-6">
           <div className="inline-block border border-[#00ff41] px-4 py-1 text-[10px] uppercase tracking-[0.2em] bg-[#00ff41]/10">
@@ -499,13 +597,11 @@ export default function MarsSurvivalGame() {
             Classifica Team
           </button>
         </div>
-      </CRTWrapper>
+      </>
     );
-  }
-
-  if (view === "leaderboard")
-    return (
-      <CRTWrapper>
+  } else if (view === "leaderboard") {
+    content = (
+      <>
         <div className="flex justify-between items-center mb-6 border-b-2 border-[#00ff41] pb-2">
           <button
             onClick={() => setView("results")}
@@ -572,12 +668,11 @@ export default function MarsSurvivalGame() {
             Attenzione: il riavvio resetterà la sessione corrente
           </p>
         </div>
-      </CRTWrapper>
+      </>
     );
-
-  if (view === "user-detail" && selectedUserDetail)
-    return (
-      <CRTWrapper>
+  } else if (view === "user-detail" && selectedUserDetail) {
+    content = (
+      <>
         <div className="mb-6">
           <button
             onClick={() => setView("leaderboard")}
@@ -616,12 +711,11 @@ export default function MarsSurvivalGame() {
             );
           })}
         </div>
-      </CRTWrapper>
+      </>
     );
-
-  if (view === "admin")
-    return (
-      <CRTWrapper>
+  } else if (view === "admin") {
+    content = (
+      <>
         <div className="flex justify-between items-center mb-8 border-b-4 border-[#00ff41] pb-2">
           <h2 className="text-2xl font-black italic uppercase bg-[#00ff41] text-black px-2">
             Admin Terminal
@@ -648,7 +742,8 @@ export default function MarsSurvivalGame() {
                   .map((t) => (
                     <div
                       key={t.id} // 1. Use DB ID as key
-                      className="flex justify-between items-center bg-[#111] p-2 text-sm"  >
+                      className="flex justify-between items-center bg-[#111] p-2 text-sm"
+                    >
                       {/* 2. Access the name property of the object */}
                       <span>{t.name}</span>
                       <button
@@ -721,8 +816,24 @@ export default function MarsSurvivalGame() {
         >
           Visualizza Classifica Completa
         </button>
-      </CRTWrapper>
+      </>
     );
+  }
+  return (
+    <CRTWrapper>
+      {/* 1. Здесь будет контент из IF (login, story, admin и т.д.) */}
+      {content}
 
-  return null;
-}
+      {/* 2. А здесь наше универсальное модальное окно */}
+      <RetroModal
+        isOpen={modal.isOpen}
+        type={modal.type}
+        message={modal.message}
+        value={modal.value}
+        onClose={() => setModal((prev) => ({ ...prev, isOpen: false }))}
+        onConfirm={modal.type === "prompt" ? executeAddTeam : modal.action}
+        onChange={(val) => setModal((prev) => ({ ...prev, value: val }))}
+      />
+    </CRTWrapper>
+  );
+} // Здесь закрывается основная функция MarsSurvivalGame
