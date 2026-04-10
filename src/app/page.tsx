@@ -54,13 +54,7 @@ const Header = ({ title }: { title: string }) => (
  * DRAGGABLE ITEM COMPONENT
  * Each item has its own drag controls to allow dragging only via the handle.
  */
-const DraggableItem = ({
-  item,
-  index,
-}: {
-  item: SurvivalItem;
-  index: number;
-}) => {
+  const DraggableItem = ({ item, index }: { item: SurvivalItem; index: number }) => {
   const controls = useDragControls();
 
   return (
@@ -71,6 +65,7 @@ const DraggableItem = ({
       dragListener={false}
       dragControls={controls}
       className="group bg-[#111] border-2 border-[#00ff41]/30 p-3 flex items-center gap-4 hover:border-[#00ff41]/60 transition-colors"
+      style={{ touchAction: 'none' }} 
     >
       {/* 1. THE DRAG HANDLE */}
       <div
@@ -87,7 +82,7 @@ const DraggableItem = ({
       </span>
 
       {/* 3. ITEM PHOTO */}
-      <div className="w-16 h-16 border border-[#00ff41]/20 overflow-hidden bg-black shrink-0">
+      <div className="w-24 h-24 border border-[#00ff41]/20 overflow-hidden bg-black shrink-0">
         <img
           src={`/${item.photo}`}
           alt={item.name}
@@ -1018,12 +1013,12 @@ export default function MarsSurvivalGame() {
           </div>
         </div>
 
-        <button
+        {/* <button
           onClick={() => setView("leaderboard")}
           className="w-full mt-8 border-2 border-[#00ff41] py-2 hover:bg-[#00ff41] hover:text-black uppercase font-bold"
         >
           Visualizza Classifica Completa
-        </button>
+        </button> */}
       </>
     );
   }
