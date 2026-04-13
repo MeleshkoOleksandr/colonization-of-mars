@@ -763,23 +763,25 @@ export default function MarsSurvivalGame() {
     );
   } else if (view === "leaderboard") {
     const isAdmin = username.toLowerCase() === "admin";
-    const filteredResults = isAdmin
-      ? allResults // Admin sees everyone
-      : allResults.filter((res) => res.team_id === teamId); // Player sees ONLY their team_id
+    // Если зашел админ и у него выбран фильтр в админке — показываем только этот фильтр.
+    // Если фильтра нет (0) или это не админ — обычная логика.
+    const effectiveTeamId = isAdmin ? adminTeamFilter : teamId;
 
-    // Update the Title too:
-    const leaderboardTitle = isAdmin
-      ? "Global Ranking (All Teams)"
-      : `Ranking Team: ${currentTeamName}`;
+    const filteredResults =
+      isAdmin && effectiveTeamId === 0
+        ? allResults
+        : allResults.filter((res) => res.team_id === effectiveTeamId);
 
     content = (
       <>
         <div className="flex justify-between items-center mb-6 border-b-2 border-[#00ff41] pb-2">
           <button
-            onClick={() => setView("results")}
+            // Используем prevView, чтобы вернуться либо в results, либо в admin
+            onClick={() => setView(prevView)}
             className="text-xs flex items-center gap-1 hover:underline"
           >
-            <ArrowLeft size={14} /> Indietro
+            <ArrowLeft size={14} />{" "}
+            {prevView === "admin" ? "Torna all'Admin" : "Indietro"}
           </button>
           <h2 className="text-xl font-bold uppercase">Status Coloni</h2>
           <button
@@ -851,18 +853,20 @@ export default function MarsSurvivalGame() {
             ))}
         </div>
 
-        <div className="mt-8 pt-6 border-t-2 border-[#00ff41]/30">
-          <button
-            onClick={() => window.location.reload()}
-            className="w-full bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors flex items-center justify-center gap-3"
-          >
-            <RefreshCcw size={24} />
-            Inizia Nuova Missione
-          </button>
-          <p className="text-[10px] text-center mt-4 opacity-50 uppercase tracking-widest">
-            Attenzione: il riavvio resetterà la sessione corrente
-          </p>
-        </div>
+        {!isAdmin && (
+          <div className="mt-8 pt-6 border-t-2 border-[#00ff41]/30">
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors flex items-center justify-center gap-3"
+            >
+              <RefreshCcw size={24} />
+              Inizia Nuova Missione
+            </button>
+            <p className="text-[10px] text-center mt-4 opacity-50 uppercase tracking-widest">
+              Attenzione: il riavvio resetterà la sessione corrente
+            </p>
+          </div>
+        )}
       </>
     );
   } else if (view === "user-detail" && selectedUserDetail) {
@@ -1120,12 +1124,20 @@ export default function MarsSurvivalGame() {
           </div>
         </div>
 
-        {/* <button
-          onClick={() => setView("leaderboard")}
-          className="w-full mt-8 border-2 border-[#00ff41] py-2 hover:bg-[#00ff41] hover:text-black uppercase font-bold"
+        <button
+          onClick={() => {
+            // 1. Указываем, что нужно вернуться в админку
+            setPrevView("admin");
+            // 2. Переходим в таблицу лидеров
+            setView("leaderboard");
+          }}
+          className="w-full mt-8 border-2 border-[#00ff41] py-3 hover:bg-[#00ff41] hover:text-black uppercase font-bold transition-all"
         >
-          Visualizza Classifica Completa
-        </button> */}
+          Visualizza Classifica{" "}
+          {adminTeamFilter !== 0
+            ? `Team: ${teamsList.find((t) => t.id === adminTeamFilter)?.name}`
+            : "Completa"}
+        </button>
       </>
     );
   }
