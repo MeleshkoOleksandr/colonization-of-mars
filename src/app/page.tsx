@@ -54,7 +54,13 @@ const Header = ({ title }: { title: string }) => (
  * DRAGGABLE ITEM COMPONENT
  * Each item has its own drag controls to allow dragging only via the handle.
  */
-  const DraggableItem = ({ item, index }: { item: SurvivalItem; index: number }) => {
+const DraggableItem = ({
+  item,
+  index,
+}: {
+  item: SurvivalItem;
+  index: number;
+}) => {
   const controls = useDragControls();
 
   return (
@@ -118,7 +124,7 @@ const AnalysisSequence = ({ onComplete }: { onComplete: () => void }) => {
     "> ANALISI PRIORITÀ NASA...",
     "> SINCRONIZZAZIONE DATABASE...",
     "> CALCOLO PROBABILITÀ...",
-    "> GENERAZIONE RAPPORTO..."
+    "> GENERAZIONE RAPPORTO...",
   ];
 
   useEffect(() => {
@@ -140,51 +146,63 @@ const AnalysisSequence = ({ onComplete }: { onComplete: () => void }) => {
     };
   }, [onComplete]);
 
-
   return (
-    <div className="fixed inset-0 z-150 bg-black flex flex-col items-center justify-center p-4 md:p-6 font-mono text-[#00ff41]">
-      <div className="w-full max-w-lg flex flex-col h-full md:h-auto justify-center">
-        
-        {/* LOG WINDOW - Responsive height: h-40 on mobile, h-64 on desktop */}
-        <div className="h-40 md:h-64 overflow-hidden mb-4 md:mb-8 text-[10px] md:text-xs space-y-1 md:space-y-2 opacity-80 border-l border-[#00ff41]/20 pl-4">
-          <AnimatePresence>
-            {logs.map((log, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="flex items-start"
-              >
-                <span className="mr-2 italic opacity-40 shrink-0">
-                  [{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}]
-                </span>
-                <span className="leading-tight">{log}</span>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+    // Используем h-full и overflow-hidden, чтобы ничего не вылезало за края
+    <div className="fixed inset-0 z-200 bg-black text-[#00ff41] font-mono p-6 flex flex-col overflow-hidden">
+      {/* Главный контейнер с ограничением по высоте */}
+      <div className="flex-1 flex flex-col justify-between max-w-lg mx-auto w-full py-4 md:py-10">
+        {/* 1. БЛОК ЛОГОВ (Теперь занимает всё свободное место) */}
+        <div className="flex-1 min-h-0 mb-6 relative">
+          <div className="absolute inset-0 overflow-hidden flex flex-col justify-end border-l border-[#00ff41]/20 pl-4">
+            <AnimatePresence>
+              {logs.slice(-8).map(
+                (
+                  log,
+                  i, // Показываем только последние 8 строк на мобильных
+                ) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="text-[10px] md:text-xs leading-tight mb-2 flex gap-2"
+                  >
+                    <span className="opacity-40 shrink-0 hidden xs:inline">
+                      [
+                      {new Date().toLocaleTimeString([], { second: "2-digit" })}
+                      s]
+                    </span>
+                    <span>{log}</span>
+                  </motion.div>
+                ),
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
-        {/* PROGRESS BAR */}
-        <div className="space-y-2 bg-black py-2">
-          <div className="flex justify-between text-[9px] md:text-[10px] uppercase font-bold tracking-widest">
-            <span>Analisi in corso...</span>
+        {/* 2. БЛОК ПРОГРЕСС-БАРА (Фиксированный размер) */}
+        <div className="shrink-0 space-y-3 bg-black">
+          <div className="flex justify-between text-[10px] uppercase font-black tracking-widest">
+            <span className="animate-pulse">Analyzing...</span>
             <span>{progress}%</span>
           </div>
-          <div className="w-full h-3 md:h-4 border-2 border-[#00ff41] p-0.5">
-            <motion.div 
-              className="h-full bg-[#00ff41] shadow-[0_0_10px_#00ff41]"
+          <div className="w-full h-4 border-2 border-[#00ff41] p-0.5 shadow-[0_0_10px_rgba(0,255,65,0.2)]">
+            <div
+              className="h-full bg-[#00ff41] transition-all duration-100 ease-linear shadow-[0_0_15px_#00ff41]"
               style={{ width: `${progress}%` }}
             />
           </div>
         </div>
 
-        {/* DECORATIVE ELEMENTS - Hidden or smaller on very small screens */}
-        <div className="mt-6 md:mt-12 grid grid-cols-3 gap-2 md:gap-4 opacity-30 text-[7px] md:text-[8px] uppercase">
+        {/* 3. ДЕКОРАТИВНЫЙ ФУТЕР (Уменьшен еще сильнее) */}
+        <div className="shrink-0 mt-8 grid grid-cols-3 gap-2 opacity-30 text-[7px] md:text-[8px] uppercase border-t border-[#00ff41]/10 pt-4">
           <div className="animate-pulse">CPU: 98%</div>
           <div className="animate-pulse delay-75">O2: OK</div>
           <div className="animate-pulse delay-150">TMP: -64C</div>
         </div>
       </div>
+
+      {/* Эффект сканирования специально для этого экрана */}
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%)] bg-[length:100%_4px] opacity-10"></div>
     </div>
   );
 };
@@ -687,20 +705,25 @@ export default function MarsSurvivalGame() {
       <>
         <Header title="Analisi Sopravvivenza" />
         {/* PLAYER INFO BAR */}
-        <div className="text-center mb-6">
-          <div className="inline-block border border-[#00ff41] px-4 py-1 text-[10px] uppercase tracking-[0.2em] bg-[#00ff41]/10">
+        <div className="text-center mb-4">
+          <div className="inline-block border border-[#00ff41] px-4 py-1 text-[14px] uppercase tracking-[0.2em] bg-[#00ff41]/10">
             Operatore: <span className="text-white">{username}</span> | Team:{" "}
             <span className="text-white">{currentTeamName}</span>
           </div>
         </div>
 
-        <div className="text-center mb-8">
-          <div className="text-6xl font-black mb-2">{lastResult.score}</div>
-          <div className="text-sm uppercase tracking-[0.3em] mb-4">
+        <div className="text-center mb-4">
+          <div className="text-6xl font-black mb-2">
+            {lastResult?.score ?? 0}
+          </div>
+          <div className="text-sm uppercase tracking-[0.3em] mb-0 opacity-70">
             Punti di Deviazione
           </div>
-          <p className="text-xl italic bg-[#00ff41] text-black p-2 font-bold uppercase">
-            {getScoreMessage(lastResult.score)}
+          <div className="text-xs text-white/80 italic mb-4">
+            (Meno è meglio)
+          </div>
+          <p className="text-xl italic bg-[#00ff41] text-black p-3 font-bold uppercase">
+            {getScoreMessage(lastResult?.score ?? 0)}
           </p>
         </div>
 

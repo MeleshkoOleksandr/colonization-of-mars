@@ -42,7 +42,7 @@
             <Description>Energia per i 3-5 giorni di cammino previsti.</Description>
         </Item>
         <Item id="tent">
-            <Name>Tenda gonfiabile ermetica (camera di compensazione temporanea)</Name>
+            <Name>Tenda gonfiabile ermetica</Name>
             <Photo>item_10.jpg</Photo>
             <Position>7</Position>
             <Description>Permette di riposare fuori dalla tuta spaziale.</Description>
