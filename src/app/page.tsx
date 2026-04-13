@@ -709,9 +709,7 @@ export default function MarsSurvivalGame() {
         </div>
 
         <div className="text-center mb-4">
-          <div className="text-6xl font-black mb-2">
-            {currentScore}
-          </div>
+          <div className="text-6xl font-black mb-2">{currentScore}</div>
           <div className="text-sm uppercase tracking-[0.3em] mb-0 opacity-70">
             Punti di Deviazione
           </div>
@@ -796,40 +794,62 @@ export default function MarsSurvivalGame() {
             <RefreshCcw size={20} />
           </button>
         </div>
-
         <div className="space-y-2">
-          <div className="grid grid-cols-4 text-[10px] uppercase opacity-50 px-4">
+          {/* 1. TABLE HEADERS - Adjusted for mobile grid */}
+          <div className="grid grid-cols-[1.5fr_1fr_45px_35px] md:grid-cols-4 text-[10px] uppercase opacity-50 px-4 mb-2">
             <span>Nome</span>
             <span>Team</span>
-            <span className="text-right">Score</span>
-            <span className="text-right">Azione</span>
+            <span className="text-right">Pts</span>
+            <span className="text-right md:pr-2">Info</span>
           </div>
+
           {filteredResults
             .sort((a, b) => a.score - b.score)
-            .map((res, i) => (
+            .map((res) => (
               <div
-                key={i}
-                className="grid grid-cols-4 items-center bg-[#111] p-4 border border-[#00ff41]/20 hover:border-[#00ff41]"
+                key={res.id}
+                // Responsive grid: wider for name, narrow for score/action
+                className="grid grid-cols-[1.5fr_1fr_45px_35px] md:grid-cols-4 items-center bg-[#111] p-3 md:p-4 border border-[#00ff41]/20 hover:border-[#00ff41] gap-2"
               >
-                <span className="font-bold truncate">{res.username}</span>
-                <span className="text-xs opacity-70">
-                  {res.team_name || "Unknown Team"}
+                {/* NAME: Allow wrapping and multi-line for long names */}
+                <span className="font-bold text-xs md:text-sm leading-tight wrap-break-word pr-2">
+                  {res.username}
                 </span>
 
-                <span className="text-right font-black">{res.score}</span>
-                <button
-                  onClick={() => {
-                    setSelectedUserDetail(res);
-                    setPrevView("leaderboard"); // Remember we came from Leaderboard
-                    setView("user-detail");
-                  }}
-                  className="text-right text-[10px] underline hover:text-white"
-                >
-                  DETTAGLI
-                </button>
+                {/* TEAM: Small and truncated to save space */}
+                <span className="text-[10px] md:text-xs opacity-70 truncate uppercase">
+                  {res.team_name}
+                </span>
+
+                {/* SCORE: Bold and aligned */}
+                <span className="text-right font-black text-[#00ff41] text-xs md:text-base">
+                  {res.score}
+                </span>
+
+                {/* ACTION: Icon instead of text on mobile */}
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => {
+                      setSelectedUserDetail(res);
+                      setPrevView("leaderboard");
+                      setView("user-detail");
+                    }}
+                    className="text-[#00ff41] hover:text-white p-1"
+                    title="Dettagli"
+                  >
+                    {/* Desktop: Text | Mobile: Icon */}
+                    <span className="hidden md:inline text-[10px] underline uppercase">
+                      Dettagli
+                    </span>
+                    <span className="md:hidden">
+                      <ChevronRight size={18} />
+                    </span>
+                  </button>
+                </div>
               </div>
             ))}
         </div>
+
         <div className="mt-8 pt-6 border-t-2 border-[#00ff41]/30">
           <button
             onClick={() => window.location.reload()}
