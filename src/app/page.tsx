@@ -61,17 +61,17 @@ const Header = ({ title }: { title: string }) => (
     <Reorder.Item
       value={item}
       id={item.id}
-      // --- CRITICAL: Disable dragging by clicking anywhere ---
       dragListener={false}
       dragControls={controls}
       className="group bg-[#111] border-2 border-[#00ff41]/30 p-3 flex items-center gap-4 hover:border-[#00ff41]/60 transition-colors"
-      style={{ touchAction: 'none' }} 
+      style={{ touchAction: "pan-y" }}
     >
       {/* 1. THE DRAG HANDLE */}
       <div
         className="cursor-grab active:cursor-grabbing p-2 text-[#00ff41]/30 hover:text-[#00ff41] transition-colors"
-        // --- CRITICAL: Start dragging only when touching this handle ---
+        // Start dragging only when touching this handle ---
         onPointerDown={(e) => controls.start(e)}
+        style={{ touchAction: "none" }}
       >
         <GripVertical size={20} />
       </div>
@@ -82,7 +82,7 @@ const Header = ({ title }: { title: string }) => (
       </span>
 
       {/* 3. ITEM PHOTO */}
-      <div className="w-24 h-24 border border-[#00ff41]/20 overflow-hidden bg-black shrink-0">
+      <div className="w-20 h-20 border border-[#00ff41]/20 overflow-hidden bg-black shrink-0">
         <img
           src={`/${item.photo}`}
           alt={item.name}
