@@ -325,6 +325,9 @@ export default function MarsSurvivalGame() {
   const currentTeamName =
     teamsList.find((t) => t.id === teamId)?.name || "Anonimo";
 
+  //Counting rusults
+  const [currentScore, setCurrentScore] = useState<number>(0);
+
   //For results loading aniamtion
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
@@ -473,36 +476,30 @@ export default function MarsSurvivalGame() {
   const finishGame = async () => {
     let totalScore = 0;
     items.forEach((item, index) => {
-      // Ищем этот предмет в эталонном списке, который мы загрузили из XML
       const ideal = staticItems.find((si) => si.id === item.id);
       if (ideal) {
         totalScore += Math.abs(index + 1 - ideal.idealPosition);
       }
     });
 
-    // Start the loading animation
+    // 1. Сохраняем результат текущего игрока в отдельную переменную
+    setCurrentScore(totalScore);
     setIsAnalyzing(true);
 
-    // Создаем объект результата для базы данных
-    const newResult: GameResult = {
+    const resultData = {
       username,
-      team_id: teamId, // Используем актуальный ID команды
+      team_id: teamId,
       score: totalScore,
       selections: items.map((i) => i.id),
     };
 
     try {
-      // Сохраняем в базу данных через Server Action
-      await saveResultAction(newResult);
-
-      // Сразу обновляем список всех результатов с сервера, чтобы увидеть себя в таблице
+      await saveResultAction(resultData);
+      // Обновляем общий список в фоне
       const updatedResults = await getResultsAction();
       setAllResults(updatedResults);
-
-      setView("results");
     } catch (error) {
-      console.error("Failed to save result:", error);
-      alert("Errore nel salvataggio dei dati. Riprova.");
+      console.error("Failed to save:", error);
     }
   };
 
@@ -700,7 +697,6 @@ export default function MarsSurvivalGame() {
       </>
     );
   } else if (view === "results") {
-    const lastResult = allResults[allResults.length - 1];
     content = (
       <>
         <Header title="Analisi Sopravvivenza" />
@@ -714,7 +710,7 @@ export default function MarsSurvivalGame() {
 
         <div className="text-center mb-4">
           <div className="text-6xl font-black mb-2">
-            {lastResult?.score ?? 0}
+            {currentScore}
           </div>
           <div className="text-sm uppercase tracking-[0.3em] mb-0 opacity-70">
             Punti di Deviazione
@@ -723,7 +719,7 @@ export default function MarsSurvivalGame() {
             (Meno è meglio)
           </div>
           <p className="text-xl italic bg-[#00ff41] text-black p-3 font-bold uppercase">
-            {getScoreMessage(lastResult?.score ?? 0)}
+            {getScoreMessage(currentScore)}
           </p>
         </div>
 
