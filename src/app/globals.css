@@ -34,3 +34,16 @@ select {
   background-size: 0.65rem auto;
   padding-right: 2rem !important;
 }
+
+/* Black background in mobile use */
+html, body {
+  background-color: #0a0a0a !important;
+  margin: 0;
+  padding: 0;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: none; 
+}
+
+body {
+  background-color: #0a0a0a;
+}
