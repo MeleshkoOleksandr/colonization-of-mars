@@ -110,15 +110,15 @@ const AnalysisSequence = ({ onComplete }: { onComplete: () => void }) => {
   const [progress, setProgress] = useState(0);
 
   const phrases = [
-    "> INIZIALIZZAZIONE ANALISI QUANTISTICA...",
-    "> CONNESSIONE AL SATELLITE ARES-1 ESTABILITA",
-    "> SCANSIONE INVENTARIO CARGO...",
-    "> VALUTAZIONE RISORSE OSSIGENO: CRITICO",
-    "> CALCOLO TRAIETTORIA NELLA VALLE MARINERIS",
-    "> ANALISI PRIORITÀ DI SOPRAVVIVENZA NASA...",
-    "> SINCRONIZZAZIONE DATI CON IL DATABASE CENTRALE",
-    "> CALCOLO PROBABILITÀ DI SUCCESSO...",
-    "> GENERAZIONE RAPPORTO FINALE...",
+    "> INIZIALIZZAZIONE ANALISI...",
+    "> CONNESSIONE SATELLITE ARES-1",
+    "> SCANSIONE INVENTARIO...",
+    "> VALUTAZIONE O2: CRITICO",
+    "> CALCOLO TRAIETTORIA...",
+    "> ANALISI PRIORITÀ NASA...",
+    "> SINCRONIZZAZIONE DATABASE...",
+    "> CALCOLO PROBABILITÀ...",
+    "> GENERAZIONE RAPPORTO..."
   ];
 
   useEffect(() => {
@@ -126,28 +126,27 @@ const AnalysisSequence = ({ onComplete }: { onComplete: () => void }) => {
     const interval = setInterval(() => {
       setProgress((prev) => (prev < 100 ? prev + 1 : 100));
     }, 40);
-
     // 2. Typing logs simulation
     phrases.forEach((phrase, index) => {
       setTimeout(() => {
         setLogs((prev) => [...prev, phrase]);
       }, index * 450);
     });
-
     // 3. Complete after some time
     const timeout = setTimeout(onComplete, 4500);
-
     return () => {
       clearInterval(interval);
       clearTimeout(timeout);
     };
   }, [onComplete]);
 
+
   return (
-    <div className="fixed inset-0 z-150 bg-black flex flex-col items-center justify-center p-6 font-mono text-[#00ff41]">
-      <div className="w-full max-w-lg">
-        {/* LOG WINDOW */}
-        <div className="h-64 overflow-hidden mb-8 text-xs space-y-2 opacity-80">
+    <div className="fixed inset-0 z-150 bg-black flex flex-col items-center justify-center p-4 md:p-6 font-mono text-[#00ff41]">
+      <div className="w-full max-w-lg flex flex-col h-full md:h-auto justify-center">
+        
+        {/* LOG WINDOW - Responsive height: h-40 on mobile, h-64 on desktop */}
+        <div className="h-40 md:h-64 overflow-hidden mb-4 md:mb-8 text-[10px] md:text-xs space-y-1 md:space-y-2 opacity-80 border-l border-[#00ff41]/20 pl-4">
           <AnimatePresence>
             {logs.map((log, i) => (
               <motion.div
@@ -156,34 +155,34 @@ const AnalysisSequence = ({ onComplete }: { onComplete: () => void }) => {
                 animate={{ opacity: 1, x: 0 }}
                 className="flex items-start"
               >
-                <span className="mr-2 italic opacity-50">
-                  [{new Date().toLocaleTimeString()}]
+                <span className="mr-2 italic opacity-40 shrink-0">
+                  [{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}]
                 </span>
-                {log}
+                <span className="leading-tight">{log}</span>
               </motion.div>
             ))}
           </AnimatePresence>
         </div>
 
         {/* PROGRESS BAR */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-[10px] uppercase font-bold tracking-widest">
+        <div className="space-y-2 bg-black py-2">
+          <div className="flex justify-between text-[9px] md:text-[10px] uppercase font-bold tracking-widest">
             <span>Analisi in corso...</span>
             <span>{progress}%</span>
           </div>
-          <div className="w-full h-4 border-2 border-[#00ff41] p-0.5">
-            <motion.div
+          <div className="w-full h-3 md:h-4 border-2 border-[#00ff41] p-0.5">
+            <motion.div 
               className="h-full bg-[#00ff41] shadow-[0_0_10px_#00ff41]"
               style={{ width: `${progress}%` }}
             />
           </div>
         </div>
 
-        {/* DECORATIVE ELEMENTS */}
-        <div className="mt-12 grid grid-cols-3 gap-4 opacity-20 text-[8px] uppercase">
-          <div className="animate-pulse">CPU LOAD: 98%</div>
-          <div className="animate-pulse delay-75">O2 SENSOR: OK</div>
-          <div className="animate-pulse delay-150">TEMP: -64C</div>
+        {/* DECORATIVE ELEMENTS - Hidden or smaller on very small screens */}
+        <div className="mt-6 md:mt-12 grid grid-cols-3 gap-2 md:gap-4 opacity-30 text-[7px] md:text-[8px] uppercase">
+          <div className="animate-pulse">CPU: 98%</div>
+          <div className="animate-pulse delay-75">O2: OK</div>
+          <div className="animate-pulse delay-150">TMP: -64C</div>
         </div>
       </div>
     </div>
