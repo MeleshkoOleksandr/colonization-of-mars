@@ -18,6 +18,7 @@ import {
   RefreshCcw,
   ArrowLeft,
   GripVertical,
+  Info,
 } from "lucide-react";
 
 // --- Working with DB Server Actions ---
@@ -37,7 +38,7 @@ import { Team, GameResult } from "../../lib/db";
 const CRTWrapper = ({ children }: { children: React.ReactNode }) => (
   <div className="min-h-screen bg-[#0a0a0a] text-[#00ff41] font-mono p-4 md:p-8 relative overflow-hidden selection:bg-[#00ff41] selection:text-black">
     {/* Scanline Effect */}
-    <div className="pointer-events-none fixed inset-0 z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] opacity-30"></div>
+    <div className="pointer-events-none fixed inset-0 z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-size-[100%_2px,3px_100%] opacity-30"></div>
     <div className="max-w-4xl mx-auto border-4 border-[#00ff41] p-6 shadow-[0_0_25px_rgba(0,255,65,0.2)] bg-[#0d0d0d] relative z-10">
       {children}
     </div>
@@ -202,7 +203,7 @@ const AnalysisSequence = ({ onComplete }: { onComplete: () => void }) => {
       </div>
 
       {/* Эффект сканирования специально для этого экрана */}
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%)] bg-[length:100%_4px] opacity-10"></div>
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%)] bg-size-[100%_4px] opacity-10"></div>
     </div>
   );
 };
@@ -238,7 +239,7 @@ const RetroModal = ({
         className="w-full max-w-md border-4 border-[#00ff41] bg-black p-6 shadow-[0_0_50px_rgba(0,255,65,0.3)] relative"
       >
         {/* Scanline overlay for modal */}
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] opacity-20"></div>
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-size-[100%_2px,3px_100%] opacity-20"></div>
 
         <h3 className="text-[#00ff41] font-black uppercase tracking-tighter mb-4 text-xl italic border-b border-[#00ff41]/30 pb-2">
           {type === "confirm"
@@ -1024,45 +1025,96 @@ export default function MarsSurvivalGame() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>{/* ... headers (same as before) ... */}</thead>
-              <tbody className="text-[11px] uppercase">
-                {filteredAdminResults.map((r) => (
-                  <tr
-                    key={r.id}
-                    className="border-b border-[#00ff41]/10 hover:bg-[#00ff41]/5"
-                  >
-                    <td className="p-2 opacity-60">
-                      {r.created_at
-                        ? new Date(r.created_at).toLocaleDateString()
-                        : "N/A"}
-                    </td>
-                    <td className="p-2 font-bold">{r.username}</td>
-                    <td className="p-2 opacity-80">{r.team_name}</td>
-                    <td className="p-2 font-black text-[#00ff41]">{r.score}</td>
-                    <td className="p-2 flex justify-center gap-4">
-                      {/* VIEW DETAILS BUTTON  */}
-                      <button
-                        onClick={() => {
-                          setSelectedUserDetail(r);
-                          setPrevView("admin"); // Remember we came from Admin
-                          setView("user-detail");
-                        }}
-                        className="text-[#00ff41] hover:underline"
-                      >
-                        DETAILS
-                      </button>
-                      {/* DELETE BUTTON */}
-                      <button
-                        onClick={() => handleDeleteResult(r.id!)}
-                        className="text-red-500 hover:underline"
-                      >
-                        DELETE
-                      </button>
+          <div className="overflow-x-auto -mx-2 md:mx-0">
+            <table className="w-full text-left border-collapse min-w-300px">
+              <thead>
+                <tr className="bg-[#00ff41] text-black uppercase text-[9px] md:text-[10px] font-black">
+                  <th className="p-2 border border-black w-50px md:w-auto">
+                    Data
+                  </th>
+                  <th className="p-2 border border-black">User</th>
+                  <th className="p-2 border border-black hidden sm:table-cell">
+                    Team
+                  </th>
+                  <th className="p-2 border border-black text-right w-40px">
+                    Pts
+                  </th>
+                  <th className="p-2 border border-black text-center w-80px">
+                    Cmd
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="text-[10px] md:text-[11px] uppercase">
+                {filteredAdminResults.length > 0 ? (
+                  filteredAdminResults.map((r) => (
+                    <tr
+                      key={r.id}
+                      className="border-b border-[#00ff41]/10 hover:bg-[#00ff41]/5"
+                    >
+                      {/* DATE: Short format for mobile */}
+                      <td className="p-2 opacity-60 whitespace-nowrap">
+                        {r.created_at
+                          ? new Date(r.created_at).toLocaleDateString([], {
+                              day: "2-digit",
+                              month: "2-digit",
+                            })
+                          : "N/A"}
+                        <span className="hidden md:inline">
+                          {r.created_at &&
+                            `/${new Date(r.created_at).getFullYear().toString().slice(-2)}`}
+                        </span>
+                      </td>
+
+                      {/* USERNAME: Wraps if long */}
+                      <td className="p-2 font-bold wrap-break-word max-w-80px md:max-w-none">
+                        {r.username}
+                      </td>
+
+                      {/* TEAM: Hidden on very small screens, visible on tablets/desktop */}
+                      <td className="p-2 italic opacity-80 truncate hidden sm:table-cell">
+                        {r.team_name}
+                      </td>
+
+                      {/* SCORE */}
+                      <td className="p-2 font-black text-[#00ff41] text-right">
+                        {r.score}
+                      </td>
+
+                      {/* ACTIONS: Icons for mobile, Text+Icons for desktop */}
+                      <td className="p-2">
+                        <div className="flex justify-center gap-2 md:gap-4">
+                          <button
+                            onClick={() => {
+                              setSelectedUserDetail(r);
+                              setPrevView("admin");
+                              setView("user-detail");
+                            }}
+                            className="text-[#00ff41] hover:text-white transition-colors p-1"
+                            title="Dettagli"
+                          >
+                            <Info size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteResult(r.id!)}
+                            className="text-red-500 hover:text-white transition-colors p-1"
+                            title="Elimina"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={5}
+                      className="p-4 text-center opacity-50 italic"
+                    >
+                      Nessun dato.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
