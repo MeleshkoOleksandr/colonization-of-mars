@@ -776,12 +776,18 @@ export default function MarsSurvivalGame() {
       <>
         <div className="flex justify-between items-center mb-6 border-b-2 border-[#00ff41] pb-2">
           <button
-            // Используем prevView, чтобы вернуться либо в results, либо в admin
-            onClick={() => setView(prevView)}
-            className="text-xs flex items-center gap-1 hover:underline"
+            onClick={() => {
+              //  Прямая логика в зависимости от роли
+              if (isAdmin) {
+                setView("admin");
+              } else {
+                setView("results");
+              }
+            }}
+            className="text-xs flex items-center gap-1 hover:underline text-[#00ff41]"
           >
-            <ArrowLeft size={14} />{" "}
-            {prevView === "admin" ? "Torna all'Admin" : "Indietro"}
+            <ArrowLeft size={14} />
+            {isAdmin ? "Torna all'Admin" : "Torna ai Risultati"}
           </button>
           <h2 className="text-xl font-bold uppercase">Status Coloni</h2>
           <button
