@@ -6,7 +6,6 @@ import {
   motion,
   useDragControls,
 } from "framer-motion";
-import { GripVertical } from "lucide-react";
 
 import {
   Monitor,
@@ -18,6 +17,7 @@ import {
   Edit,
   RefreshCcw,
   ArrowLeft,
+  GripVertical,
 } from "lucide-react";
 
 // --- Working with DB Server Actions ---
@@ -887,24 +887,41 @@ export default function MarsSurvivalGame() {
           </div>
         </div>
 
-        <div className="space-y-1 text-xs">
+        <div className="space-y-1">
           {selectedUserDetail.selections.map((itemId: string, idx: number) => {
-            // Finding the item details from our local INITIAL_ITEMS array
             const item = staticItems.find((i) => i.id === itemId);
             const diff = Math.abs(idx + 1 - (item?.idealPosition || 0));
+
             return (
               <div
                 key={itemId}
-                className="flex justify-between p-2 border-b border-[#00ff41]/10 bg-black/30"
+                // flex justify-between pushes children to opposite ends
+                // items-start ensures alignment even if name wraps to 2 lines
+                className="flex justify-between items-start gap-3 p-3 border-b border-[#00ff41]/10 bg-black/20"
               >
-                <span>
-                  {idx + 1}. {item?.name}
-                </span>
-                <span
-                  className={diff === 0 ? "text-green-400" : "text-amber-500"}
-                >
-                  NASA: {item?.idealPosition} (Δ{diff})
-                </span>
+                {/* LEFT SIDE: Index and Name (Flexible) */}
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] opacity-40 font-mono mr-2">
+                    {String(idx + 1).padStart(2, "0")}.
+                  </span>
+                  <span className="uppercase font-bold text-[11px] leading-tight wrap-break-word">
+                    {item?.name}
+                  </span>
+                </div>
+
+                {/* RIGHT SIDE: NASA Info and Delta (Fixed width, pinned to right) */}
+                <div className="shrink-0 text-right font-mono flex flex-col items-end">
+                  <div className="text-[9px] opacity-50 uppercase italic leading-none mb-1">
+                    NASA: {item?.idealPosition}
+                  </div>
+                  <div
+                    className={`text-sm font-black leading-none ${
+                      diff === 0 ? "text-green-400" : "text-amber-500"
+                    }`}
+                  >
+                    Δ {diff}
+                  </div>
+                </div>
               </div>
             );
           })}
