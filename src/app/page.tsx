@@ -89,12 +89,10 @@ const DraggableItem = ({
       >
         <GripVertical size={20} />
       </div>
-
       {/* 2. INDEX NUMBER */}
       <span className="text-xl font-black w-8 text-[#00ff41]/40 group-hover:text-[#00ff41]">
         {index + 1}
       </span>
-
       {/* 3. ITEM PHOTO */}
       <div className="w-20 h-20 border border-[#00ff41]/20 overflow-hidden bg-black shrink-0">
         <img
@@ -104,7 +102,6 @@ const DraggableItem = ({
           className="w-full h-full object-cover opacity-80"
         />
       </div>
-
       {/* 4. ITEM NAME */}
       <div className="flex-1">
         <div className="uppercase font-bold text-xs leading-tight">
@@ -291,6 +288,9 @@ const RetroModal = ({
   );
 };
 
+// Password to prevent players from seeing game results
+const ADMIN_PASSWORD = "adm";
+
 // --- Data types ---
 interface SurvivalItem {
   id: string;
@@ -468,34 +468,28 @@ export default function MarsSurvivalGame() {
   }, []); // Run only once on mount
 
   const handleStart = () => {
-    // Replace standard alert with our new Modal
     if (!username) {
-      setModal({
-        isOpen: true,
-        type: "alert",
-        message:
-          "Identificazione fallita. Inserire un nome operatore per procedere.",
-        value: "",
-        action: () => setModal((prev) => ({ ...prev, isOpen: false })),
-      });
-      return;
+      return triggerModal(
+        "alert",
+        "Identificazione fallita. Inserire un nome.",
+      );
     }
 
+    // ПРОВЕРКА НА АДМИНА
     if (username.toLowerCase() === "admin") {
-      setView("admin");
+      setModal({
+        isOpen: true,
+        type: "prompt", // Используем ввод текста
+        message:
+          "ACCESSO RISERVATO: Inserire il Codice di Autorizzazione dell'Ufficiale di Comando.",
+        value: "",
+        action: () => {}, // Логику проверки напишем в executeAdminAuth
+      });
       return;
     }
 
     if (teamId === 0) {
-      setModal({
-        isOpen: true,
-        type: "alert",
-        message:
-          "Unità non selezionata. Selezionare una squadra per la missione.",
-        value: "",
-        action: () => setModal((prev) => ({ ...prev, isOpen: false })),
-      });
-      return;
+      return triggerModal("alert", "Selezionare una squadra per procedere.");
     }
 
     setView("story");
@@ -576,6 +570,20 @@ export default function MarsSurvivalGame() {
       setTeamsList(await getTeamsAction());
       // Close and clear input
       setModal((prev) => ({ ...prev, isOpen: false, value: "" }));
+    }
+  };
+
+  const executeAdminAuth = () => {
+    if (modal.value === ADMIN_PASSWORD) {
+      // Pass
+      setModal((prev) => ({ ...prev, isOpen: false, value: "" }));
+      setView("admin");
+    } else {
+      // Wrong password
+      triggerModal(
+        "alert",
+        "CODICE ERRATO: Accesso negato. Il tentativo è stato registrato.",
+      );
     }
   };
 
@@ -1136,7 +1144,7 @@ export default function MarsSurvivalGame() {
                       <input
                         type="checkbox"
                         checked={t.is_unlocked}
-                        title="Sblocca i risultati: attiva per consentire a questo team di vedere il rapporto NASA"
+                        title="Sblocca i risultati: attiva per consentire a questo team di vedere il rapporto"
                         onChange={async () => {
                           await updateTeamStatusAction(t.id, !t.is_unlocked);
                           setTeamsList(await getTeamsAction());
@@ -1357,7 +1365,21 @@ export default function MarsSurvivalGame() {
         message={modal.message}
         value={modal.value}
         onClose={() => setModal((prev) => ({ ...prev, isOpen: false }))}
-        onConfirm={modal.type === "prompt" ? executeAddTeam : modal.action}
+        // ИСПРАВЛЕННЫЙ ОНКОНФИРМ:
+        onConfirm={() => {
+          if (modal.type === "prompt") {
+            // Если сообщение про авторизацию - проверяем пароль
+            if (modal.message.includes("Autorizzazione")) {
+              executeAdminAuth();
+            } else {
+              // Иначе это добавление новой команды
+              executeAddTeam();
+            }
+          } else {
+            // Если это confirm или alert - просто запускаем действие
+            modal.action();
+          }
+        }}
         onChange={(val) => setModal((prev) => ({ ...prev, value: val }))}
       />
     </CRTWrapper>
