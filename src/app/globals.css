@@ -47,3 +47,37 @@ html, body {
 body {
   background-color: #0a0a0a;
 }
+
+/* Делаем системные элементы (чекбоксы, селекты) темными по умолчанию */
+input[type="checkbox"] {
+  color-scheme: dark; /* Самый простой способ убрать белый фон */
+}
+
+/* Настраиваем стиль чекбокса */
+input[type="checkbox"]:not(:checked) {
+  background-color: #000 !important;
+  border-color: rgba(0, 255, 65, 0.4) !important;
+}
+
+input[type="checkbox"].appearance-none:checked::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 6px;
+  width: 5px;
+  height: 10px;
+  border: solid black;
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
+}
+
+/* Убираем любые серые обводки от браузера при фокусе */
+input[type="checkbox"]:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
+}
+
+/* Дополнительно: стиль для подсказки title (опционально, зависит от браузера) */
+[title] {
+  cursor: help;
+}

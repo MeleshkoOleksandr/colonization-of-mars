@@ -57,3 +57,14 @@ export async function deleteAllResultsAction() {
   await db.deleteAllResults();
   revalidatePath("/");
 }
+
+// Action to change team status from Admin panel
+export async function updateTeamStatusAction(teamId: number, status: boolean) {
+  await db.setTeamUnlockStatus(teamId, status);
+  revalidatePath("/");
+}
+
+// Action for players to check if they can see results
+export async function checkTeamStatusAction(teamId: number) {
+  return await db.getTeamStatus(teamId);
+}

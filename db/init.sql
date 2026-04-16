@@ -12,7 +12,8 @@ DROP TABLE IF EXISTS teams;
 -- This stores the list of available teams
 CREATE TABLE teams (
   id SERIAL PRIMARY KEY,
-  name VARCHAR(255) UNIQUE NOT NULL
+  name VARCHAR(255) UNIQUE NOT NULL,
+  is_unlocked BOOLEAN DEFAULT false
 );
 
 -- 3. Create Results Table
@@ -20,7 +21,7 @@ CREATE TABLE teams (
 CREATE TABLE results (
   id SERIAL PRIMARY KEY,
   username VARCHAR(255) NOT NULL,
-  
+
   -- Foreign Key: Links this result to a specific team
   -- ON DELETE CASCADE: If a team is deleted, all its results are also deleted
   team_id INT REFERENCES teams(id) ON DELETE CASCADE,

@@ -10,6 +10,7 @@ const sql = neon(process.env.POSTGRES_URL!);
 export interface Team {
   id: number;
   name: string;
+  is_unlocked: boolean; // Lock result from player
 }
 
 export interface GameResult {
@@ -84,4 +85,15 @@ export async function deleteResult(id: number) {
  */
 export async function deleteAllResults() {
   await sql`DELETE FROM results`;
+}
+
+// Function to toggle unlock status
+export async function setTeamUnlockStatus(teamId: number, status: boolean) {
+  await sql`UPDATE teams SET is_unlocked = ${status} WHERE id = ${teamId}`;
+}
+
+// Function to check specific team status
+export async function getTeamStatus(teamId: number): Promise<boolean> {
+  const result = await sql`SELECT is_unlocked FROM teams WHERE id = ${teamId}`;
+  return result[0]?.is_unlocked || false;
 }

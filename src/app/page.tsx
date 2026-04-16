@@ -8,13 +8,10 @@ import {
 } from "framer-motion";
 
 import {
-  Monitor,
   Save,
   ChevronRight,
-  User,
   Users,
   Trash2,
-  Edit,
   RefreshCcw,
   ArrowLeft,
   GripVertical,
@@ -30,6 +27,8 @@ import {
   deleteTeamAction,
   deleteResultAction,
   deleteAllResultsAction,
+  updateTeamStatusAction,
+  checkTeamStatusAction,
 } from "./actions";
 
 import { Team, GameResult } from "../../lib/db";
@@ -44,6 +43,14 @@ const CRTWrapper = ({ children }: { children: React.ReactNode }) => (
     </div>
   </div>
 );
+
+// --- STYLES & HELPERS ---
+const BUTTON_STYLES = {
+  primary:
+    "w-full bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,255,65,0.5)]",
+  secondary:
+    "border-2 border-[#00ff41] py-3 hover:bg-[#00ff41] hover:text-black uppercase font-bold transition-all",
+};
 
 const Header = ({ title }: { title: string }) => (
   <h1 className="text-2xl md:text-4xl font-black text-center mb-8 uppercase tracking-tighter italic border-b-2 border-[#00ff41] pb-4">
@@ -309,6 +316,8 @@ export default function MarsSurvivalGame() {
     | "admin"
     | "leaderboard"
     | "user-detail"
+    | "user-order"
+    | "discussion-list"
   >("login");
 
   // Initial empty states
@@ -332,6 +341,28 @@ export default function MarsSurvivalGame() {
   //For results loading aniamtion
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
+  // Filter for admin view
+  const [adminTeamFilter, setAdminTeamFilter] = useState<number>(0);
+  // Remember where to go back from 'user-detail' view
+  const [prevView, setPrevView] = useState<
+    "leaderboard" | "admin" | "results" | "discussion-list" // <-- Добавьте это значение
+  >("leaderboard");
+
+  const triggerModal = (
+    type: "alert" | "confirm" | "prompt",
+    message: string,
+    action?: () => void,
+  ) => {
+    setModal({
+      isOpen: true,
+      type,
+      message,
+      value: "",
+      action:
+        action || (() => setModal((prev) => ({ ...prev, isOpen: false }))),
+    });
+  };
+
   // Inside MarsSurvivalGame component:
   const [modal, setModal] = useState<{
     isOpen: boolean;
@@ -347,12 +378,8 @@ export default function MarsSurvivalGame() {
     action: () => {},
   });
 
-  // Filter for admin view
-  const [adminTeamFilter, setAdminTeamFilter] = useState<number>(0);
-  // Remember where to go back from 'user-detail' view
-  const [prevView, setPrevView] = useState<"leaderboard" | "admin">(
-    "leaderboard",
-  );
+  // Add "discussion-list" to your view types if you use TypeScript strict
+  const [showDeltas, setShowDeltas] = useState<boolean>(true);
 
   /**
    * XML PARSER
@@ -483,7 +510,7 @@ export default function MarsSurvivalGame() {
       }
     });
 
-    // 1. Сохраняем результат текущего игрока в отдельную переменную
+    // Сохраняем результат текущего игрока в отдельную переменную
     setCurrentScore(totalScore);
     setIsAnalyzing(true);
 
@@ -505,11 +532,13 @@ export default function MarsSurvivalGame() {
   };
 
   const getScoreMessage = (s: number) => {
-    if (s <= 20) return "ECCELLENTE. Elon Musk sarebbe fiero di te!";
-    if (s <= 35) return "BUONO. Arriverai alla base, seppur con fatica.";
+    if (s <= 20)
+      return "ECCELLENTE. Elon Musk sarebbe fiero di te. Sei l'élite della colonizzazione!";
+    if (s <= 35)
+      return "BUONO. Arriverai alla base, anche se con qualche congelamento.";
     if (s <= 50)
-      return "SUFFICIENTE. Probabilmente finirai l'energia a metà strada.";
-    return "DISASTRO. I tuoi resti saranno concime per patate marziane.";
+      return "SUFFICIENTE. Probabilmente rimarrai bloccato a metà strada con le batterie scariche.";
+    return "DISASTRO. Sei diventato parte del paesaggio marziano. I tuoi resti serviranno da concime per i futuri campi di patate.";
   };
 
   // ---  Handlers ---
@@ -697,6 +726,122 @@ export default function MarsSurvivalGame() {
         </button>
       </>
     );
+  }
+  if (view === "user-order") {
+    content = (
+      <>
+        <Header title="Rapporto Inviato" />
+        <div className="bg-[#003300] p-4 border border-[#00ff41] mb-6 text-xs italic">
+          TRASMISSIONE COMPLETATA. I DATI SONO STATI ARCHIVIATI NELLA BASE.
+          <br /> IN ATTESA DI AUTORIZZAZIONE DALL'UFFICIALE PER IL RAPPORTO
+          NASA.
+        </div>
+
+        <div className="space-y-2 mb-8 opacity-80">
+          {items.map((item, idx) => (
+            <div
+              key={item.id}
+              className="flex items-center gap-4 bg-[#111] p-2 border border-[#00ff41]/20"
+            >
+              <span className="text-xl font-black w-8 text-[#00ff41]/40">
+                {idx + 1}
+              </span>
+              <div className="w-10 h-10 border border-[#00ff41]/20">
+                <img
+                  src={`/${item.photo}`}
+                  className="w-full h-full object-cover grayscale"
+                />
+              </div>
+              <span className="uppercase text-[10px] font-bold">
+                {item.name}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <button
+          onClick={async () => {
+            const unlocked = await checkTeamStatusAction(teamId);
+            if (unlocked) {
+              setView("results");
+            } else {
+              triggerModal(
+                "alert",
+                "CONNESSIONE FALLITA: Accesso ai server NASA negato. Attendere la fine della discussione di squadra.",
+              );
+            }
+          }}
+          className={BUTTON_STYLES.primary}
+        >
+          Richiedi Risultati dalla Base
+        </button>
+      </>
+    );
+  } else if (view === "discussion-list") {
+    const discussionResults = allResults
+      .filter((r) => r.team_id === adminTeamFilter)
+      .sort((a, b) => a.username.localeCompare(b.username));
+
+    content = (
+      <>
+        <div className="flex justify-between items-center mb-6 border-b-2 border-amber-500 pb-2 text-amber-500">
+          <button
+            onClick={() => setView("admin")}
+            className="text-xs flex items-center gap-1 hover:underline"
+          >
+            <ArrowLeft size={14} /> Indietro
+          </button>
+          <h2 className="text-xl font-bold uppercase italic">
+            Area Discussione:{" "}
+            {teamsList.find((t) => t.id === adminTeamFilter)?.name}
+          </h2>
+          <RefreshCcw
+            size={18}
+            className="cursor-pointer"
+            onClick={async () => setAllResults(await getResultsAction())}
+          />
+        </div>
+
+        <div className="space-y-2">
+          {discussionResults.map((res) => (
+            <div
+              key={res.id}
+              className="flex justify-between items-center bg-[#111] p-4 border border-amber-500/30 hover:border-amber-500 transition-colors"
+            >
+              <span className="font-bold uppercase text-amber-500">
+                {res.username}
+              </span>
+              <button
+                onClick={() => {
+                  setSelectedUserDetail(res);
+                  setShowDeltas(false); // ВАЖНО: Выключаем показ баллов
+                  setPrevView("discussion-list");
+                  setView("user-detail");
+                }}
+                className="bg-amber-500 text-black px-4 py-1 text-[10px] font-black uppercase hover:bg-white"
+              >
+                Analizza Scelte
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Кнопка разблокировки для всех игроков команды */}
+        <button
+          onClick={async () => {
+            await updateTeamStatusAction(adminTeamFilter, true);
+            setTeamsList(await getTeamsAction());
+            triggerModal(
+              "alert",
+              "DISCUSSIONE TERMINATA. I risultati sono ora disponibili.",
+            );
+          }}
+          className="w-full mt-8 bg-[#00ff41] text-black py-4 font-black uppercase hover:bg-white"
+        >
+          Sblocca Risultati per la Squadra
+        </button>
+      </>
+    );
   } else if (view === "results") {
     content = (
       <>
@@ -840,6 +985,7 @@ export default function MarsSurvivalGame() {
                   <button
                     onClick={() => {
                       setSelectedUserDetail(res);
+                      setShowDeltas(true); // Включаем баллы
                       setPrevView("leaderboard");
                       setView("user-detail");
                     }}
@@ -922,16 +1068,23 @@ export default function MarsSurvivalGame() {
 
                 {/* RIGHT SIDE: NASA Info and Delta (Fixed width, pinned to right) */}
                 <div className="shrink-0 text-right font-mono flex flex-col items-end">
-                  <div className="text-[9px] opacity-50 uppercase italic leading-none mb-1">
-                    NASA: {item?.idealPosition}
-                  </div>
-                  <div
-                    className={`text-sm font-black leading-none ${
-                      diff === 0 ? "text-green-400" : "text-amber-500"
-                    }`}
-                  >
-                    Δ {diff}
-                  </div>
+                  {/* Условие: показываем NASA и дельты только если showDeltas === true */}
+                  {showDeltas ? (
+                    <>
+                      <div className="text-[9px] opacity-50 uppercase italic leading-none mb-1">
+                        NASA: {item?.idealPosition}
+                      </div>
+                      <div
+                        className={`text-sm font-black leading-none ${diff === 0 ? "text-green-400" : "text-amber-500"}`}
+                      >
+                        Δ {diff}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-[10px] text-amber-500 italic border border-amber-500/30 px-2 py-1">
+                      In Discussione
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -945,6 +1098,12 @@ export default function MarsSurvivalGame() {
         ? allResults
         : allResults.filter((r) => r.team_id === adminTeamFilter)
     ).sort((a, b) => a.score - b.score); // NASA logic: lower score is better
+
+    // Logic for discussion filter
+    const discussionResults = allResults
+      .filter((r) => adminTeamFilter === 0 || r.team_id === adminTeamFilter)
+      .sort((a, b) => a.username.localeCompare(b.username));
+
     content = (
       <>
         <div className="flex justify-between items-center mb-8 border-b-4 border-[#00ff41] pb-2">
@@ -961,32 +1120,45 @@ export default function MarsSurvivalGame() {
 
         <div className="space-y-8">
           {/* Teams Management */}
-          <div className="space-y-4 border-2 border-[#00ff41]/30 p-4">
-            <h3 className="font-bold uppercase flex items-center gap-2">
-              <Users size={18} /> Gestione Team
+          <div className="border-2 border-[#00ff41]/30 p-4 bg-[#111]/30">
+            <h3 className="font-bold uppercase flex items-center gap-2 mb-4">
+              <Users size={18} /> Gestione Unità
             </h3>
             <div className="max-h-80 overflow-y-auto pr-2 custom-scrollbar">
-              <div className="space-y-2">
-                {teamsList
-                  .sort((a, b) => a.id - b.id)
-                  .map((t) => (
-                    <div
-                      key={t.id} // 1. Use DB ID as key
-                      className="flex justify-between items-center bg-[#111] p-2 text-sm"
-                    >
-                      {/* 2. Access the name property of the object */}
-                      <span>{t.name}</span>
-                      <button
-                        // 3. Call a new function to delete from DB
-                        onClick={() => handleDeleteTeam(t.id)}
-                      >
-                        <Trash2 size={14} className="text-red-500" />
-                      </button>
+              <div className="flex flex-col gap-2 mb-4">
+                {teamsList.map((t) => (
+                  <div
+                    key={t.id}
+                    className="flex justify-between items-center bg-[#0a0a0a] border border-[#00ff41]/20 p-2 hover:border-[#00ff41]/50 transition-all"
+                  >
+                    <div className="flex items-center gap-3">
+                      {/* Чекбок разблокировки прямо в списке команд */}
+                      <input
+                        type="checkbox"
+                        checked={t.is_unlocked}
+                        title="Sblocca i risultati: attiva per consentire a questo team di vedere il rapporto NASA"
+                        onChange={async () => {
+                          await updateTeamStatusAction(t.id, !t.is_unlocked);
+                          setTeamsList(await getTeamsAction());
+                        }}
+                        className="appearance-none w-5 h-5 border-2 border-[#00ff41]/40 bg-black checked:bg-[#00ff41] checked:border-[#00ff41] transition-all cursor-pointer relative flex-shrink-0"
+                      />
+                      <span className="text-[10px] font-bold uppercase">
+                        {t.name}
+                      </span>
                     </div>
-                  ))}
+                    <button
+                      onClick={() => handleDeleteTeam(t.id)}
+                      className="text-red-500 hover:text-white p-1"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
               </div>
             </div>
-            {/* Update the Add Team button */}
+
+            {/*Add Team button */}
             <button
               onClick={handleAddTeam}
               className="text-[10px] border border-[#00ff41] p-1 w-full hover:bg-[#00ff41] hover:text-black"
@@ -1130,20 +1302,37 @@ export default function MarsSurvivalGame() {
           </div>
         </div>
 
-        <button
-          onClick={() => {
-            // 1. Указываем, что нужно вернуться в админку
-            setPrevView("admin");
-            // 2. Переходим в таблицу лидеров
-            setView("leaderboard");
-          }}
-          className="w-full mt-8 border-2 border-[#00ff41] py-3 hover:bg-[#00ff41] hover:text-black uppercase font-bold transition-all"
-        >
-          Visualizza Classifica{" "}
-          {adminTeamFilter !== 0
-            ? `Team: ${teamsList.find((t) => t.id === adminTeamFilter)?.name}`
-            : "Completa"}
-        </button>
+        {/* В конце блока view === "admin" */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+          {/* КНОПКА 1: Классическая таблица с баллами */}
+          <button
+            onClick={() => {
+              setPrevView("admin");
+              setView("leaderboard");
+            }}
+            className="border-2 border-[#00ff41] py-3 hover:bg-[#00ff41] hover:text-black uppercase font-bold text-xs"
+          >
+            1. Registro Risultati (Con Punteggi)
+          </button>
+
+          {/* КНОПКА 2: Режим обсуждения (Новый) */}
+          <button
+            onClick={() => {
+              if (adminTeamFilter === 0) {
+                triggerModal(
+                  "alert",
+                  "Selezionare una squadra per avviare la discussione.",
+                );
+              } else {
+                setPrevView("admin");
+                setView("discussion-list");
+              }
+            }}
+            className="border-2 border-amber-500 py-3 text-amber-500 hover:bg-amber-500 hover:text-black uppercase font-black text-xs shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+          >
+            2. Avvia Modalità Discussione (Senza Punteggi)
+          </button>
+        </div>
       </>
     );
   }
@@ -1156,7 +1345,7 @@ export default function MarsSurvivalGame() {
         <AnalysisSequence
           onComplete={() => {
             setIsAnalyzing(false); // Hide animation
-            setView("results"); // Show results
+            setView("user-order"); // Show results
           }}
         />
       )}
