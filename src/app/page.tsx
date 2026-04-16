@@ -29,6 +29,7 @@ import {
   deleteAllResultsAction,
   updateTeamStatusAction,
   checkTeamStatusAction,
+  deleteResultsByTeamAction,
 } from "./actions";
 
 import { Team, GameResult } from "../../lib/db";
@@ -632,6 +633,21 @@ export default function MarsSurvivalGame() {
     });
   };
 
+  const handleDeleteTeamResults = (teamId: number) => {
+    const teamName = teamsList.find((t) => t.id === teamId)?.name || "Unità";
+    setModal({
+      isOpen: true,
+      type: "confirm",
+      message: `ATTENZIONE: Eliminare TUTTI i record per il team [${teamName}]? L'azione è irreversibile.`,
+      value: "",
+      action: async () => {
+        await deleteResultsByTeamAction(teamId);
+        setAllResults(await getResultsAction());
+        setModal((prev) => ({ ...prev, isOpen: false }));
+      },
+    });
+  };
+
   // Define a variable to hold the screen content
   let content;
   // --- VIEWS ---
@@ -1182,13 +1198,23 @@ export default function MarsSurvivalGame() {
             </h3>
 
             <div className="flex flex-wrap items-center gap-4">
-              {/* DELETE ALL BUTTON */}
-              <button
-                onClick={handleDeleteAllResults}
-                className="text-[10px] border border-red-600 px-2 py-1 text-red-500 hover:bg-red-600 hover:text-white transition-colors uppercase font-bold"
-              >
-                Clear All Database
-              </button>
+              {/* DELETE data BUTTON */}
+              {adminTeamFilter === 0 ? (
+                <button
+                  onClick={handleDeleteAllResults}
+                  className="text-[10px] border border-red-600 px-2 py-1 text-red-500 hover:bg-red-600 hover:text-white transition-colors uppercase font-bold"
+                >
+                  Clear All Database
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleDeleteTeamResults(adminTeamFilter)}
+                  className="text-[10px] border border-amber-600 px-2 py-1 text-amber-500 hover:bg-amber-600 hover:text-white transition-colors uppercase font-bold"
+                >
+                  Clear {teamsList.find((t) => t.id === adminTeamFilter)?.name}{" "}
+                  Records
+                </button>
+              )}
 
               {/* TEAM FILTER FOR ADMIN */}
               <div className="flex items-center gap-2 bg-black border border-[#00ff41]/50 p-1">

@@ -97,3 +97,10 @@ export async function getTeamStatus(teamId: number): Promise<boolean> {
   const result = await sql`SELECT is_unlocked FROM teams WHERE id = ${teamId}`;
   return result[0]?.is_unlocked || false;
 }
+
+/**
+ * Deletes all results associated with a specific team ID
+ */
+export async function deleteResultsByTeam(teamId: number) {
+  await sql`DELETE FROM results WHERE team_id = ${teamId}`;
+}

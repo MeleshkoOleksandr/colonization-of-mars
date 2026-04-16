@@ -68,3 +68,9 @@ export async function updateTeamStatusAction(teamId: number, status: boolean) {
 export async function checkTeamStatusAction(teamId: number) {
   return await db.getTeamStatus(teamId);
 }
+
+// Action for deleting all results associated with a specific team ID
+export async function deleteResultsByTeamAction(teamId: number) {
+  await db.deleteResultsByTeam(teamId);
+  revalidatePath("/");
+}
