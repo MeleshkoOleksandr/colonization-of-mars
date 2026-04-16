@@ -9,7 +9,7 @@ import { revalidatePath } from "next/cache";
  * They act as a secure bridge between the UI and the Database.
  */
 
-// 1. Get the list of teams for the login screen
+//  Get the list of teams for the login screen
 export async function getTeamsAction() {
 //  const teams = await db.fetchTeams();
 //  console.log("SERVER ACTION: Teams fetched from DB:", teams); // Checking DB
@@ -28,37 +28,37 @@ export async function saveResultAction(data: {
   revalidatePath("/"); 
 }
 
-// 3. Get all results for the leaderboard
+//  Get all results for the leaderboard
 export async function getResultsAction() {
   return await db.fetchAllResults();
 }
 
-// 4. Admin: Add a new team
+//  Admin: Add a new team
 export async function addTeamAction(name: string) {
   await db.addTeam(name);
   revalidatePath("/");
 }
 
-// 5. Admin: Delete a team (and its results thanks to CASCADE)
+//  Admin: Delete a team (and its results thanks to CASCADE)
 export async function deleteTeamAction(id: number) {
   await db.deleteTeam(id);
   revalidatePath("/");
 }
 
-// 6. Admin: action to delete a result and refresh the cache
+//  Admin: action to delete a result and refresh the cache
 export async function deleteResultAction(id: number) {
   await db.deleteResult(id);
-  // This tells Next.js to update the data for all users
+// This tells Next.js to update the data for all users
   revalidatePath("/");
 }
 
-// 7. Admin: action to delete all result and refresh the cache
+//  Admin: action to delete all result and refresh the cache
 export async function deleteAllResultsAction() {
   await db.deleteAllResults();
   revalidatePath("/");
 }
 
-// Action to change team status from Admin panel
+//  Action to change team status from Admin panel
 export async function updateTeamStatusAction(teamId: number, status: boolean) {
   await db.setTeamUnlockStatus(teamId, status);
   revalidatePath("/");

@@ -308,6 +308,11 @@ interface UserResult {
   selections: string[];
 }
 
+interface ScoreEvaluation {
+  threshold: number;
+  message: string;
+}
+
 export default function MarsSurvivalGame() {
   const [view, setView] = useState<
     | "login"
@@ -346,8 +351,10 @@ export default function MarsSurvivalGame() {
   const [adminTeamFilter, setAdminTeamFilter] = useState<number>(0);
   // Remember where to go back from 'user-detail' view
   const [prevView, setPrevView] = useState<
-    "leaderboard" | "admin" | "results" | "discussion-list" // <-- Добавьте это значение
+    "leaderboard" | "admin" | "results" | "discussion-list"
   >("leaderboard");
+
+  const [evaluations, setEvaluations] = useState<ScoreEvaluation[]>([]);
 
   const triggerModal = (
     type: "alert" | "confirm" | "prompt",
@@ -408,7 +415,17 @@ export default function MarsSurvivalGame() {
       });
     }
 
-    return { story: { title, plot }, items };
+    // Парсинг оценок
+    const evalNodes = xmlDoc.getElementsByTagName("Rank");
+    const evaluations: ScoreEvaluation[] = [];
+    for (let i = 0; i < evalNodes.length; i++) {
+      evaluations.push({
+        threshold: parseInt(evalNodes[i].getAttribute("threshold") || "999"),
+        message: evalNodes[i].textContent || "",
+      });
+    }
+
+    return { story: { title, plot }, evaluations, items };
   };
 
   /**
@@ -432,6 +449,7 @@ export default function MarsSurvivalGame() {
         // Update story and items from XML
         setStory(parsedData.story);
         setStaticItems(parsedData.items);
+        setEvaluations(parsedData.evaluations);
 
         // Prepare the game items (shuffle logic)
         // We use the freshly parsed data here instead of old INITIAL_ITEMS
@@ -488,7 +506,6 @@ export default function MarsSurvivalGame() {
       });
       return;
     }
-
     if (teamId === 0) {
       return triggerModal("alert", "Selezionare una squadra per procedere.");
     }
@@ -527,13 +544,18 @@ export default function MarsSurvivalGame() {
   };
 
   const getScoreMessage = (s: number) => {
-    if (s <= 20)
-      return "ECCELLENTE. Elon Musk sarebbe fiero di te. Sei l'élite della colonizzazione!";
-    if (s <= 35)
-      return "BUONO. Arriverai alla base, anche se con qualche congelamento.";
-    if (s <= 50)
-      return "SUFFICIENTE. Probabilmente rimarrai bloccato a metà strada con le batterie scariche.";
-    return "DISASTRO. Sei diventato parte del paesaggio marziano. I tuoi resti serviranno da concime per i futuri campi di patate.";
+    // Если данные еще не загрузились
+    if (evaluations.length === 0) return "Analisi in corso...";
+    // Сортируем оценки по возрастанию порога (на всякий случай)
+    const sortedEvals = [...evaluations].sort(
+      (a, b) => a.threshold - b.threshold,
+    );
+    // Находим первую оценку, порог которой больше или равен полученному баллу
+    const result = sortedEvals.find((e) => s <= e.threshold);
+    // Если не нашли (хотя 999 должен закрыть всё), возвращаем последнее сообщение
+    return result
+      ? result.message
+      : evaluations[evaluations.length - 1].message;
   };
 
   // ---  Handlers ---
@@ -665,6 +687,8 @@ export default function MarsSurvivalGame() {
               placeholder="Nome..."
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              // --- Login with Enter key ---
+              onKeyDown={(e) => e.key === "Enter" && handleStart()}
             />
           </div>
           <div className="space-y-2">
@@ -673,6 +697,8 @@ export default function MarsSurvivalGame() {
               className="w-full bg-black border-2 border-[#00ff41] p-3 outline-none appearance-none cursor-pointer"
               value={teamId}
               onChange={(e) => setTeamId(Number(e.target.value))}
+              // --- Login with Enter key ---
+              onKeyDown={(e) => e.key === "Enter" && handleStart()}
             >
               <option value={0}>Seleziona Team...</option>
               {teamsList.map((t) => (

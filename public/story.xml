@@ -4,6 +4,12 @@
         <Title>Sopravvivenza nella Valle Marineris</Title>
         <Plot>Siete i membri di una squadra di coloni d'avanguardia diretti verso la cupola principale della base "Ares-1". Durante la discesa, il vostro rover cargo è stato investito da una violenta tempesta di sabbia e si è ribaltato a 150 chilometri dalla destinazione. I sistemi di supporto vitale del rover sono fuori uso e le comunicazioni con la base sono interrotte. Il vostro obiettivo: percorrere 150 km nel deserto marziano fino alla base. Indossate le tute spaziali, ma le risorse sono limitate.</Plot>
     </Story>
+    <Evaluations>
+        <Rank threshold="20">ECCELLENTE. Elon Musk sarebbe fiero di te. Sei l'élite della colonizzazione!</Rank>
+        <Rank threshold="35">BUONO. Arriverai alla base, anche se con qualche congelamento.</Rank>
+        <Rank threshold="50">SUFFICIENTE. Probabilmente rimarrai bloccato a metà strada con le batterie scariche.</Rank>
+        <Rank threshold="999">DISASTRO. Sei diventato parte del paesaggio marziano. I tuoi resti serviranno da concime.</Rank>
+    </Evaluations>
     <Items>
         <Item id="o2">
             <Name>Bombole di ossigeno compresso</Name>

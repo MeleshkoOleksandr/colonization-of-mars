@@ -56,7 +56,7 @@ export async function fetchTeams(): Promise<Team[]> {
 }
 
 /**
- * 4. Add a new team (Admin Panel)
+ * Add a new team (Admin Panel)
  * Adds a team name to the database if it doesn't already exist.
  */
 export async function addTeam(name: string) {
@@ -64,7 +64,7 @@ export async function addTeam(name: string) {
 }
 
 /**
- * 5. Delete a team (Admin Panel)
+ * Delete a team (Admin Panel)
  * Removes a team from the database by its ID.
  */
 export async function deleteTeam(id: number) {
@@ -72,7 +72,7 @@ export async function deleteTeam(id: number) {
 }
 
 /**
- * 6. Delete a result (Admin Panel)
+ * Delete a result (Admin Panel)
  * Removes a specific player's result from the database.
  */
 export async function deleteResult(id: number) {
@@ -80,7 +80,7 @@ export async function deleteResult(id: number) {
 }
 
 /**
- * 7. Delete all result (Admin Panel)
+ * Delete all result (Admin Panel)
  * Removes all result from the database.
  */
 export async function deleteAllResults() {
