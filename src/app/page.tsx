@@ -389,6 +389,32 @@ export default function MarsSurvivalGame() {
   // Add "discussion-list" to your view types if you use TypeScript strict
   const [showDeltas, setShowDeltas] = useState<boolean>(true);
 
+  useEffect(() => {
+  if (
+    view === "leaderboard" ||
+    view === "admin" ||
+    view === "discussion-list"
+  ) {
+    async function syncData() {
+      try {
+        console.log(`SYSTEM: Auto-syncing data for view [${view}]...`);
+        const freshResults = await getResultsAction();
+        setAllResults(freshResults);
+
+        // If we are on the leaderboard, also refresh teams to catch status changes (is_unlocked)
+        if (view === "leaderboard") {
+          const freshTeams = await getTeamsAction();
+          setTeamsList(freshTeams);
+        }
+      } catch (error) {
+        console.error("SYSTEM ERROR: Auto-sync failed", error);
+      }
+    }
+
+    syncData();
+  }
+}, [view]); // This effect runs every time 'view' changes
+
   /**
    * XML PARSER
    * Converts XML string from public/story.xml into JavaScript objects
