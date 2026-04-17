@@ -97,7 +97,7 @@ const DraggableItem = ({
       {/* 3. ITEM PHOTO */}
       <div className="w-20 h-20 border border-[#00ff41]/20 overflow-hidden bg-black shrink-0">
         <img
-          src={`/${item.photo}`}
+          src={`/img/${item.photo}`} 
           alt={item.name}
           draggable="false"
           className="w-full h-full object-cover opacity-80"
@@ -465,7 +465,7 @@ export default function MarsSurvivalGame() {
 
       try {
         // --- STEP 1: LOAD & PARSE XML CONTENT ---
-        const response = await fetch("/story.xml");
+        const response = await fetch("/data/story.xml");
         if (!response.ok)
           throw new Error("Could not find story.xml in /public");
 
@@ -824,7 +824,7 @@ export default function MarsSurvivalGame() {
               </span>
               <div className="w-10 h-10 border border-[#00ff41]/20">
                 <img
-                  src={`/${item.photo}`}
+                  src={`/img/${item.photo}`} 
                   className="w-full h-full object-cover grayscale"
                 />
               </div>
@@ -954,7 +954,7 @@ export default function MarsSurvivalGame() {
                 <div className="flex gap-4 items-start">
                   <div className="w-10 h-10 border border-[#00ff41]/30 shrink-0">
                     <img
-                      src={`/${item.photo}`}
+                      src={`/img/${item.photo}`} 
                       alt={item.name}
                       className="w-full h-full object-cover opacity-50"
                     />
@@ -1271,7 +1271,7 @@ export default function MarsSurvivalGame() {
                   size={12}
                   className="group-hover:rotate-180 transition-transform duration-500"
                 />
-                Refresh Records
+                Refresh
               </button>
 
               {/* DELETE data BUTTON */}
