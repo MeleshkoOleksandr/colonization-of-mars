@@ -48,12 +48,12 @@ body {
   background-color: #0a0a0a;
 }
 
-/* Делаем системные элементы (чекбоксы, селекты) темными по умолчанию */
+/* Set system elements (checkboxes, dropdown menus) to dark by default */
 input[type="checkbox"] {
-  color-scheme: dark; /* Самый простой способ убрать белый фон */
+  color-scheme: dark; 
 }
 
-/* Настраиваем стиль чекбокса */
+/* Customizing the checkbox style */
 input[type="checkbox"]:not(:checked) {
   background-color: #000 !important;
   border-color: rgba(0, 255, 65, 0.4) !important;
@@ -71,13 +71,13 @@ input[type="checkbox"].appearance-none:checked::after {
   transform: rotate(45deg);
 }
 
-/* Убираем любые серые обводки от браузера при фокусе */
+/* Remove any gray outlines from the browser when it is in focus  */
 input[type="checkbox"]:focus {
   outline: none;
   box-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
 }
 
-/* Дополнительно: стиль для подсказки title (опционально, зависит от браузера) */
+/* Additionally: style for the title tooltip (optional, browser-dependent) */
 [title] {
   cursor: help;
 }
