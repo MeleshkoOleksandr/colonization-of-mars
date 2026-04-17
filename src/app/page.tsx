@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+
 import {
   Reorder,
   AnimatePresence,
@@ -18,7 +19,10 @@ import {
   Info,
 } from "lucide-react";
 
-// --- Working with DB Server Actions ---
+/**
+ * SERVER ACTIONS IMPORT
+ * These functions bridge the Client-side UI with the Server-side Database (Postgres).
+ */
 import {
   getTeamsAction,
   saveResultAction,
@@ -34,24 +38,52 @@ import {
 
 import { Team, GameResult } from "../../lib/db";
 
-// --- UI COMPONENTS ---
-const CRTWrapper = ({ children }: { children: React.ReactNode }) => (
-  <div className="min-h-screen bg-[#0a0a0a] text-[#00ff41] font-mono p-4 md:p-8 relative overflow-hidden selection:bg-[#00ff41] selection:text-black">
-    {/* Scanline Effect */}
-    <div className="pointer-events-none fixed inset-0 z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-size-[100%_2px,3px_100%] opacity-30"></div>
-    <div className="max-w-4xl mx-auto border-4 border-[#00ff41] p-6 shadow-[0_0_25px_rgba(0,255,65,0.2)] bg-[#0d0d0d] relative z-10">
-      {children}
-    </div>
-  </div>
-);
+// --- INTERFACES & TYPES ---
+interface SurvivalItem {
+  id: string;
+  name: string;
+  photo: string;
+  idealPosition: number;
+  description: string;
+}
 
-// --- STYLES & HELPERS ---
+interface ScoreEvaluation {
+  threshold: number;
+  message: string;
+}
+
+interface UserResult {
+  username: string;
+  team: string;
+  score: number;
+  selections: string[];
+}
+
+// --- CONSTANTS ---
+const ADMIN_PASSWORD = "adm"; // Password to prevent players from seeing game results
+
+// --- STYLES ---
 const BUTTON_STYLES = {
   primary:
     "w-full bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,255,65,0.5)]",
   secondary:
     "border-2 border-[#00ff41] py-3 hover:bg-[#00ff41] hover:text-black uppercase font-bold transition-all",
 };
+
+// --- UI COMPONENTS ---
+
+/**
+ * Visual wrapper simulating a retro CRT monitor.
+ * Includes scanlines and glowing border.
+ */
+const CRTWrapper = ({ children }: { children: React.ReactNode }) => (
+  <div className="min-h-screen bg-[#0a0a0a] text-[#00ff41] font-mono p-4 md:p-8 relative overflow-hidden selection:bg-[#00ff41] selection:text-black">
+    <div className="pointer-events-none fixed inset-0 z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-size-[100%_2px,3px_100%] opacity-30"></div>
+    <div className="max-w-4xl mx-auto border-4 border-[#00ff41] p-6 shadow-[0_0_25px_rgba(0,255,65,0.2)] bg-[#0d0d0d] relative z-10">
+      {children}
+    </div>
+  </div>
+);
 
 const Header = ({ title }: { title: string }) => (
   <h1 className="text-2xl md:text-4xl font-black text-center mb-8 uppercase tracking-tighter italic border-b-2 border-[#00ff41] pb-4">
@@ -60,8 +92,8 @@ const Header = ({ title }: { title: string }) => (
 );
 
 /**
- * DRAGGABLE ITEM COMPONENT
- * Each item has its own drag controls to allow dragging only via the handle.
+ * Item component for the Drag & Drop list.
+ * Restricted to drag only via the GripVertical handle for better mobile UX.
  */
 const DraggableItem = ({
   item,
@@ -97,7 +129,7 @@ const DraggableItem = ({
       {/* 3. ITEM PHOTO */}
       <div className="w-20 h-20 border border-[#00ff41]/20 overflow-hidden bg-black shrink-0">
         <img
-          src={`/img/${item.photo}`} 
+          src={`/img/${item.photo}`}
           alt={item.name}
           draggable="false"
           className="w-full h-full object-cover opacity-80"
@@ -114,8 +146,7 @@ const DraggableItem = ({
 };
 
 /**
- * ANALYSIS SEQUENCE COMPONENT
- * Displays a retro-loading screen with scrolling logs and a progress bar.
+ * Retro-styled analysis sequence shown after the player submits their order.
  */
 const AnalysisSequence = ({ onComplete }: { onComplete: () => void }) => {
   const [logs, setLogs] = useState<string[]>([]);
@@ -153,39 +184,30 @@ const AnalysisSequence = ({ onComplete }: { onComplete: () => void }) => {
   }, [onComplete]);
 
   return (
-    // Используем h-full и overflow-hidden, чтобы ничего не вылезало за края
     <div className="fixed inset-0 z-200 bg-black text-[#00ff41] font-mono p-6 flex flex-col overflow-hidden">
-      {/* Главный контейнер с ограничением по высоте */}
       <div className="flex-1 flex flex-col justify-between max-w-lg mx-auto w-full py-4 md:py-10">
-        {/* 1. БЛОК ЛОГОВ (Теперь занимает всё свободное место) */}
         <div className="flex-1 min-h-0 mb-6 relative">
           <div className="absolute inset-0 overflow-hidden flex flex-col justify-end border-l border-[#00ff41]/20 pl-4">
             <AnimatePresence>
-              {logs.slice(-8).map(
-                (
-                  log,
-                  i, // Показываем только последние 8 строк на мобильных
-                ) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="text-[10px] md:text-xs leading-tight mb-2 flex gap-2"
-                  >
-                    <span className="opacity-40 shrink-0 hidden xs:inline">
-                      [
-                      {new Date().toLocaleTimeString([], { second: "2-digit" })}
-                      s]
-                    </span>
-                    <span>{log}</span>
-                  </motion.div>
-                ),
-              )}
+              {logs.slice(-8).map((log, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="text-[10px] md:text-xs leading-tight mb-2 flex gap-2"
+                >
+                  <span className="opacity-40 shrink-0 hidden xs:inline">
+                    [ {new Date().toLocaleTimeString([], { second: "2-digit" })}{" "}
+                    s]
+                  </span>
+                  <span>{log}</span>
+                </motion.div>
+              ))}
             </AnimatePresence>
           </div>
         </div>
 
-        {/* 2. БЛОК ПРОГРЕСС-БАРА (Фиксированный размер) */}
+        {/* PROGRESS BAR BLOCK (Fixed size)  */}
         <div className="shrink-0 space-y-3 bg-black">
           <div className="flex justify-between text-[10px] uppercase font-black tracking-widest">
             <span className="animate-pulse">Analyzing...</span>
@@ -199,7 +221,7 @@ const AnalysisSequence = ({ onComplete }: { onComplete: () => void }) => {
           </div>
         </div>
 
-        {/* 3. ДЕКОРАТИВНЫЙ ФУТЕР (Уменьшен еще сильнее) */}
+        {/* DECORATIVE FOOTER */}
         <div className="shrink-0 mt-8 grid grid-cols-3 gap-2 opacity-30 text-[7px] md:text-[8px] uppercase border-t border-[#00ff41]/10 pt-4">
           <div className="animate-pulse">CPU: 98%</div>
           <div className="animate-pulse delay-75">O2: OK</div>
@@ -207,15 +229,15 @@ const AnalysisSequence = ({ onComplete }: { onComplete: () => void }) => {
         </div>
       </div>
 
-      {/* Эффект сканирования специально для этого экрана */}
+      {/* A scanning effect designed specifically for this screen */}
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%)] bg-size-[100%_4px] opacity-10"></div>
     </div>
   );
 };
 
 /**
- * CUSTOM RETRO MODAL
- * Replaces browser's alert, confirm, and prompt.
+ * Universal Modal UI used for Alerts, Confirms, and Admin Prompts.
+ * Supports Enter and Escape keys for fast interaction.
  */
 const RetroModal = ({
   isOpen,
@@ -245,7 +267,6 @@ const RetroModal = ({
       >
         {/* Scanline overlay for modal */}
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-size-[100%_2px,3px_100%] opacity-20"></div>
-
         <h3 className="text-[#00ff41] font-black uppercase tracking-tighter mb-4 text-xl italic border-b border-[#00ff41]/30 pb-2">
           {type === "confirm"
             ? "> Richiesta Conferma"
@@ -289,31 +310,11 @@ const RetroModal = ({
   );
 };
 
-// Password to prevent players from seeing game results
-const ADMIN_PASSWORD = "adm";
-
-// --- Data types ---
-interface SurvivalItem {
-  id: string;
-  name: string;
-  photo: string;
-  idealPosition: number;
-  description: string;
-}
-
-interface UserResult {
-  username: string;
-  team: string;
-  score: number;
-  selections: string[];
-}
-
-interface ScoreEvaluation {
-  threshold: number;
-  message: string;
-}
-
+// --- MAIN APPLICATION LOGIC ---
 export default function MarsSurvivalGame() {
+  /**
+   * STATE MANAGEMENT
+   */
   const [view, setView] = useState<
     | "login"
     | "story"
@@ -326,52 +327,36 @@ export default function MarsSurvivalGame() {
     | "discussion-list"
   >("login");
 
-  // Initial empty states
-  const [story, setStory] = useState({ title: "Caricamento...", plot: "" });
-  // --- States ---
-  const [username, setUsername] = useState("");
-  const [items, setItems] = useState<SurvivalItem[]>([]); // Drag & Drop list
-  const [staticItems, setStaticItems] = useState<SurvivalItem[]>([]); // To keep original list for deltas
-  const [allResults, setAllResults] = useState<GameResult[]>([]);
-  const [selectedUserDetail, setSelectedUserDetail] =
-    useState<GameResult | null>(null);
-  // team data
-  const [teamsList, setTeamsList] = useState<Team[]>([]);
-  const [teamId, setTeamId] = useState<number>(0);
-  const currentTeamName =
-    teamsList.find((t) => t.id === teamId)?.name || "Anonimo";
-
-  //Counting rusults
-  const [currentScore, setCurrentScore] = useState<number>(0);
-
-  //For results loading aniamtion
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-
-  // Filter for admin view
-  const [adminTeamFilter, setAdminTeamFilter] = useState<number>(0);
   // Remember where to go back from 'user-detail' view
   const [prevView, setPrevView] = useState<
     "leaderboard" | "admin" | "results" | "discussion-list"
   >("leaderboard");
 
+  // Game Content from XML
+  const [story, setStory] = useState({ title: "Caricamento...", plot: "" });
+  const [items, setItems] = useState<SurvivalItem[]>([]);
+  const [staticItems, setStaticItems] = useState<SurvivalItem[]>([]);
   const [evaluations, setEvaluations] = useState<ScoreEvaluation[]>([]);
 
-  const triggerModal = (
-    type: "alert" | "confirm" | "prompt",
-    message: string,
-    action?: () => void,
-  ) => {
-    setModal({
-      isOpen: true,
-      type,
-      message,
-      value: "",
-      action:
-        action || (() => setModal((prev) => ({ ...prev, isOpen: false }))),
-    });
-  };
+  // Database Data
+  const [username, setUsername] = useState("");
+  const [allResults, setAllResults] = useState<GameResult[]>([]);
+  const [teamsList, setTeamsList] = useState<Team[]>([]);
+  const [teamId, setTeamId] = useState<number>(0);
 
-  // Inside MarsSurvivalGame component:
+  // Scoring & UI Toggles
+  const [selectedUserDetail, setSelectedUserDetail] =
+    useState<GameResult | null>(null);
+  const [currentScore, setCurrentScore] = useState<number>(0);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [showDeltas, setShowDeltas] = useState<boolean>(true);
+  const [adminTeamFilter, setAdminTeamFilter] = useState<number>(0);
+
+  // Computed helper
+  const currentTeamName =
+    teamsList.find((t) => t.id === teamId)?.name || "Anonimo";
+
+  // Global Modal System
   const [modal, setModal] = useState<{
     isOpen: boolean;
     type: "alert" | "confirm" | "prompt";
@@ -386,72 +371,19 @@ export default function MarsSurvivalGame() {
     action: () => {},
   });
 
-  // Add "discussion-list" to your view types if you use TypeScript strict
-  const [showDeltas, setShowDeltas] = useState<boolean>(true);
-
-  useEffect(() => {
-  if (
-    view === "leaderboard" ||
-    view === "admin" ||
-    view === "discussion-list"
-  ) {
-    async function syncData() {
-      try {
-        console.log(`SYSTEM: Auto-syncing data for view [${view}]...`);
-        const freshResults = await getResultsAction();
-        setAllResults(freshResults);
-
-        // If we are on the leaderboard, also refresh teams to catch status changes (is_unlocked)
-        if (view === "leaderboard") {
-          const freshTeams = await getTeamsAction();
-          setTeamsList(freshTeams);
-        }
-      } catch (error) {
-        console.error("SYSTEM ERROR: Auto-sync failed", error);
-      }
-    }
-
-    syncData();
-  }
-}, [view]); // This effect runs every time 'view' changes
-
-  /**
-   * XML PARSER
-   * Converts XML string from public/story.xml into JavaScript objects
-   */
-  const parseStoryXml = (xmlString: string) => {
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(xmlString, "text/xml");
-    const title = xmlDoc.getElementsByTagName("Title")[0]?.textContent || "";
-    const plot = xmlDoc.getElementsByTagName("Plot")[0]?.textContent || "";
-    const itemNodes = xmlDoc.getElementsByTagName("Item");
-    const items: SurvivalItem[] = [];
-
-    for (let i = 0; i < itemNodes.length; i++) {
-      const node = itemNodes[i];
-      items.push({
-        id: node.getAttribute("id") || "",
-        name: node.getElementsByTagName("Name")[0]?.textContent || "",
-        photo: node.getElementsByTagName("Photo")[0]?.textContent || "",
-        idealPosition: parseInt(
-          node.getElementsByTagName("Position")[0]?.textContent || "15",
-        ),
-        description:
-          node.getElementsByTagName("Description")[0]?.textContent || "",
-      });
-    }
-
-    // Парсинг оценок
-    const evalNodes = xmlDoc.getElementsByTagName("Rank");
-    const evaluations: ScoreEvaluation[] = [];
-    for (let i = 0; i < evalNodes.length; i++) {
-      evaluations.push({
-        threshold: parseInt(evalNodes[i].getAttribute("threshold") || "999"),
-        message: evalNodes[i].textContent || "",
-      });
-    }
-
-    return { story: { title, plot }, evaluations, items };
+  const triggerModal = (
+    type: "alert" | "confirm" | "prompt",
+    message: string,
+    action?: () => void,
+  ) => {
+    setModal({
+      isOpen: true,
+      type,
+      message,
+      value: "",
+      action:
+        action || (() => setModal((prev) => ({ ...prev, isOpen: false }))),
+    });
   };
 
   /**
@@ -496,7 +428,7 @@ export default function MarsSurvivalGame() {
         );
       } catch (error) {
         console.error("SYSTEM CRITICAL ERROR:", error);
-        // Optional: Show error message to user via our custom Modal
+        // Show error message to user via our custom Modal
         setModal({
           isOpen: true,
           type: "alert",
@@ -507,11 +439,80 @@ export default function MarsSurvivalGame() {
         });
       }
     }
-
     // Launch the sequence
     initializeMission();
   }, []); // Run only once on mount
 
+  /**
+   * AUTO-SYNC
+   * Refreshes results whenever the user enters the Leaderboard or Admin panel.
+   */
+  useEffect(() => {
+    if (
+      view === "leaderboard" ||
+      view === "admin" ||
+      view === "discussion-list"
+    ) {
+      async function syncData() {
+        try {
+          console.log(`SYSTEM: Auto-syncing data for view [${view}]...`);
+          const freshResults = await getResultsAction();
+          setAllResults(freshResults);
+
+          // If we are on the leaderboard, also refresh teams to catch status changes (is_unlocked)
+          if (view === "leaderboard") {
+            const freshTeams = await getTeamsAction();
+            setTeamsList(freshTeams);
+          }
+        } catch (error) {
+          console.error("SYSTEM ERROR: Auto-sync failed", error);
+        }
+      }
+      syncData();
+    }
+  }, [view]); // This effect runs every time 'view' changes
+
+  /**
+   * XML PARSER
+   * Converts XML string from public/story.xml into JavaScript objects
+   */
+  const parseStoryXml = (xmlString: string) => {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+    const title = xmlDoc.getElementsByTagName("Title")[0]?.textContent || "";
+    const plot = xmlDoc.getElementsByTagName("Plot")[0]?.textContent || "";
+    const itemNodes = xmlDoc.getElementsByTagName("Item");
+    const items: SurvivalItem[] = [];
+
+    for (let i = 0; i < itemNodes.length; i++) {
+      const node = itemNodes[i];
+      items.push({
+        id: node.getAttribute("id") || "",
+        name: node.getElementsByTagName("Name")[0]?.textContent || "",
+        photo: node.getElementsByTagName("Photo")[0]?.textContent || "",
+        idealPosition: parseInt(
+          node.getElementsByTagName("Position")[0]?.textContent || "15",
+        ),
+        description:
+          node.getElementsByTagName("Description")[0]?.textContent || "",
+      });
+    }
+
+    // Parsing ranks
+    const evalNodes = xmlDoc.getElementsByTagName("Rank");
+    const evaluations: ScoreEvaluation[] = [];
+    for (let i = 0; i < evalNodes.length; i++) {
+      evaluations.push({
+        threshold: parseInt(evalNodes[i].getAttribute("threshold") || "999"),
+        message: evalNodes[i].textContent || "",
+      });
+    }
+    return { story: { title, plot }, evaluations, items };
+  };
+
+  /**
+   * LOGIC HANDLERS
+   */
   const handleStart = () => {
     if (!username) {
       return triggerModal(
@@ -519,23 +520,21 @@ export default function MarsSurvivalGame() {
         "Identificazione fallita. Inserire un nome.",
       );
     }
-
-    // ПРОВЕРКА НА АДМИНА
+    // ADMIN CHECK
     if (username.toLowerCase() === "admin") {
       setModal({
         isOpen: true,
-        type: "prompt", // Используем ввод текста
+        type: "prompt",
         message:
           "ACCESSO RISERVATO: Inserire il Codice di Autorizzazione dell'Ufficiale di Comando.",
         value: "",
-        action: () => {}, // Логику проверки напишем в executeAdminAuth
+        action: () => {},
       });
       return;
     }
     if (teamId === 0) {
       return triggerModal("alert", "Selezionare una squadra per procedere.");
     }
-
     setView("story");
   };
 
@@ -547,8 +546,7 @@ export default function MarsSurvivalGame() {
         totalScore += Math.abs(index + 1 - ideal.idealPosition);
       }
     });
-
-    // Сохраняем результат текущего игрока в отдельную переменную
+    // We store the current player's score in a separate variable
     setCurrentScore(totalScore);
     setIsAnalyzing(true);
 
@@ -561,7 +559,7 @@ export default function MarsSurvivalGame() {
 
     try {
       await saveResultAction(resultData);
-      // Обновляем общий список в фоне
+      // Updating the main list in the background
       const updatedResults = await getResultsAction();
       setAllResults(updatedResults);
     } catch (error) {
@@ -570,21 +568,24 @@ export default function MarsSurvivalGame() {
   };
 
   const getScoreMessage = (s: number) => {
-    // Если данные еще не загрузились
+    // If the data hasn't loaded yet
     if (evaluations.length === 0) return "Analisi in corso...";
-    // Сортируем оценки по возрастанию порога (на всякий случай)
+    // Sort the scores in ascending order by threshold
     const sortedEvals = [...evaluations].sort(
       (a, b) => a.threshold - b.threshold,
     );
-    // Находим первую оценку, порог которой больше или равен полученному баллу
+    // Find the first grade whose threshold is greater than or equal to the score obtained
     const result = sortedEvals.find((e) => s <= e.threshold);
-    // Если не нашли (хотя 999 должен закрыть всё), возвращаем последнее сообщение
+    // If nothing is found (although 999 should cover everything), return the last message
     return result
       ? result.message
       : evaluations[evaluations.length - 1].message;
   };
 
-  // ---  Handlers ---
+   /**
+   * ADMIN & DATABASE HANDLERS
+   */
+
   // Logic for deleting a team
   const handleDeleteTeam = (id: number) => {
     setModal({
@@ -636,7 +637,7 @@ export default function MarsSurvivalGame() {
     }
   };
 
-  //HANDLER: Delete a specific player result
+  // Delete a specific player result
   const handleDeleteResult = (id: number) => {
     setModal({
       isOpen: true,
@@ -665,7 +666,7 @@ export default function MarsSurvivalGame() {
     });
   };
 
-  //HANDLER: Delete all result
+  // Delete all result
   const handleDeleteAllResults = () => {
     setModal({
       isOpen: true,
@@ -696,9 +697,11 @@ export default function MarsSurvivalGame() {
     });
   };
 
-  // Define a variable to hold the screen content
+  /**
+   * VIEW ENGINE
+   * Determines which screen to render into the CRTWrapper.
+   */
   let content;
-  // --- VIEWS ---
   if (view === "login") {
     content = (
       <>
@@ -824,7 +827,7 @@ export default function MarsSurvivalGame() {
               </span>
               <div className="w-10 h-10 border border-[#00ff41]/20">
                 <img
-                  src={`/img/${item.photo}`} 
+                  src={`/img/${item.photo}`}
                   className="w-full h-full object-cover grayscale"
                 />
               </div>
@@ -890,7 +893,7 @@ export default function MarsSurvivalGame() {
               <button
                 onClick={() => {
                   setSelectedUserDetail(res);
-                  setShowDeltas(false); // ВАЖНО: Выключаем показ баллов
+                  setShowDeltas(false); // IMPORTANT: Disable score display
                   setPrevView("discussion-list");
                   setView("user-detail");
                 }}
@@ -902,7 +905,7 @@ export default function MarsSurvivalGame() {
           ))}
         </div>
 
-        {/* Кнопка разблокировки для всех игроков команды */}
+        {/* Unlock button for all players on the team */}
         <button
           onClick={async () => {
             await updateTeamStatusAction(adminTeamFilter, true);
@@ -954,7 +957,7 @@ export default function MarsSurvivalGame() {
                 <div className="flex gap-4 items-start">
                   <div className="w-10 h-10 border border-[#00ff41]/30 shrink-0">
                     <img
-                      src={`/img/${item.photo}`} 
+                      src={`/img/${item.photo}`}
                       alt={item.name}
                       className="w-full h-full object-cover opacity-50"
                     />
@@ -984,8 +987,8 @@ export default function MarsSurvivalGame() {
     );
   } else if (view === "leaderboard") {
     const isAdmin = username.toLowerCase() === "admin";
-    // Если зашел админ и у него выбран фильтр в админке — показываем только этот фильтр.
-    // Если фильтра нет (0) или это не админ — обычная логика.
+    // If an admin logs in and has a filter selected in the admin panel, we display only that filter.
+    // If there is no filter (0) or the user is not an admin, the standard logic applies.
     const effectiveTeamId = isAdmin ? adminTeamFilter : teamId;
 
     const filteredResults =
@@ -998,7 +1001,6 @@ export default function MarsSurvivalGame() {
         <div className="flex justify-between items-center mb-6 border-b-2 border-[#00ff41] pb-2">
           <button
             onClick={() => {
-              //  Прямая логика в зависимости от роли
               if (isAdmin) {
                 setView("admin");
               } else {
@@ -1025,7 +1027,7 @@ export default function MarsSurvivalGame() {
           </button>
         </div>
         <div className="space-y-2">
-          {/* 1. TABLE HEADERS - Adjusted for mobile grid */}
+          {/* TABLE HEADERS - Adjusted for mobile grid */}
           <div className="grid grid-cols-[1.5fr_1fr_45px_35px] md:grid-cols-4 text-[10px] uppercase opacity-50 px-4 mb-2">
             <span>Nome</span>
             <span>Team</span>
@@ -1144,7 +1146,7 @@ export default function MarsSurvivalGame() {
 
                 {/* RIGHT SIDE: NASA Info and Delta (Fixed width, pinned to right) */}
                 <div className="shrink-0 text-right font-mono flex flex-col items-end">
-                  {/* Условие: показываем NASA и дельты только если showDeltas === true */}
+                  {/* Condition: display deltas only if showDeltas === true */}
                   {showDeltas ? (
                     <>
                       <div className="text-[9px] opacity-50 uppercase italic leading-none mb-1">
@@ -1174,10 +1176,10 @@ export default function MarsSurvivalGame() {
         ? allResults
         : allResults.filter((r) => r.team_id === adminTeamFilter)
     ).sort((a, b) => {
-      // Преобразуем даты в числа (timestamp) для сравнения
+      //  Convert dates to timestamps for comparison
       const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
       const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
-      // Сортируем: от большего к меньшему (сначала свежие)
+      // Sort by: largest to smallest (freshest first)
       return dateB - dateA;
     });
 
@@ -1214,7 +1216,7 @@ export default function MarsSurvivalGame() {
                     className="flex justify-between items-center bg-[#0a0a0a] border border-[#00ff41]/20 p-2 hover:border-[#00ff41]/50 transition-all"
                   >
                     <div className="flex items-center gap-3">
-                      {/* Чекбок разблокировки прямо в списке команд */}
+                      {/* A checkbox to unlock directly in the command list */}
                       <input
                         type="checkbox"
                         checked={t.is_unlocked}
@@ -1412,9 +1414,7 @@ export default function MarsSurvivalGame() {
           </div>
         </div>
 
-        {/* В конце блока view === "admin" */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-          {/* КНОПКА 1: Классическая таблица с баллами */}
           <button
             onClick={() => {
               setPrevView("admin");
@@ -1425,7 +1425,6 @@ export default function MarsSurvivalGame() {
             1. Registro Risultati (Con Punteggi)
           </button>
 
-          {/* КНОПКА 2: Режим обсуждения (Новый) */}
           <button
             onClick={() => {
               if (adminTeamFilter === 0) {
@@ -1467,18 +1466,18 @@ export default function MarsSurvivalGame() {
         message={modal.message}
         value={modal.value}
         onClose={() => setModal((prev) => ({ ...prev, isOpen: false }))}
-        // ИСПРАВЛЕННЫЙ ОНКОНФИРМ:
+
         onConfirm={() => {
           if (modal.type === "prompt") {
-            // Если сообщение про авторизацию - проверяем пароль
+            // If you see an authorization message, check your password
             if (modal.message.includes("Autorizzazione")) {
               executeAdminAuth();
             } else {
-              // Иначе это добавление новой команды
+              // Otherwise, this involves adding a new command
               executeAddTeam();
             }
           } else {
-            // Если это confirm или alert - просто запускаем действие
+            // If it's a “confirm” or “alert,” just trigger the action
             modal.action();
           }
         }}
