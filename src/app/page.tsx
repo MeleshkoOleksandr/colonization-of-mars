@@ -59,8 +59,9 @@ interface UserResult {
   selections: string[];
 }
 
-// --- CONSTANTS ---
+// --- CONSTANTS FOR ADMIN MODE ---
 const ADMIN_PASSWORD = "adm"; // Password to prevent players from seeing game results
+const ADMIN_USER =  "admin"; 
 
 // --- STYLES ---
 const BUTTON_STYLES = {
@@ -521,7 +522,7 @@ export default function MarsSurvivalGame() {
       );
     }
     // ADMIN CHECK
-    if (username.toLowerCase() === "admin") {
+    if (username.toLowerCase() === ADMIN_USER) {
       setModal({
         isOpen: true,
         type: "prompt",
