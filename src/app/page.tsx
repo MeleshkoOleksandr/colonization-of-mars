@@ -1147,7 +1147,13 @@ export default function MarsSurvivalGame() {
       adminTeamFilter === 0
         ? allResults
         : allResults.filter((r) => r.team_id === adminTeamFilter)
-    ).sort((a, b) => a.score - b.score); // NASA logic: lower score is better
+    ).sort((a, b) => {
+      // Преобразуем даты в числа (timestamp) для сравнения
+      const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      // Сортируем: от большего к меньшему (сначала свежие)
+      return dateB - dateA;
+    });
 
     // Logic for discussion filter
     const discussionResults = allResults
@@ -1224,6 +1230,24 @@ export default function MarsSurvivalGame() {
             </h3>
 
             <div className="flex flex-wrap items-center gap-4">
+              {/* REFRESH Result DATA */}
+              <button
+                onClick={async () => {
+                  // Fetch fresh data from the Database
+                  const freshResults = await getResultsAction();
+                  // Update the global results state
+                  setAllResults(freshResults);
+                }}
+                className="text-[10px] border border-[#00ff41] px-2 py-1 text-[#00ff41] hover:bg-[#00ff41] hover:text-black transition-colors uppercase font-bold flex items-center gap-2 group"
+                title="Sincronizza con il Database"
+              >
+                <RefreshCcw
+                  size={12}
+                  className="group-hover:rotate-180 transition-transform duration-500"
+                />
+                Refresh Records
+              </button>
+
               {/* DELETE data BUTTON */}
               {adminTeamFilter === 0 ? (
                 <button
