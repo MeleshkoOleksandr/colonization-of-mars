@@ -838,57 +838,6 @@ export default function MarsSurvivalGame() {
         </button>
       </>
     );
-    // }
-    // if (view === "user-order") {
-    //   content = (
-    //     <>
-    //       <Header title="Rapporto Inviato" />
-    //       <div className="bg-[#003300] p-4 border border-[#00ff41] mb-6 text-xs italic">
-    //         TRASMISSIONE COMPLETATA. I DATI SONO STATI ARCHIVIATI NELLA BASE.
-    //         <br /> IN ATTESA DI AUTORIZZAZIONE DALL'UFFICIALE PER IL RAPPORTO
-    //         NASA.
-    //       </div>
-
-    //       <div className="space-y-2 mb-8 opacity-80">
-    //         {items.map((item, idx) => (
-    //           <div
-    //             key={item.id}
-    //             className="flex items-center gap-4 bg-[#111] p-2 border border-[#00ff41]/20"
-    //           >
-    //             <span className="text-xl font-black w-8 text-[#00ff41]/40">
-    //               {idx + 1}
-    //             </span>
-    //             <div className="w-10 h-10 border border-[#00ff41]/20">
-    //               <img
-    //                 src={`/img/${item.photo}`}
-    //                 className="w-full h-full object-cover grayscale"
-    //               />
-    //             </div>
-    //             <span className="uppercase text-[10px] font-bold">
-    //               {item.name}
-    //             </span>
-    //           </div>
-    //         ))}
-    //       </div>
-
-    //       <button
-    //         onClick={async () => {
-    //           const unlocked = await checkTeamStatusAction(teamId);
-    //           if (unlocked) {
-    //             setView("results");
-    //           } else {
-    //             triggerModal(
-    //               "alert",
-    //               "CONNESSIONE FALLITA: Accesso ai server NASA negato. Attendere la fine della discussione di squadra.",
-    //             );
-    //           }
-    //         }}
-    //         className={BUTTON_STYLES.primary}
-    //       >
-    //         Richiedi Risultati dalla Base
-    //       </button>
-    //     </>
-    //   );
   } else if (view === "discussion-list") {
     const isAdmin = username.toLowerCase() === "admin";
     const discussionResults = allResults
