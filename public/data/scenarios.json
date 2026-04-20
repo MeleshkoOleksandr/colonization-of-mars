@@ -1,0 +1,4 @@
+[
+  {"id": "mars_01", "file": "story_mars.xml", "name": "Sopravvivenza su Marte"},
+  {"id": "moon_01", "file": "story_moon.xml", "name": "Missione Luna"}
+]
