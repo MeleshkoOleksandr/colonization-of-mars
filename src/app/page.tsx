@@ -921,7 +921,7 @@ export default function MarsSurvivalGame() {
           )}
 
           <h2 className="text-lg font-bold uppercase italic tracking-tighter">
-            Mission Debrief: {currentTeam?.name}
+            Resoconto della missione: {currentTeam?.name}
           </h2>
           <RefreshCcw
             size={18}
@@ -976,12 +976,21 @@ export default function MarsSurvivalGame() {
                 const targetId = isAdmin ? adminTeamFilter : teamId;
                 if (targetId === 0)
                   return triggerModal("alert", "Seleziona un team.");
+                // Unlock the results in the database
                 await updateTeamStatusAction(targetId, true);
-                setTeamsList(await getTeamsAction());
-                triggerModal(
-                  "alert",
-                  "MISSION COMPLETE: I risultati finali sono ora accessibili.",
-                );
+                //  Updating the list of commands locally
+                const freshTeams = await getTeamsAction();
+                setTeamsList(freshTeams);
+                //  CHECK: If it's the Commander, send him directly to the results
+                if (username === "Commander") {
+                  setView("results");
+                } else {
+                  // If it's an admin, we just display the confirmation and stay where we are
+                  triggerModal(
+                    "alert",
+                    "MISSION COMPLETE: I risultati finali sono ora accessibili per tutta la squadra.",
+                  );
+                }
               }}
               className={BUTTON_STYLES.primary}
             >
