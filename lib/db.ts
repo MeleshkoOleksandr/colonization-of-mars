@@ -11,6 +11,7 @@ export interface Team {
   id: number;
   name: string;
   is_unlocked: boolean; // Lock result from player
+  has_commander: boolean; 
 }
 
 export interface GameResult {
@@ -103,4 +104,9 @@ export async function getTeamStatus(teamId: number): Promise<boolean> {
  */
 export async function deleteResultsByTeam(teamId: number) {
   await sql`DELETE FROM results WHERE team_id = ${teamId}`;
+}
+
+// Toggle commander status for a team
+export async function setCommanderStatus(teamId: number, status: boolean) {
+  await sql`UPDATE teams SET has_commander = ${status} WHERE id = ${teamId}`;
 }

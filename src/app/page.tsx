@@ -34,6 +34,8 @@ import {
   updateTeamStatusAction,
   checkTeamStatusAction,
   deleteResultsByTeamAction,
+  updateCommanderStatusAction,
+  checkCommanderStatusAction,
 } from "./actions";
 
 import { Team, GameResult } from "../../lib/db";
@@ -61,7 +63,7 @@ interface UserResult {
 
 // --- CONSTANTS FOR ADMIN MODE ---
 const ADMIN_PASSWORD = "adm"; // Password to prevent players from seeing game results
-const ADMIN_USER =  "admin"; 
+const ADMIN_USER = "admin";
 
 // --- STYLES ---
 const BUTTON_STYLES = {
@@ -324,7 +326,6 @@ export default function MarsSurvivalGame() {
     | "admin"
     | "leaderboard"
     | "user-detail"
-    | "user-order"
     | "discussion-list"
   >("login");
 
@@ -549,6 +550,7 @@ export default function MarsSurvivalGame() {
     });
     // We store the current player's score in a separate variable
     setCurrentScore(totalScore);
+    // Starting analysis animation
     setIsAnalyzing(true);
 
     const resultData = {
@@ -583,7 +585,7 @@ export default function MarsSurvivalGame() {
       : evaluations[evaluations.length - 1].message;
   };
 
-   /**
+  /**
    * ADMIN & DATABASE HANDLERS
    */
 
@@ -683,6 +685,7 @@ export default function MarsSurvivalGame() {
     });
   };
 
+  // Delete all results for one team
   const handleDeleteTeamResults = (teamId: number) => {
     const teamName = teamsList.find((t) => t.id === teamId)?.name || "Unità";
     setModal({
@@ -696,6 +699,35 @@ export default function MarsSurvivalGame() {
         setModal((prev) => ({ ...prev, isOpen: false }));
       },
     });
+  };
+
+  // Action for team mamber becoming Commander
+  const handleBecomeCommander = async () => {
+    triggerModal(
+      "confirm",
+      "SEI SICURO? Solo un membro può assumere il comando. Dovrai rifare il test per conto di tutta la squadra.",
+      async () => {
+        // We check the database to see if the spot is taken
+        const alreadyHas = await checkCommanderStatusAction(teamId);
+        if (alreadyHas) {
+          setModal((prev) => ({ ...prev, isOpen: false }));
+          triggerModal(
+            "alert",
+            "ERRORE: Un comandante è già stato assegnato a questa unità.",
+          );
+          return;
+        }
+
+        // Set a flag in the database
+        await updateCommanderStatusAction(teamId, true);
+
+        // Change the name locally and restart the game
+        setUsername("Commander");
+        setItems([...staticItems].sort(() => Math.random() - 0.5)); // Mix again
+        setView("game");
+        setModal((prev) => ({ ...prev, isOpen: false }));
+      },
+    );
   };
 
   /**
@@ -806,74 +838,90 @@ export default function MarsSurvivalGame() {
         </button>
       </>
     );
-  }
-  if (view === "user-order") {
-    content = (
-      <>
-        <Header title="Rapporto Inviato" />
-        <div className="bg-[#003300] p-4 border border-[#00ff41] mb-6 text-xs italic">
-          TRASMISSIONE COMPLETATA. I DATI SONO STATI ARCHIVIATI NELLA BASE.
-          <br /> IN ATTESA DI AUTORIZZAZIONE DALL'UFFICIALE PER IL RAPPORTO
-          NASA.
-        </div>
+    // }
+    // if (view === "user-order") {
+    //   content = (
+    //     <>
+    //       <Header title="Rapporto Inviato" />
+    //       <div className="bg-[#003300] p-4 border border-[#00ff41] mb-6 text-xs italic">
+    //         TRASMISSIONE COMPLETATA. I DATI SONO STATI ARCHIVIATI NELLA BASE.
+    //         <br /> IN ATTESA DI AUTORIZZAZIONE DALL'UFFICIALE PER IL RAPPORTO
+    //         NASA.
+    //       </div>
 
-        <div className="space-y-2 mb-8 opacity-80">
-          {items.map((item, idx) => (
-            <div
-              key={item.id}
-              className="flex items-center gap-4 bg-[#111] p-2 border border-[#00ff41]/20"
-            >
-              <span className="text-xl font-black w-8 text-[#00ff41]/40">
-                {idx + 1}
-              </span>
-              <div className="w-10 h-10 border border-[#00ff41]/20">
-                <img
-                  src={`/img/${item.photo}`}
-                  className="w-full h-full object-cover grayscale"
-                />
-              </div>
-              <span className="uppercase text-[10px] font-bold">
-                {item.name}
-              </span>
-            </div>
-          ))}
-        </div>
+    //       <div className="space-y-2 mb-8 opacity-80">
+    //         {items.map((item, idx) => (
+    //           <div
+    //             key={item.id}
+    //             className="flex items-center gap-4 bg-[#111] p-2 border border-[#00ff41]/20"
+    //           >
+    //             <span className="text-xl font-black w-8 text-[#00ff41]/40">
+    //               {idx + 1}
+    //             </span>
+    //             <div className="w-10 h-10 border border-[#00ff41]/20">
+    //               <img
+    //                 src={`/img/${item.photo}`}
+    //                 className="w-full h-full object-cover grayscale"
+    //               />
+    //             </div>
+    //             <span className="uppercase text-[10px] font-bold">
+    //               {item.name}
+    //             </span>
+    //           </div>
+    //         ))}
+    //       </div>
 
-        <button
-          onClick={async () => {
-            const unlocked = await checkTeamStatusAction(teamId);
-            if (unlocked) {
-              setView("results");
-            } else {
-              triggerModal(
-                "alert",
-                "CONNESSIONE FALLITA: Accesso ai server NASA negato. Attendere la fine della discussione di squadra.",
-              );
-            }
-          }}
-          className={BUTTON_STYLES.primary}
-        >
-          Richiedi Risultati dalla Base
-        </button>
-      </>
-    );
+    //       <button
+    //         onClick={async () => {
+    //           const unlocked = await checkTeamStatusAction(teamId);
+    //           if (unlocked) {
+    //             setView("results");
+    //           } else {
+    //             triggerModal(
+    //               "alert",
+    //               "CONNESSIONE FALLITA: Accesso ai server NASA negato. Attendere la fine della discussione di squadra.",
+    //             );
+    //           }
+    //         }}
+    //         className={BUTTON_STYLES.primary}
+    //       >
+    //         Richiedi Risultati dalla Base
+    //       </button>
+    //     </>
+    //   );
   } else if (view === "discussion-list") {
+    const isAdmin = username.toLowerCase() === "admin";
     const discussionResults = allResults
-      .filter((r) => r.team_id === adminTeamFilter)
+      .filter((r) => r.team_id === (isAdmin ? adminTeamFilter : teamId))
       .sort((a, b) => a.username.localeCompare(b.username));
+
+    const isCommander = username === "Commander";
+    const currentTeam = teamsList.find(
+      (t) => t.id === (isAdmin ? adminTeamFilter : teamId),
+    );
 
     content = (
       <>
         <div className="flex justify-between items-center mb-6 border-b-2 border-amber-500 pb-2 text-amber-500">
-          <button
-            onClick={() => setView("admin")}
-            className="text-xs flex items-center gap-1 hover:underline"
-          >
-            <ArrowLeft size={14} /> Indietro
-          </button>
-          <h2 className="text-xl font-bold uppercase italic">
-            Area Discussione:{" "}
-            {teamsList.find((t) => t.id === adminTeamFilter)?.name}
+          {!isAdmin && (
+            <button
+              onClick={() => setView("login")}
+              className="text-[10px] uppercase border border-amber-500 px-2 py-1 hover:bg-amber-500 hover:text-black"
+            >
+              Logout
+            </button>
+          )}
+          {isAdmin && (
+            <button
+              onClick={() => setView("admin")}
+              className="text-xs flex items-center gap-1 hover:underline"
+            >
+              <ArrowLeft size={14} /> Admin
+            </button>
+          )}
+
+          <h2 className="text-lg font-bold uppercase italic tracking-tighter">
+            Mission Debrief: {currentTeam?.name}
           </h2>
           <RefreshCcw
             size={18}
@@ -882,44 +930,93 @@ export default function MarsSurvivalGame() {
           />
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2 mb-8">
           {discussionResults.map((res) => (
             <div
               key={res.id}
-              className="flex justify-between items-center bg-[#111] p-4 border border-amber-500/30 hover:border-amber-500 transition-colors"
+              className={`flex justify-between items-center p-3 border ${
+                res.username === "Commander"
+                  ? "bg-[#00ff41]/10 border-[#00ff41] shadow-[0_0_10px_rgba(0,255,65,0.2)]"
+                  : "bg-[#111] border-amber-500/30"
+              }`}
             >
-              <span className="font-bold uppercase text-amber-500">
-                {res.username}
-              </span>
+              <div className="flex items-center gap-3">
+                {res.username === "Commander" && (
+                  <div className="bg-[#00ff41] text-black text-[8px] px-1 font-black uppercase">
+                    Final Order
+                  </div>
+                )}
+                <span
+                  className={`font-bold uppercase ${res.username === "Commander" ? "text-[#00ff41]" : "text-amber-500"}`}
+                >
+                  {res.username}
+                </span>
+              </div>
               <button
                 onClick={() => {
                   setSelectedUserDetail(res);
-                  setShowDeltas(false); // IMPORTANT: Disable score display
+                  setShowDeltas(false);
                   setPrevView("discussion-list");
                   setView("user-detail");
                 }}
-                className="bg-amber-500 text-black px-4 py-1 text-[10px] font-black uppercase hover:bg-white"
+                className={`${res.username === "Commander" ? "bg-[#00ff41]" : "bg-amber-500"} text-black px-4 py-1 text-[10px] font-black uppercase`}
               >
-                Analizza Scelte
+                Analizza
               </button>
             </div>
           ))}
         </div>
 
-        {/* Unlock button for all players on the team */}
-        <button
-          onClick={async () => {
-            await updateTeamStatusAction(adminTeamFilter, true);
-            setTeamsList(await getTeamsAction());
-            triggerModal(
-              "alert",
-              "DISCUSSIONE TERMINATA. I risultati sono ora disponibili.",
-            );
-          }}
-          className="w-full mt-8 bg-[#00ff41] text-black py-4 font-black uppercase hover:bg-white"
-        >
-          Sblocca Risultati per la Squadra
-        </button>
+        {/* --- BOTTOM BUTTON PANEL  --- */}
+        <div className="space-y-4">
+          {/* If it's an admin or a commander — the unlock button */}
+          {isAdmin || isCommander ? (
+            <button
+              onClick={async () => {
+                const targetId = isAdmin ? adminTeamFilter : teamId;
+                if (targetId === 0)
+                  return triggerModal("alert", "Seleziona un team.");
+                await updateTeamStatusAction(targetId, true);
+                setTeamsList(await getTeamsAction());
+                triggerModal(
+                  "alert",
+                  "MISSION COMPLETE: I risultati finali sono ora accessibili.",
+                );
+              }}
+              className={BUTTON_STYLES.primary}
+            >
+              Sblocca Risultati NASA
+            </button>
+          ) : (
+            /* For a regular player, there are two buttons: “Request Results” and “Become Commander” */
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <button
+                onClick={async () => {
+                  const unlocked = await checkTeamStatusAction(teamId);
+                  if (unlocked) setView("results");
+                  else
+                    triggerModal(
+                      "alert",
+                      "ACCESSO NEGATO: In attesa dell'ordine finale del Comandante.",
+                    );
+                }}
+                className="border-2 border-[#00ff41] text-[#00ff41] py-4 font-black uppercase text-sm hover:bg-[#00ff41] hover:text-black transition-all"
+              >
+                Richiedi Risultati NASA
+              </button>
+
+              {/* We display the “Become Commander” button only if it isn't already there */}
+              {!currentTeam?.has_commander && (
+                <button
+                  onClick={handleBecomeCommander}
+                  className="border-2 border-amber-500 text-amber-500 py-4 font-black uppercase text-sm hover:bg-amber-500 hover:text-black transition-all"
+                >
+                  Assumi il Comando
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </>
     );
   } else if (view === "results") {
@@ -1217,17 +1314,33 @@ export default function MarsSurvivalGame() {
                     className="flex justify-between items-center bg-[#0a0a0a] border border-[#00ff41]/20 p-2 hover:border-[#00ff41]/50 transition-all"
                   >
                     <div className="flex items-center gap-3">
-                      {/* A checkbox to unlock directly in the command list */}
+                      {/* CHECKBOX 1: Unlock Results  */}
                       <input
                         type="checkbox"
                         checked={t.is_unlocked}
-                        title="Sblocca i risultati: attiva per consentire a questo team di vedere il rapporto"
+                        title="Sblocca Risultati"
                         onChange={async () => {
                           await updateTeamStatusAction(t.id, !t.is_unlocked);
                           setTeamsList(await getTeamsAction());
                         }}
-                        className="appearance-none w-5 h-5 border-2 border-[#00ff41]/40 bg-black checked:bg-[#00ff41] checked:border-[#00ff41] transition-all cursor-pointer relative flex-shrink-0"
+                        className="appearance-none w-5 h-5 border-2 border-[#00ff41]/40 bg-black checked:bg-[#00ff41] checked:border-[#00ff41] cursor-pointer relative"
                       />
+
+                      {/* CHECKBOX 2: Commander Assigned */}
+                      <input
+                        type="checkbox"
+                        checked={t.has_commander}
+                        title="Comandante Assegnato"
+                        onChange={async () => {
+                          await updateCommanderStatusAction(
+                            t.id,
+                            !t.has_commander,
+                          );
+                          setTeamsList(await getTeamsAction());
+                        }}
+                        className="appearance-none w-5 h-5 border-2 border-amber-500/40 bg-black checked:bg-amber-500 checked:border-amber-500 cursor-pointer relative"
+                      />
+
                       <span className="text-[10px] font-bold uppercase">
                         {t.name}
                       </span>
@@ -1455,7 +1568,7 @@ export default function MarsSurvivalGame() {
         <AnalysisSequence
           onComplete={() => {
             setIsAnalyzing(false); // Hide animation
-            setView("user-order"); // Show results
+            setView("discussion-list"); // Show results
           }}
         />
       )}
@@ -1467,7 +1580,6 @@ export default function MarsSurvivalGame() {
         message={modal.message}
         value={modal.value}
         onClose={() => setModal((prev) => ({ ...prev, isOpen: false }))}
-
         onConfirm={() => {
           if (modal.type === "prompt") {
             // If you see an authorization message, check your password

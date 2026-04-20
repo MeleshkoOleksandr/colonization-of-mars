@@ -14,6 +14,7 @@ CREATE TABLE teams (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255) UNIQUE NOT NULL,
   is_unlocked BOOLEAN DEFAULT false
+  has_commander BOOLEAN DEFAULT false
 );
 
 -- 3. Create Results Table

@@ -16,7 +16,7 @@ export async function getTeamsAction() {
   return await db.fetchTeams();
 }
 
-// 2. Save a player's game result
+// Save a player's game result
 export async function saveResultAction(data: {
   username: string;
   team_id: number;
@@ -73,4 +73,16 @@ export async function checkTeamStatusAction(teamId: number) {
 export async function deleteResultsByTeamAction(teamId: number) {
   await db.deleteResultsByTeam(teamId);
   revalidatePath("/");
+}
+
+//  Action to change Commander status for selected team
+export async function updateCommanderStatusAction(teamId: number, status: boolean) {
+  await db.setCommanderStatus(teamId, status);
+  revalidatePath("/");
+}
+
+//  Action to check Commander status for selected team
+export async function checkCommanderStatusAction(teamId: number) {
+  const teams = await db.fetchTeams();
+  return teams.find(t => t.id === teamId)?.has_commander || false;
 }
