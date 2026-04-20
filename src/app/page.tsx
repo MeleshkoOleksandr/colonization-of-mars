@@ -627,7 +627,7 @@ export default function MarsSurvivalGame() {
   };
 
   const executeAdminAuth = () => {
-    if (modal.value === ADMIN_PASSWORD) {
+    if (modal.value.toLowerCase() === ADMIN_PASSWORD) {
       // Pass
       setModal((prev) => ({ ...prev, isOpen: false, value: "" }));
       setView("admin");
@@ -1541,7 +1541,6 @@ export default function MarsSurvivalGame() {
   return (
     <CRTWrapper>
       {content}
-
       {/* 1. ANALYSIS ANIMATION LAYER */}
       {isAnalyzing && (
         <AnalysisSequence
