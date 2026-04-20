@@ -902,11 +902,11 @@ export default function MarsSurvivalGame() {
 
     content = (
       <>
-        <div className="flex justify-between items-center mb-6 border-b-2 border-amber-500 pb-2 text-amber-500">
+        <div className="flex justify-between items-center mb-6 border-b-2 border-[#00ff41] pb-2 text-[#00ff41]">
           {!isAdmin && (
             <button
               onClick={() => setView("login")}
-              className="text-[10px] uppercase border border-amber-500 px-2 py-1 hover:bg-amber-500 hover:text-black"
+              className="text-[10px] uppercase border border-[#00ff41] px-2 py-1 hover:bg-[#00ff41] hover:text-black"
             >
               Logout
             </button>
@@ -936,18 +936,18 @@ export default function MarsSurvivalGame() {
               key={res.id}
               className={`flex justify-between items-center p-3 border ${
                 res.username === "Commander"
-                  ? "bg-[#00ff41]/10 border-[#00ff41] shadow-[0_0_10px_rgba(0,255,65,0.2)]"
-                  : "bg-[#111] border-amber-500/30"
+                  ? "bg-[#38180670] border-amber-500/30"
+                  : "bg-[#00ff41]/10 border-[#00ff41] shadow-[0_0_10px_rgba(0,255,65,0.2)]"
               }`}
             >
               <div className="flex items-center gap-3">
                 {res.username === "Commander" && (
-                  <div className="bg-[#00ff41] text-black text-[8px] px-1 font-black uppercase">
+                  <div className="bg-amber-500 text-black text-[10px] px-1 font-black uppercase">
                     Final Order
                   </div>
                 )}
                 <span
-                  className={`font-bold uppercase ${res.username === "Commander" ? "text-[#00ff41]" : "text-amber-500"}`}
+                  className={`font-bold uppercase ${res.username === "Commander" ? "text-amber-500" : "text-[#00ff41]"}`}
                 >
                   {res.username}
                 </span>
@@ -959,7 +959,7 @@ export default function MarsSurvivalGame() {
                   setPrevView("discussion-list");
                   setView("user-detail");
                 }}
-                className={`${res.username === "Commander" ? "bg-[#00ff41]" : "bg-amber-500"} text-black px-4 py-1 text-[10px] font-black uppercase`}
+                className={`${res.username === "Commander" ? "bg-amber-500" : "bg-[#00ff41] "} text-black px-4 py-1 text-[10px] font-black uppercase`}
               >
                 Analizza
               </button>
@@ -1135,50 +1135,71 @@ export default function MarsSurvivalGame() {
 
           {filteredResults
             .sort((a, b) => a.score - b.score)
-            .map((res) => (
-              <div
-                key={res.id}
-                // Responsive grid: wider for name, narrow for score/action
-                className="grid grid-cols-[1.5fr_1fr_45px_35px] md:grid-cols-4 items-center bg-[#111] p-3 md:p-4 border border-[#00ff41]/20 hover:border-[#00ff41] gap-2"
-              >
-                {/* NAME: Allow wrapping and multi-line for long names */}
-                <span className="font-bold text-xs md:text-sm leading-tight wrap-break-word pr-2">
-                  {res.username}
-                </span>
-
-                {/* TEAM: Small and truncated to save space */}
-                <span className="text-[10px] md:text-xs opacity-70 truncate uppercase">
-                  {res.team_name}
-                </span>
-
-                {/* SCORE: Bold and aligned */}
-                <span className="text-right font-black text-[#00ff41] text-xs md:text-base">
-                  {res.score}
-                </span>
-
-                {/* ACTION: Icon instead of text on mobile */}
-                <div className="flex justify-end">
-                  <button
-                    onClick={() => {
-                      setSelectedUserDetail(res);
-                      setShowDeltas(true); // Включаем баллы
-                      setPrevView("leaderboard");
-                      setView("user-detail");
-                    }}
-                    className="text-[#00ff41] hover:text-white p-1"
-                    title="Dettagli"
+            .map((res) => {
+              const isCommEntry = res.username === "Commander";
+              return (
+                <div
+                  key={res.id}
+                  // Responsive grid: wider for name, narrow for score/action
+                  // Amber color for Commander
+                  className={`grid grid-cols-[1.5fr_1fr_45px_35px] md:grid-cols-4 items-center p-3 md:p-4 border transition-colors gap-2 ${
+                    isCommEntry
+                      ? "bg-amber-500/10 border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)]"
+                      : "bg-[#111] border-[#00ff41]/20 hover:border-[#00ff41]"
+                  }`}
+                >
+                  {/* NAME: Allow wrapping and multi-line for long names. Amber color for Commander */}
+                  <span
+                    className={`font-bold text-xs md:text-sm leading-tight wrap-break-word pr-2 ${
+                      isCommEntry ? "text-amber-500" : ""
+                    }`}
                   >
-                    {/* Desktop: Text | Mobile: Icon */}
-                    <span className="hidden md:inline text-[10px] underline uppercase">
-                      Dettagli
-                    </span>
-                    <span className="md:hidden">
-                      <ChevronRight size={18} />
-                    </span>
-                  </button>
+                    {res.username}
+                  </span>
+
+                  {/* TEAM: Small and truncated to save space. Amber color for Commander */}
+                  <span
+                    className={`text-[10px] md:text-xs truncate uppercase ${
+                      isCommEntry ? "text-amber-500 opacity-100" : "opacity-70"
+                    }`}
+                  >
+                    {res.team_name}
+                  </span>
+
+                  {/* SCORE: The commander can also be highlighted in orange */}
+                  <span
+                    className={`text-right font-black text-xs md:text-base ${
+                      isCommEntry ? "text-amber-500" : "text-[#00ff41]"
+                    }`}
+                  >
+                    {res.score}
+                  </span>
+
+                  {/* ACTION: Icon instead of text on mobile */}
+                  <div className="flex justify-end">
+                    <button
+                      onClick={() => {
+                        setSelectedUserDetail(res);
+                        setShowDeltas(true); // Включаем баллы
+                        setPrevView("leaderboard");
+                        setView("user-detail");
+                      }}
+                      // The button also turns orange for the Commander
+                      className={`p-1 ${isCommEntry ? "text-amber-500" : "text-[#00ff41] hover:text-white"}`}
+                      title="Dettagli"
+                    >
+                      {/* Desktop: Text | Mobile: Icon */}
+                      <span className="hidden md:inline text-[10px] underline uppercase">
+                        Dettagli
+                      </span>
+                      <span className="md:hidden">
+                        <ChevronRight size={18} />
+                      </span>
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
         </div>
 
         {!isAdmin && (
