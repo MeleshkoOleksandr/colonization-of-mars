@@ -334,11 +334,18 @@ export default function MarsSurvivalGame() {
     "leaderboard" | "admin" | "results" | "discussion-list"
   >("leaderboard");
 
-  // Game Content from XML
+  // Game Content from XML and scenarios
   const [story, setStory] = useState({ title: "Caricamento...", plot: "" });
   const [items, setItems] = useState<SurvivalItem[]>([]);
   const [staticItems, setStaticItems] = useState<SurvivalItem[]>([]);
   const [evaluations, setEvaluations] = useState<ScoreEvaluation[]>([]);
+  //List of all available scripts from JSON
+  const [scenarios, setScenarios] = useState<
+    { id: string; file: string; name: string }[]
+  >([]);
+  //A new state for storing the selected script in the admin panel
+  const [selectedScenarioForNewTeam, setSelectedScenarioForNewTeam] =
+    useState("mars_it");
 
   // Database Data
   const [username, setUsername] = useState("");
@@ -473,6 +480,63 @@ export default function MarsSurvivalGame() {
       syncData();
     }
   }, [view]); // This effect runs every time 'view' changes
+
+  /**
+   * SCENARIO LOADER
+   * Automatically reloads XML content when the team (and its scenario) changes.
+   */
+  useEffect(() => {
+    //  First we find the command and the config
+    const selectedTeam = teamsList.find((t) => t.id === teamId);
+    const foundConfig = scenarios.find(
+      (s) => s.id === selectedTeam?.current_scenario,
+    );
+
+    //  We are checking - If we find something, we move forward.
+    if (teamId !== 0 && foundConfig) {
+      const scenarioFile = foundConfig.file;
+      const scenarioName = foundConfig.name;
+
+      const loadSpecificScenario = async () => {
+        try {
+          console.log(`SYSTEM: Loading scenario [${scenarioName}]...`);
+          const response = await fetch(`/data/${scenarioFile}`);
+
+          if (!response.ok) throw new Error("XML not found");
+
+          const xmlString = await response.text();
+          const parsedData = parseStoryXml(xmlString);
+
+          setStory(parsedData.story);
+          setStaticItems(parsedData.items);
+          setEvaluations(parsedData.evaluations);
+          setItems([...parsedData.items].sort(() => Math.random() - 0.5));
+        } catch (err) {
+          console.error("Failed to load scenario XML:", err);
+        }
+      };
+
+      loadSpecificScenario();
+    }
+  }, [teamId, scenarios, teamsList]);
+
+  useEffect(() => {
+    async function init() {
+      // Load scenario manifest
+      const res = await fetch("/data/scenarios.json");
+      const manifest = await res.json();
+      setScenarios(manifest);
+
+      // Load DB records
+      const [teams, results] = await Promise.all([
+        getTeamsAction(),
+        getResultsAction(),
+      ]);
+      setTeamsList(teams);
+      setAllResults(results);
+    }
+    init();
+  }, []);
 
   /**
    * XML PARSER
@@ -619,9 +683,9 @@ export default function MarsSurvivalGame() {
 
   const executeAddTeam = async () => {
     if (modal.value.trim()) {
-      await addTeamAction(modal.value);
+      // We pass the name and selected scenario
+      await addTeamAction(modal.value, selectedScenarioForNewTeam);
       setTeamsList(await getTeamsAction());
-      // Close and clear input
       setModal((prev) => ({ ...prev, isOpen: false, value: "" }));
     }
   };
@@ -1335,13 +1399,26 @@ export default function MarsSurvivalGame() {
               </div>
             </div>
 
-            {/*Add Team button */}
-            <button
-              onClick={handleAddTeam}
-              className="text-[10px] border border-[#00ff41] p-1 w-full hover:bg-[#00ff41] hover:text-black"
-            >
-              + AGGIUNGI TEAM
-            </button>
+            {/*Add Team area */}
+            <div className="flex flex-col sm:flex-row gap-2 border-t border-[#00ff41]/20 pt-4">
+              <select
+                className="flex-1 bg-black text-[#00ff41] text-xs border border-[#00ff41]/40 p-2 outline-none cursor-pointer min-h-9.5"
+                value={selectedScenarioForNewTeam}
+                onChange={(e) => setSelectedScenarioForNewTeam(e.target.value)}
+              >
+                {scenarios.map((s) => (
+                  <option key={s.id} value={s.id} className="bg-black">
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={handleAddTeam}
+                className="whitespace-nowrap border-2 border-dashed border-[#00ff41]/30 px-4 py-2 text-[10px] uppercase font-bold hover:bg-[#00ff41]/10 transition-colors sm:w-auto w-full"
+              >
+                + CREA SQUADRA
+              </button>
+            </div>
           </div>
         </div>
         <div className="space-y-4 border-2 border-[#00ff41]/30 p-6 bg-[#111]/50">
