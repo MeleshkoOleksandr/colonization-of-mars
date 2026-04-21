@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Mission>
+    <Story>
+        <Title>Sopravvivenza nella Valle Marineris</Title>
+        <Plot>Siete i membri di una squadra di coloni d'avanguardia diretti verso la cupola principale della base "Ares-1". Durante la discesa, il vostro rover cargo è stato investito da una violenta tempesta di sabbia e si è ribaltato a 150 chilometri dalla destinazione. I sistemi di supporto vitale del rover sono fuori uso e le comunicazioni con la base sono interrotte. Il vostro obiettivo: percorrere 150 km nel deserto marziano fino alla base. Indossate le tute spaziali, ma le risorse sono limitate.</Plot>
+    </Story>
+    <Evaluations>
+        <Rank threshold="20">ECCELLENTE. Elon Musk sarebbe fiero di te. Sei l'élite della colonizzazione!</Rank>
+        <Rank threshold="35">BUONO. Arriverai alla base, anche se con qualche congelamento.</Rank>
+        <Rank threshold="50">SUFFICIENTE. Probabilmente rimarrai bloccato a metà strada con le batterie scariche.</Rank>
+        <Rank threshold="999">DISASTRO. Sei diventato parte del paesaggio marziano. I tuoi resti serviranno da concime.</Rank>
+    </Evaluations>
+    <Items>
+        <Item id="o2">
+            <Name>Bombole di ossigeno compresso</Name>
+            <Photo>item_o2.jpg</Photo>
+            <Position>1</Position>
+            <Description>Senza ossigeno la morte è immediata. Priorità assoluta.</Description>
+        </Item>
+        <Item id="rtg">
+            <Name>RTG (Generatore termico)</Name>
+            <Photo>item_rtg.jpg</Photo>
+            <Position>2</Position>
+            <Description>La temperatura scende sotto i -60°C. Protegge le batterie della tuta.</Description>
+        </Item>
+        <Item id="nav">
+            <Name>Unità di navigazione inerziale (giroscopio)</Name>
+            <Photo>item_nav.jpg</Photo>
+            <Position>3</Position>
+            <Description>Essenziale per non perdersi: su Marte non c'è GPS.</Description>
+        </Item>
+        <Item id="water">
+            <Name>Dissalatore-condensatore portatile (estrae umidità dal suolo)</Name>
+            <Photo>item_water.jpg</Photo>
+            <Position>4</Position>
+            <Description>L'acqua è fondamentale per un viaggio di 150 km.</Description>
+        </Item>
+        <Item id="seal">
+            <Name>Bomboletta di sigillante liquido per materiali compositi</Name>
+            <Photo>item_seal.jpg</Photo>
+            <Position>5</Position>
+            <Description>Riparare una microfrattura nella tuta è vitale.</Description>
+        </Item>
+        <Item id="food">
+            <Name>Tubetti di pasta proteica ipercalorica</Name>
+            <Photo>item_food.jpg</Photo>
+            <Position>6</Position>
+            <Description>Energia per i 3-5 giorni di cammino previsti.</Description>
+        </Item>
+        <Item id="tent">
+            <Name>Tenda gonfiabile ermetica</Name>
+            <Photo>item_tent.jpg</Photo>
+            <Position>7</Position>
+            <Description>Permette di riposare fuori dalla tuta spaziale.</Description>
+        </Item>
+        <Item id="solar">
+            <Name>Set di pannelli solari flessibili</Name>
+            <Photo>item_solar.jpg</Photo>
+            <Position>8</Position>
+            <Description>Ricarica i sistemi della tuta nel lungo periodo.</Description>
+        </Item>
+        <Item id="med">
+            <Name>Kit pronto soccorso</Name>
+            <Photo>item_med.jpg</Photo>
+            <Position>9</Position>
+            <Description>Per trattare ferite o infezioni durante il tragitto.</Description>
+        </Item>
+        <Item id="rope">
+            <Name>Corda in Kevlar (30m)</Name>
+            <Photo>item_rope.jpg</Photo>
+            <Position>10</Position>
+            <Description>Utile per superare canyon e crepacci.</Description>
+        </Item>
+        <Item id="laser">
+            <Name>Telemetro / puntatore laser</Name>
+            <Photo>item_laser.jpg</Photo>
+            <Position>11</Position>
+            <Description>Segnalazione visiva per squadre di soccorso.</Description>
+        </Item>
+        <Item id="blanket">
+            <Name>Foglio metallico con rivestimento in titanio (coperta termica)</Name>
+            <Photo>item_blanket.jpg</Photo>
+            <Position>12</Position>
+            <Description>Isolante extra, ma poco efficace contro il gelo estremo.</Description>
+        </Item>
+        <Item id="n2">
+            <Name>Bombola di azoto compresso</Name>
+            <Photo>item_n2.jpg</Photo>
+            <Position>13</Position>
+            <Description>Non respirabile. Pericolosa se usata come propulsore.</Description>
+        </Item>
+        <Item id="comp">
+            <Name>Bussola magnetica</Name>
+            <Photo>item_comp.jpg</Photo>
+            <Position>14</Position>
+            <Description>Inutile: Marte non ha un campo magnetico globale.</Description>
+        </Item>
+        <Item id="fire">
+            <Name>Accenditore al plasma</Name>
+            <Photo>item_fire.jpg</Photo>
+            <Position>15</Position>
+            <Description>Inutile. L'atmosfera è al 95% CO2. La combustione è impossibile.</Description>
+        </Item>
+    </Items>
+</Mission>
