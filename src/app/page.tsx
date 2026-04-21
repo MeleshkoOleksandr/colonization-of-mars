@@ -1355,7 +1355,7 @@ export default function MarsSurvivalGame() {
                 {teamsList
                   .sort((a, b) => a.id - b.id)
                   .map((t) => {
-                    // Находим название сценария для этой команды
+                    // Find the script name for this command
                     const scenarioName =
                       scenarios.find((s) => s.id === t.current_scenario)
                         ?.name || "Default";
@@ -1377,14 +1377,14 @@ export default function MarsSurvivalGame() {
                                 );
                                 setTeamsList(await getTeamsAction());
                               }}
-                              className="appearance-none w-5 h-5 border-2 border-[#00ff41]/40 bg-black checked:bg-[#00ff41] checked:border-[#00ff41] cursor-pointer relative flex-shrink-0"
+                              className="appearance-none w-5 h-5 border-2 border-[#00ff41]/40 bg-black checked:bg-[#00ff41] checked:border-[#00ff41] cursor-pointer relative shrink-0"
                             />
                             {/* Custom Tooltip for Checkbox 1 */}
                             <div className="absolute bottom-full left-0 mb-2 hidden group-hover/check1:block group-active/check1:block z-50 pointer-events-none">
                               <div className="bg-[#00ff41] text-black text-[7px] font-black uppercase px-2 py-0.5 whitespace-nowrap shadow-[0_0_10px_#00ff41]">
                                 Sblocca Risultati
                               </div>
-                              <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[4px] border-t-[#00ff41] ml-1"></div>
+                              <div className="w-0 h-0 border-l-4 border-l-transparent border-r-4 border-r-transparent border-t-4 border-t-[#00ff41] ml-1"></div>
                             </div>
                           </div>
 
@@ -1400,43 +1400,41 @@ export default function MarsSurvivalGame() {
                                 );
                                 setTeamsList(await getTeamsAction());
                               }}
-                              className="appearance-none w-5 h-5 border-2 border-amber-500/40 bg-black checked:bg-amber-500 checked:border-amber-500 cursor-pointer relative flex-shrink-0"
+                              className="appearance-none w-5 h-5 border-2 border-amber-500/40 bg-black checked:bg-amber-500 checked:border-amber-500 cursor-pointer relative shrink-0"
                             />
                             {/* Custom Tooltip for Checkbox 2 */}
                             <div className="absolute bottom-full left-0 mb-2 hidden group-hover/check2:block group-active/check2:block z-50 pointer-events-none">
                               <div className="bg-amber-500 text-black text-[7px] font-black uppercase px-2 py-0.5 whitespace-nowrap shadow-[0_0_10px_#f59e0b]">
                                 Status Comandante
                               </div>
-                              <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[4px] border-t-amber-500 ml-1"></div>
+                              <div className="w-0 h-0 border-l-4 border-l-transparent border-r-4 border-r-transparent border-t-4 border-t-amber-500 ml-1"></div>
                             </div>
                           </div>
-
-                          <span className="text-[10px] font-black uppercase tracking-widest truncate max-w-[100px] md:max-w-[200px]">
+                          <span className="text-[10px] font-black uppercase tracking-widest truncate max-w-25 md:max-w-50">
                             {t.name}
                           </span>
                         </div>
 
-                        {/* ПРАВАЯ ЧАСТЬ: Иконки действий */}
+                        {/* Action icons*/}
                         <div className="flex items-center gap-2">
-                          {/* БЛОК ПОДСКАЗКИ (Tooltip) */}
+                          {/* (Tooltip) */}
                           <div className="relative group/tooltip flex items-center">
-                            {/* Иконка, на которую наводят/нажимают */}
+                            {/* The icon that is hovered over or clicked */}
                             <FileText
                               size={14}
                               className="text-[#00ff41]/40 hover:text-[#00ff41] cursor-help transition-colors"
                             />
-
-                            {/* Само окно подсказки */}
+                            {/* The tooltip window itself */}
                             <div className="absolute bottom-full right-0 mb-2 hidden group-hover/tooltip:block group-active/tooltip:block z-50">
                               <div className="bg-[#00ff41] text-black text-[9px] font-black uppercase px-2 py-1 whitespace-nowrap shadow-[0_0_10px_#00ff41]">
                                 Scenario: {scenarioName}
                               </div>
-                              {/* Маленький треугольник-стрелочка */}
-                              <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[4px] border-t-[#00ff41] ml-auto mr-1"></div>
+                              {/* A small triangular arrow */}
+                              <div className="w-0 h-0 border-l-4 border-l-transparent border-r-4 border-r-transparent border-t-4 border-t-[#00ff41] ml-auto mr-1"></div>
                             </div>
                           </div>
 
-                          {/* Кнопка удаления */}
+                          {/* Delete button */}
                           <button
                             onClick={() => handleDeleteTeam(t.id!)}
                             className="text-red-500/50 hover:text-red-500 transition-colors p-1"
