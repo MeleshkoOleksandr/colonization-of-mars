@@ -1,4 +1,17 @@
 [
-  {"id": "mars_01", "file": "story_mars.xml", "name": "Sopravvivenza su Marte"},
-  {"id": "moon_01", "file": "story_moon.xml", "name": "Missione Luna"}
+  {
+    "id": "mars_it",
+    "file": "story_mars_it.xml",
+    "name": "Sopravvivenza su Marte (It)"
+  },
+  {
+    "id": "moon_it",
+    "file": "story_moon_it.xml",
+    "name": "Esercitazione NASA (It)"
+  },
+  {
+    "id": "moon_eng",
+    "file": "story_moon_eng.xml",
+    "name": "NASA Exercise (Eng)"
+  }
 ]
