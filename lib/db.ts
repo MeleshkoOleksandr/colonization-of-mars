@@ -12,6 +12,7 @@ export interface Team {
   name: string;
   is_unlocked: boolean; // Lock result from player
   has_commander: boolean; 
+  current_scenario: string; 
 }
 
 export interface GameResult {
@@ -60,8 +61,8 @@ export async function fetchTeams(): Promise<Team[]> {
  * Add a new team (Admin Panel)
  * Adds a team name to the database if it doesn't already exist.
  */
-export async function addTeam(name: string) {
-  await sql`INSERT INTO teams (name) VALUES (${name}) ON CONFLICT DO NOTHING`;
+export async function addTeam(name: string, scenarioId: string) {
+  await sql`INSERT INTO teams (name, current_scenario) VALUES (${name}, ${scenarioId})`;
 }
 
 /**

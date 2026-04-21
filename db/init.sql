@@ -15,6 +15,7 @@ CREATE TABLE teams (
   name VARCHAR(255) UNIQUE NOT NULL,
   is_unlocked BOOLEAN DEFAULT false
   has_commander BOOLEAN DEFAULT false
+  current_scenario VARCHAR(255) DEFAULT 'mars_it';
 );
 
 -- 3. Create Results Table

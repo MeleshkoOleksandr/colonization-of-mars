@@ -34,8 +34,8 @@ export async function getResultsAction() {
 }
 
 //  Admin: Add a new team
-export async function addTeamAction(name: string) {
-  await db.addTeam(name);
+export async function addTeamAction(name: string, scenarioId: string) {
+  await db.addTeam(name, scenarioId);
   revalidatePath("/");
 }
 
