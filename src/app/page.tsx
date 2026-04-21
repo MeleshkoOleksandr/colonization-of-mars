@@ -17,6 +17,7 @@ import {
   ArrowLeft,
   GripVertical,
   Info,
+  FileText,
 } from "lucide-react";
 
 /**
@@ -1345,57 +1346,107 @@ export default function MarsSurvivalGame() {
 
         <div className="space-y-8">
           {/* Teams Management */}
-          <div className="border-2 border-[#00ff41]/30 p-4 bg-[#111]/30">
-            <h3 className="font-bold uppercase flex items-center gap-2 mb-4">
+          <div className="border-2 border-[#00ff41]/30 p-6 bg-[#111]/30">
+            <h3 className="font-bold uppercase flex items-center gap-2 mb-4 border-b border-[#00ff41]/10 pb-2">
               <Users size={18} /> Gestione Unità
             </h3>
-            <div className="max-h-80 overflow-y-auto pr-2 custom-scrollbar">
+            <div className="max-h-80 overflow-y-auto pr-2 pt-4 custom-scrollbar relative">
               <div className="flex flex-col gap-2 mb-4">
-                {teamsList.map((t) => (
-                  <div
-                    key={t.id}
-                    className="flex justify-between items-center bg-[#0a0a0a] border border-[#00ff41]/20 p-2 hover:border-[#00ff41]/50 transition-all"
-                  >
-                    <div className="flex items-center gap-3">
-                      {/* CHECKBOX 1: Unlock Results  */}
-                      <input
-                        type="checkbox"
-                        checked={t.is_unlocked}
-                        title="Sblocca Risultati"
-                        onChange={async () => {
-                          await updateTeamStatusAction(t.id, !t.is_unlocked);
-                          setTeamsList(await getTeamsAction());
-                        }}
-                        className="appearance-none w-5 h-5 border-2 border-[#00ff41]/40 bg-black checked:bg-[#00ff41] checked:border-[#00ff41] cursor-pointer relative"
-                      />
+                {teamsList
+                  .sort((a, b) => a.id - b.id)
+                  .map((t) => {
+                    // Находим название сценария для этой команды
+                    const scenarioName =
+                      scenarios.find((s) => s.id === t.current_scenario)
+                        ?.name || "Default";
+                    return (
+                      <div
+                        key={t.id}
+                        className="flex justify-between items-center bg-[#0a0a0a] border border-[#00ff41]/20 p-2 hover:border-[#00ff41]/50 transition-all"
+                      >
+                        <div className="flex items-center gap-3">
+                          {/* CHECKBOX 1: Unlock Results  */}
+                          <div className="relative group/check1">
+                            <input
+                              type="checkbox"
+                              checked={t.is_unlocked}
+                              onChange={async () => {
+                                await updateTeamStatusAction(
+                                  t.id,
+                                  !t.is_unlocked,
+                                );
+                                setTeamsList(await getTeamsAction());
+                              }}
+                              className="appearance-none w-5 h-5 border-2 border-[#00ff41]/40 bg-black checked:bg-[#00ff41] checked:border-[#00ff41] cursor-pointer relative flex-shrink-0"
+                            />
+                            {/* Custom Tooltip for Checkbox 1 */}
+                            <div className="absolute bottom-full left-0 mb-2 hidden group-hover/check1:block group-active/check1:block z-50 pointer-events-none">
+                              <div className="bg-[#00ff41] text-black text-[7px] font-black uppercase px-2 py-0.5 whitespace-nowrap shadow-[0_0_10px_#00ff41]">
+                                Sblocca Risultati
+                              </div>
+                              <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[4px] border-t-[#00ff41] ml-1"></div>
+                            </div>
+                          </div>
 
-                      {/* CHECKBOX 2: Commander Assigned */}
-                      <input
-                        type="checkbox"
-                        checked={t.has_commander}
-                        title="Comandante Assegnato"
-                        onChange={async () => {
-                          await updateCommanderStatusAction(
-                            t.id,
-                            !t.has_commander,
-                          );
-                          setTeamsList(await getTeamsAction());
-                        }}
-                        className="appearance-none w-5 h-5 border-2 border-amber-500/40 bg-black checked:bg-amber-500 checked:border-amber-500 cursor-pointer relative"
-                      />
+                          {/* CHECKBOX 2: Commander Assigned */}
+                          <div className="relative group/check2">
+                            <input
+                              type="checkbox"
+                              checked={t.has_commander}
+                              onChange={async () => {
+                                await updateCommanderStatusAction(
+                                  t.id,
+                                  !t.has_commander,
+                                );
+                                setTeamsList(await getTeamsAction());
+                              }}
+                              className="appearance-none w-5 h-5 border-2 border-amber-500/40 bg-black checked:bg-amber-500 checked:border-amber-500 cursor-pointer relative flex-shrink-0"
+                            />
+                            {/* Custom Tooltip for Checkbox 2 */}
+                            <div className="absolute bottom-full left-0 mb-2 hidden group-hover/check2:block group-active/check2:block z-50 pointer-events-none">
+                              <div className="bg-amber-500 text-black text-[7px] font-black uppercase px-2 py-0.5 whitespace-nowrap shadow-[0_0_10px_#f59e0b]">
+                                Status Comandante
+                              </div>
+                              <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[4px] border-t-amber-500 ml-1"></div>
+                            </div>
+                          </div>
 
-                      <span className="text-[10px] font-bold uppercase">
-                        {t.name}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => handleDeleteTeam(t.id)}
-                      className="text-red-500 hover:text-white p-1"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                ))}
+                          <span className="text-[10px] font-black uppercase tracking-widest truncate max-w-[100px] md:max-w-[200px]">
+                            {t.name}
+                          </span>
+                        </div>
+
+                        {/* ПРАВАЯ ЧАСТЬ: Иконки действий */}
+                        <div className="flex items-center gap-2">
+                          {/* БЛОК ПОДСКАЗКИ (Tooltip) */}
+                          <div className="relative group/tooltip flex items-center">
+                            {/* Иконка, на которую наводят/нажимают */}
+                            <FileText
+                              size={14}
+                              className="text-[#00ff41]/40 hover:text-[#00ff41] cursor-help transition-colors"
+                            />
+
+                            {/* Само окно подсказки */}
+                            <div className="absolute bottom-full right-0 mb-2 hidden group-hover/tooltip:block group-active/tooltip:block z-50">
+                              <div className="bg-[#00ff41] text-black text-[9px] font-black uppercase px-2 py-1 whitespace-nowrap shadow-[0_0_10px_#00ff41]">
+                                Scenario: {scenarioName}
+                              </div>
+                              {/* Маленький треугольник-стрелочка */}
+                              <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[4px] border-t-[#00ff41] ml-auto mr-1"></div>
+                            </div>
+                          </div>
+
+                          {/* Кнопка удаления */}
+                          <button
+                            onClick={() => handleDeleteTeam(t.id!)}
+                            className="text-red-500/50 hover:text-red-500 transition-colors p-1"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
               </div>
             </div>
 
