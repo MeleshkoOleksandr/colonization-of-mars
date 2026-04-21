@@ -1254,13 +1254,36 @@ export default function MarsSurvivalGame() {
             {prevView === "admin" ? "Amministrazione" : "Classifica"}
           </button>
 
-          <h2 className="text-2xl font-bold uppercase tracking-tighter">
-            Analisi: {selectedUserDetail.username}
-          </h2>
+          <div className="mb-8">
+            <h2 className="text-2xl font-black uppercase tracking-tighter mb-1  italic">
+              Analisi: {selectedUserDetail.username}
+            </h2>
 
-          <div className="text-sm opacity-70 italic">
-            Team: {selectedUserDetail.team_name} | Score:{" "}
-            {selectedUserDetail.score}
+            <div className="flex flex-col gap-1">
+              {/* Line 1: Command */}
+              <div className="text-xs opacity-60 uppercase tracking-widest">
+                Unità di missione:{" "}
+                <span className="text-white">
+                  {selectedUserDetail.team_name}
+                </span>
+              </div>
+
+              {/*Line 2: Scores (now always on a new line) */}
+              <div className="mt-2">
+                {showDeltas ? (
+                  <div className="text-sm font-black uppercase tracking-tight text-[#00ff41] flex items-baseline gap-2">
+                    <span>Punteggio NASA:</span>
+                    <span className="text-2xl underline decoration-double">
+                      {selectedUserDetail.score}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="inline-block text-[10px] text-amber-500 font-bold bg-amber-500/10 px-2 py-1 border border-amber-500/30 uppercase tracking-widest animate-pulse">
+                    Status: Risultati Secretati
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
