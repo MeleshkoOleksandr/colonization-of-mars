@@ -20,6 +20,44 @@ Group Rankings: Compare your performance with other colons in the Team Leaderboa
 
 ---
 
+## 🚀 Quick Start for VS Code Users
+
+If you have just cloned or downloaded this repository, follow these steps to launch the game:
+
+### 1. Open Project
+Open **Visual Studio Code**, go to `File > Open Folder...` and select the `ColonizationOfMars` directory.
+
+### 2. Open Integrated Terminal
+Press ``Ctrl + ` `` (backtick) or go to `Terminal > New Terminal` in the top menu.
+
+### 3. Install Dependencies
+Change to the project derectory if you are not in it
+```bash
+cd colonization-of-mars
+```
+In the terminal window, type the following command and press **Enter**:
+```bash
+npm install
+npm install framer-motion lucide-react.
+```
+### 4. Connect data base
+Create all the necessary tables in the database and copy the connection settings to .env.local. See below 
+
+### 5. Run locally
+In the terminal window, type the following command
+```bash
+npm run dev.
+```
+Click on the link http://localhost:3000 or simply enter this address into your browser.
+
+---
+
+## Database Setup:
+Create a Postgres database on Vercel or locally.
+Run the initialization script found in /db/init.sql.
+
+---
+
 ## 🛠 Tech Stack & Libraries
 
 This project leverages modern web technologies to ensure a smooth and reactive experience:
@@ -37,25 +75,4 @@ Before you begin, ensure you have the following installed on your machine:
 *   **[Node.js (LTS)](https://nodejs.org/)** (Version 20 or higher).
 *   **[Visual Studio Code](https://code.visualstudio.com/)** (Recommended editor).
 
----
 
-## Database Setup:
-Create a Postgres database on Vercel or locally.
-Run the initialization script found in /db/init.sql.
-
----
-
-## 🚀 Quick Start for VS Code Users
-
-If you have just cloned or downloaded this repository, follow these steps to launch the game:
-
-### 1. Open Project
-Open **Visual Studio Code**, go to `File > Open Folder...` and select the `ColonizationOfMars` directory.
-
-### 2. Open Integrated Terminal
-Press ``Ctrl + ` `` (backtick) or go to `Terminal > New Terminal` in the top menu.
-
-### 3. Install Dependencies
-In the terminal window, type the following command and press **Enter**:
-```bash
-npm install
