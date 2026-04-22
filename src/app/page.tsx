@@ -39,6 +39,8 @@ import {
   deleteResultsByTeamAction,
   updateCommanderStatusAction,
   checkCommanderStatusAction,
+  addTeamWithPlayersAction,
+  updatePlayerResultAction,
 } from "./actions";
 
 import { Team, GameResult } from "../../lib/db";
@@ -269,7 +271,7 @@ const RetroModal = ({
   onChange,
 }: {
   isOpen: boolean;
-  type: "alert" | "confirm" | "prompt";
+  type: "alert" | "confirm" | "prompt" | "prompt-area";
   message: string;
   value?: string;
   onClose: () => void;
@@ -299,15 +301,23 @@ const RetroModal = ({
           {message}
         </p>
 
-        {type === "prompt" && (
+        {type === "prompt-area" ? (
+          <textarea
+            autoFocus
+            className="w-full h-40 bg-[#001100] border-2 border-[#00ff41] p-2 text-[#00ff41] outline-none mb-6 focus:bg-[#003300] uppercase font-mono text-xs"
+            placeholder="Inserire un nome per riga..."
+            value={value}
+            onChange={(e) => onChange?.(e.target.value)}
+          />
+        ) : type === "prompt" ? (
           <input
             autoFocus
-            className="w-full bg-[#001100] border-2 border-[#00ff41] p-2 text-[#00ff41] outline-none mb-6 focus:bg-[#003300] uppercase"
+            className="w-full bg-[#001100] border-2 border-[#00ff41] p-2 text-[#00ff41] outline-none mb-6 focus:bg-[#003300] uppercase font-mono"
             value={value}
             onChange={(e) => onChange?.(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && onConfirm()}
           />
-        )}
+        ) : null}
 
         <div className="flex justify-end gap-4">
           {type !== "alert" && (
@@ -852,45 +862,80 @@ export default function MarsSurvivalGame() {
    */
   let content;
   if (view === "login") {
+    // Get the list of players who haven't played yet (score -1)
+    const pendingPlayers = allResults
+      .filter((r) => r.score === -1)
+      .sort((a, b) => a.username.localeCompare(b.username));
+
     content = (
       <>
-        <Header title="Mission Login" />
-        <div className="flex flex-col gap-6 max-w-sm mx-auto py-12">
-          <div className="space-y-2">
-            <label className="text-xs uppercase">
-              Identificativo Operatore:
-            </label>
-            <input
-              className="w-full bg-black border-2 border-[#00ff41] p-3 outline-none focus:bg-[#003300] transition-colors"
-              placeholder="Nome..."
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              // --- Login with Enter key ---
-              onKeyDown={(e) => e.key === "Enter" && handleStart()}
-            />
+        <Header title={loc.login_header || "Mission Login"} />
+
+        {/* --- Image block --- */}
+        <div className="w-full max-w-md mx-auto border border-[#00ff41]/30 bg-black relative overflow-hidden group shadow-[0_0_15px_rgba(0,255,65,0.1)]">
+          {/* Corner decorative elements (terminal style)  */}
+          <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#00ff41]"></div>
+          <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-[#00ff41]"></div>
+
+          <img
+            src="/img/login_page.png"
+            alt="Ares-1 Mission"
+            className="w-full h-48 md:h-48 object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-1000  hover:grayscale-0"
+          />
+
+          {/* Text caption on the image  */}
+          <div className="absolute bottom-2 left-3 flex items-center gap-2">
+            <div className="w-1.5 h-1.5 bg-red-600 animate-pulse rounded-full"></div>
+            <span className="text-[8px] uppercase tracking-[0.3em] text-[#00ff41]/70 font-black">
+              Live Stream
+            </span>
           </div>
+
+          {/* Apply a gradient over the image so that it fades smoothly into black */}
+          <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent"></div>
+        </div>
+
+        {/* --- LOGIN FORM--- */}
+        <div className="flex flex-col gap-6 max-w-sm mx-auto py-8 md:py-12">
           <div className="space-y-2">
-            <label className="text-xs uppercase">Unità di Assegnazione:</label>
+            <label className="text-xs uppercase opacity-50 font-bold tracking-widest">
+              {loc.login_operator_label || "Identificazione Operatore:"}
+            </label>
+
             <select
-              className="w-full bg-black border-2 border-[#00ff41] p-3 outline-none appearance-none cursor-pointer"
-              value={teamId}
-              onChange={(e) => setTeamId(Number(e.target.value))}
-              // --- Login with Enter key ---
-              onKeyDown={(e) => e.key === "Enter" && handleStart()}
+              className="w-full bg-black border-2 border-[#00ff41] p-3 outline-none cursor-pointer text-sm font-bold uppercase transition-colors focus:bg-[#002200]"
+              value={username}
+              onChange={(e) => {
+                const val = e.target.value;
+                setUsername(val);
+                if (val && val !== "admin") {
+                  const player = pendingPlayers.find((p) => p.username === val);
+                  if (player) setTeamId(player.team_id);
+                }
+              }}
             >
-              <option value={0}>Seleziona Team...</option>
-              {teamsList.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
+              <option value="">
+                {loc.login_select_prompt || "--- Seleziona Identità ---"}
+              </option>
+              <option value="admin" className="text-amber-500 font-black">
+                [ ACCESS CENTER: ADMIN ]
+              </option>
+
+              <optgroup label="Colonni Autorizzati:">
+                {pendingPlayers.map((p) => (
+                  <option key={p.id} value={p.username}>
+                    {p.username} ({p.team_name})
+                  </option>
+                ))}
+              </optgroup>
             </select>
           </div>
+
           <button
             onClick={handleStart}
-            className="mt-4 border-4 border-[#00ff41] py-4 hover:bg-[#00ff41] hover:text-black transition-all font-black uppercase text-xl"
+            className="mt-2 border-4 border-[#00ff41] py-4 hover:bg-[#00ff41] hover:text-black transition-all font-black uppercase text-xl shadow-[0_0_20px_rgba(0,255,65,0.2)] active:scale-95"
           >
-            {loc.btn_start_main || "Inizializzare Missione"}
+            {loc.btn_start || "Inizializzare"}
           </button>
         </div>
       </>

@@ -1,5 +1,9 @@
 {
-   "btn_start_main": "Inizializzare Missione",
+    
+  "login_header": "Accesso alla missione",
+  "login_operator_label": "Identificazione Operatore:",
+
+  "btn_start_main": "Inizializzare Missione",
 
    "btn_start_game": "Accedi all'Inventario Cargo",
    "lb_protocol": "PROTOCOLLO",
