@@ -985,12 +985,12 @@ export default function MarsSurvivalGame() {
               onClick={() => setView("admin")}
               className="text-xs flex items-center gap-1 hover:underline"
             >
-              <ArrowLeft size={14} />   {loc.btn_admin}
+              <ArrowLeft size={14} /> {loc.btn_admin}
             </button>
           )}
 
           <h2 className="text-lg font-bold uppercase italic tracking-tighter">
-             {loc.btn_report} {currentTeam?.name}
+            {loc.btn_report} {currentTeam?.name}
           </h2>
           <RefreshCcw
             size={18}
@@ -1012,13 +1012,13 @@ export default function MarsSurvivalGame() {
               <div className="flex items-center gap-3">
                 {res.username === "Commander" && (
                   <div className="bg-amber-500 text-black text-[10px] px-1 font-black uppercase">
-                     {loc.btn_final}
+                    {loc.btn_final}
                   </div>
                 )}
                 <span
                   className={`font-bold uppercase ${res.username === "Commander" ? "text-amber-500" : "text-[#00ff41]"}`}
                 >
-                  {res.username} 
+                  {res.username}
                 </span>
               </div>
               <button
@@ -1063,7 +1063,7 @@ export default function MarsSurvivalGame() {
               }}
               className={BUTTON_STYLES.primary}
             >
-               {loc.btn_unblock}
+              {loc.btn_unblock}
             </button>
           ) : (
             /* For a regular player, there are two buttons: “Request Results” and “Become Commander” */
@@ -1080,7 +1080,7 @@ export default function MarsSurvivalGame() {
                 }}
                 className="border-2 border-[#00ff41] text-[#00ff41] py-4 font-black uppercase text-sm hover:bg-[#00ff41] hover:text-black transition-all"
               >
-                 {loc.btn_request}
+                {loc.btn_request}
               </button>
 
               {/* We display the “Become Commander” button only if it isn't already there */}
@@ -1089,7 +1089,7 @@ export default function MarsSurvivalGame() {
                   onClick={handleBecomeCommander}
                   className="border-2 border-amber-500 text-amber-500 py-4 font-black uppercase text-sm hover:bg-amber-500 hover:text-black transition-all"
                 >
-                   {loc.btn_commander}
+                  {loc.btn_commander}
                 </button>
               )}
             </div>
@@ -1104,18 +1104,18 @@ export default function MarsSurvivalGame() {
         {/* PLAYER INFO BAR */}
         <div className="text-center mb-4">
           <div className="inline-block border border-[#00ff41] px-4 py-1 text-[14px] uppercase tracking-[0.2em] bg-[#00ff41]/10">
-            Operatore: <span className="text-white">{username}</span> | Team:{" "}
-            <span className="text-white">{currentTeamName}</span>
+            {loc.lb_operator} <span className="text-white">{username}</span> |{" "}
+            {loc.lb_team} <span className="text-white">{currentTeamName}</span>
           </div>
         </div>
 
         <div className="text-center mb-4">
           <div className="text-6xl font-black mb-2">{currentScore}</div>
           <div className="text-sm uppercase tracking-[0.3em] mb-0 opacity-70">
-            Punti di Deviazione
+            {loc.lb_points}
           </div>
           <div className="text-xs text-white/80 italic mb-4">
-            (Meno è meglio)
+            ({loc.lb_explane})
           </div>
           <p className="text-xl italic bg-[#00ff41] text-black p-3 font-bold uppercase">
             {getScoreMessage(currentScore)}
@@ -1156,7 +1156,7 @@ export default function MarsSurvivalGame() {
             onClick={() => setView("leaderboard")}
             className="flex-1 border-2 border-[#00ff41] py-3 hover:bg-[#00ff41] hover:text-black uppercase font-bold"
           >
-            Classifica Team
+            {loc.lb_classific}
           </button>
         </div>
       </>
@@ -1188,7 +1188,7 @@ export default function MarsSurvivalGame() {
             <ArrowLeft size={14} />
             {isAdmin ? "Admin" : "Risultati"}
           </button>
-          <h2 className="text-xl font-bold uppercase">Status Coloni</h2>
+          <h2 className="text-xl font-bold uppercase">{loc.lb_statuscol}</h2>
           <button
             onClick={async () => {
               // 1. Fetch fresh data from the Database
@@ -1205,7 +1205,7 @@ export default function MarsSurvivalGame() {
         <div className="space-y-2">
           {/* TABLE HEADERS - Adjusted for mobile grid */}
           <div className="grid grid-cols-[1.5fr_1fr_45px_35px] md:grid-cols-4 text-[10px] uppercase opacity-50 px-4 mb-2">
-            <span>Nome</span>
+            <span>Name</span>
             <span>Team</span>
             <span className="text-right">Pts</span>
             <span className="text-right md:pr-2">Info</span>
@@ -1268,7 +1268,7 @@ export default function MarsSurvivalGame() {
                     >
                       {/* Desktop: Text | Mobile: Icon */}
                       <span className="hidden md:inline text-[10px] underline uppercase">
-                        Dettagli
+                        {loc.lb_detals}
                       </span>
                       <span className="md:hidden">
                         <ChevronRight size={18} />
@@ -1305,13 +1305,13 @@ export default function MarsSurvivalGame() {
             onClick={() => setView(prevView)}
             className="text-xs flex items-center gap-1 hover:underline mb-4"
           >
-            <ArrowLeft size={14} /> {" "}
+            <ArrowLeft size={14} />{" "}
           </button>
 
           <div className="mb-8">
             <div className="text-center mb-4">
               <div className="inline-block border border-[#00ff41] px-4 py-1 text-[14px] uppercase tracking-[0.2em] bg-[#00ff41]/10">
-                 {loc.lb_operator}{" "}
+                {loc.lb_operator}{" "}
                 <span className="text-white">
                   {selectedUserDetail.username}
                 </span>{" "}
@@ -1332,7 +1332,7 @@ export default function MarsSurvivalGame() {
                 </div>
               ) : (
                 <div className="inline-block text-[10px] text-amber-500 font-bold bg-amber-500/10 px-2 py-1 border border-amber-500/30 uppercase tracking-widest animate-pulse">
-                   {loc.lb_status}
+                  {loc.lb_status}
                 </div>
               )}
             </div>
