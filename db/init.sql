@@ -28,8 +28,8 @@ CREATE TABLE results (
   -- ON DELETE CASCADE: If a team is deleted, all its results are also deleted
   team_id INT REFERENCES teams(id) ON DELETE CASCADE,
   
-  score INT NOT NULL,              -- NASA Penalty Score (lower is better)
-  selections JSONB NOT NULL,       -- Array of sorted item IDs
+  score INT DEFAULT -1,   -- NASA Penalty Score (lower is better)
+  selections JSONB,       -- Array of sorted item IDs
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

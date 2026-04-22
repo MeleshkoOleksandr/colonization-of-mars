@@ -111,3 +111,33 @@ export async function deleteResultsByTeam(teamId: number) {
 export async function setCommanderStatus(teamId: number, status: boolean) {
   await sql`UPDATE teams SET has_commander = ${status} WHERE id = ${teamId}`;
 }
+
+// Create multiple players with new team
+export async function addTeamWithPlayers(name: string, scenarioId: string, playerNames: string[]) {
+  // 1. Create the team
+  const teamResult = await sql`
+    INSERT INTO teams (name, current_scenario) 
+    VALUES (${name}, ${scenarioId}) 
+    RETURNING id
+  `;
+  const teamId = teamResult[0].id;
+
+  // 2. Create player records with score -1
+  for (const playerName of playerNames) {
+    if (playerName.trim()) {
+      await sql`
+        INSERT INTO results (username, team_id, score) 
+        VALUES (${playerName.trim()}, ${teamId}, -1)
+      `;
+    }
+  }
+}
+
+ // Updates an existing player's record when they finish the game
+export async function updatePlayerResult(username: string, teamId: number, score: number, selections: string[]) {
+  await sql`
+    UPDATE results 
+    SET score = ${score}, selections = ${JSON.stringify(selections)}, created_at = NOW()
+    WHERE username = ${username} AND team_id = ${teamId} AND score = -1
+  `;
+}

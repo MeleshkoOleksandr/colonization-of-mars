@@ -86,3 +86,33 @@ export async function checkCommanderStatusAction(teamId: number) {
   const teams = await db.fetchTeams();
   return teams.find(t => t.id === teamId)?.has_commander || false;
 }
+
+/**
+ * Create a team and pre-register a list of players.
+ * This is called from the Admin panel.
+ */
+export async function addTeamWithPlayersAction(teamName: string, scenarioId: string,  playerNames: string[]) {
+  try {
+    await db.addTeamWithPlayers(teamName, scenarioId, playerNames);
+    // Clear the cache so the Login screen and Admin panel see the new team and players11
+    revalidatePath("/"); 
+  } catch (error) {
+    console.error("Database Action Error [addTeamWithPlayers]:", error);
+    throw new Error("Failed to create team with players");
+  }
+}
+
+/**
+ * Update a pending player's record with final scores.
+ * This is called when a player finishes the mission.
+ */
+export async function updatePlayerResultAction(data: {username: string; team_id: number; score: number; selections: string[];}) {
+  try {
+    await db.updatePlayerResult( data.username, data.team_id, data.score, data.selections);
+    // Clear the cache so the Leaderboard and Discussion lists update immediately
+    revalidatePath("/");
+  } catch (error) {
+    console.error("Database Action Error [updatePlayerResult]:", error);
+    throw new Error("Failed to update player results");
+  }
+}
