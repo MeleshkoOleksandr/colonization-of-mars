@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Mission>
     <Story>
+        <Language>it</Language>
         <Title>Sopravvivenza nella Valle Marineris</Title>
         <Plot>Siete i membri di una squadra di coloni d'avanguardia diretti verso la cupola principale della base "Ares-1". Durante la discesa, il vostro rover cargo è stato investito da una violenta tempesta di sabbia e si è ribaltato a 150 chilometri dalla destinazione. I sistemi di supporto vitale del rover sono fuori uso e le comunicazioni con la base sono interrotte. Il vostro obiettivo: percorrere 150 km nel deserto marziano fino alla base. Indossate le tute spaziali, ma le risorse sono limitate.</Plot>
     </Story>

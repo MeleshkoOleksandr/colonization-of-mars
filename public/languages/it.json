@@ -1,0 +1,27 @@
+{
+   "btn_start_main": "Inizializzare Missione",
+
+   "btn_start_game": "Accedi all'Inventario Cargo",
+   "lb_protocol": "PROTOCOLLO",
+   "lb_instruct_1": "Trascina gli oggetti per stabilire l'ordine di importanza.",
+   "lb_instruct_2": "Posizione 1 = Vitale, Posizione 15 = Inutile.",
+
+   "lb_operator": "OPERATORE: ",
+   "lb_team": "TEAM: ",
+   "lb_configuration": "Configurazione Inventario",
+   "btn_sendreport": "Invia Rapporto alla Base",
+
+   "btn_logout": "Esci",
+   "btn_admin": "Admin",
+   "btn_report": "Resoconto: ",
+   "btn_final": "Finale",
+   "btn_analise": "Analizza",
+   "btn_unblock": "Sblocca Risultati NASA",
+   "btn_request": "Richiedi Risultati NASA",
+   "btn_commander": "Assumi il Comando",
+
+   "lb_status": "Status: Risultati Secretati",
+   "lb_nasapoints": "Punteggio NASA:",
+   "lb_discussione": "Esame"
+
+}

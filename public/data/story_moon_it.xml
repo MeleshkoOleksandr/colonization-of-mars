@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Mission>
     <Story>
+        <Language>it</Language>
         <Title>Esercitazione NASA: Sopravvivenza sulla Luna</Title>
         <Plot>Siete i membri di un equipaggio spaziale che avrebbe dovuto ricongiungersi con la nave madre sulla superficie illuminata della Luna. Tuttavia, a causa di difficoltà meccaniche, la vostra nave è stata costretta a atterrare in un punto a circa 200 miglia (320 km) dal luogo dell'appuntamento. Durante il rientro e l'atterraggio, gran parte dell'equipaggiamento a bordo è stato danneggiato. Poiché la sopravvivenza dipende dal raggiungimento della nave madre, devono essere scelti gli oggetti più critici per il viaggio di 200 miglia. Di seguito sono elencati i 15 articoli rimasti intatti e non danneggiati.</Plot>
     </Story>

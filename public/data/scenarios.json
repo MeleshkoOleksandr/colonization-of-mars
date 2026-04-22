@@ -10,8 +10,8 @@
     "name": "Esercitazione NASA (It)"
   },
   {
-    "id": "moon_eng",
-    "file": "story_moon_eng.xml",
+    "id": "moon_en",
+    "file": "story_moon_en.xml",
     "name": "NASA Exercise (Eng)"
   }
 ]

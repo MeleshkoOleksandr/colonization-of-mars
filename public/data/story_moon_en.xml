@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Mission>
     <Story>
-        <Title>NASA Exercise: Survival on the Moona</Title>
+        <Language>en</Language>
+        <Title>NASA Exercise: Survival on the Moon</Title>
         <Plot>Scenario: You are a member of a space crew originally scheduled to rendezvous with a mother ship on the lighted surface of the moon. However, due to mechanical difficulties, your ship was forced to land at a spot some 200 miles from the rendezvous point. During reentry and landing, much of the equipment aboard was damaged and, since survival depends on reaching the mother ship, the most critical items available must be chosen for the 200-mile trip. Below are listed the 15 items left intact and undamaged after landing.</Plot>
     </Story>
     <Evaluations>

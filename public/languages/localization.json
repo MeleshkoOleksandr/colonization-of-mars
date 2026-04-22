@@ -1,0 +1,4 @@
+[
+  { "id": "en", "name": "English", "file": "en.json" },
+  { "id": "it", "name": "Italiano", "file": "it.json" }
+]

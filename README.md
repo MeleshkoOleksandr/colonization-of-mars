@@ -78,6 +78,7 @@ Create a new file in public/data/my_mission.xml:
 ```xml
 <Mission>
     <Story>
+        <Language>en</Language>
         <Title>Mission Name</Title>
         <Plot>The survival story text here...</Plot>
     </Story>

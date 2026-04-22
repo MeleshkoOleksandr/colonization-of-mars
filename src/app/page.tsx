@@ -19,7 +19,7 @@ import {
   Info,
   FileText,
   MessageSquare,
-  EyeOff,
+  Globe,
 } from "lucide-react";
 
 /**
@@ -64,9 +64,23 @@ interface UserResult {
   selections: string[];
 }
 
+// UI Localization
+interface Language {
+  id: string;
+  name: string;
+  file: string;
+}
+
+interface Localization {
+  [key: string]: string; // Allows loc.any_key_name
+}
+
 // --- CONSTANTS FOR ADMIN MODE ---
 const ADMIN_PASSWORD = "adm"; // Password to prevent players from seeing game results
 const ADMIN_USER = "admin";
+
+// --- CONSTANTS FOR primary Language ---
+const PRIMARY_LANG = "it";
 
 // --- STYLES ---
 const BUTTON_STYLES = {
@@ -364,6 +378,11 @@ export default function MarsSurvivalGame() {
   const [showDeltas, setShowDeltas] = useState<boolean>(true);
   const [adminTeamFilter, setAdminTeamFilter] = useState<number>(0);
 
+  // --- LOCALIZATION STATES ---
+  const [availableLangs, setAvailableLangs] = useState<Language[]>([]);
+  const [currentLangId, setCurrentLangId] = useState<string>(PRIMARY_LANG); // Default
+  const [loc, setLoc] = useState<Localization>({}); // The current dictionary
+
   // Computed helper
   const currentTeamName =
     teamsList.find((t) => t.id === teamId)?.name || "Anonimo";
@@ -510,6 +529,9 @@ export default function MarsSurvivalGame() {
           const xmlString = await response.text();
           const parsedData = parseStoryXml(xmlString);
 
+          // AUTOMATICALLY SWITCH THE INTERFACE LANGUAGE
+          setCurrentLangId(parsedData.story.language);
+
           setStory(parsedData.story);
           setStaticItems(parsedData.items);
           setEvaluations(parsedData.evaluations);
@@ -527,8 +549,14 @@ export default function MarsSurvivalGame() {
     async function init() {
       // Load scenario manifest
       const res = await fetch("/data/scenarios.json");
+      if (!res.ok) throw new Error("Manifest not found");
       const manifest = await res.json();
       setScenarios(manifest);
+
+      // LOADING THE LIST OF LANGUAGES
+      const resLang = await fetch("/Languages/localization.json");
+      const langManifest = await resLang.json();
+      setAvailableLangs(langManifest);
 
       // Load DB records
       const [teams, results] = await Promise.all([
@@ -541,6 +569,21 @@ export default function MarsSurvivalGame() {
     init();
   }, []);
 
+  // --- EFFECT: DICTIONARY LOADER ---
+  // Triggers every time currentLangId changes
+  useEffect(() => {
+    async function loadDictionary() {
+      try {
+        const response = await fetch(`/Languages/${currentLangId}.json`);
+        const data = await response.json();
+        setLoc(data); // We are updating all the text in the interface
+      } catch (e) {
+        console.error("Lang Load Error", e);
+      }
+    }
+    loadDictionary();
+  }, [currentLangId]);
+
   /**
    * XML PARSER
    * Converts XML string from public/story.xml into JavaScript objects
@@ -550,6 +593,8 @@ export default function MarsSurvivalGame() {
     const xmlDoc = parser.parseFromString(xmlString, "text/xml");
     const title = xmlDoc.getElementsByTagName("Title")[0]?.textContent || "";
     const plot = xmlDoc.getElementsByTagName("Plot")[0]?.textContent || "";
+    const scenarioLang =
+      xmlDoc.getElementsByTagName("Language")[0]?.textContent || "PRIMARY_LANG";
     const itemNodes = xmlDoc.getElementsByTagName("Item");
     const items: SurvivalItem[] = [];
 
@@ -576,7 +621,11 @@ export default function MarsSurvivalGame() {
         message: evalNodes[i].textContent || "",
       });
     }
-    return { story: { title, plot }, evaluations, items };
+    return {
+      story: { title, plot, language: scenarioLang },
+      evaluations,
+      items,
+    };
   };
 
   /**
@@ -805,7 +854,7 @@ export default function MarsSurvivalGame() {
   if (view === "login") {
     content = (
       <>
-        <Header title="Mars Mission Login" />
+        <Header title="Mission Login" />
         <div className="flex flex-col gap-6 max-w-sm mx-auto py-12">
           <div className="space-y-2">
             <label className="text-xs uppercase">
@@ -841,7 +890,7 @@ export default function MarsSurvivalGame() {
             onClick={handleStart}
             className="mt-4 border-4 border-[#00ff41] py-4 hover:bg-[#00ff41] hover:text-black transition-all font-black uppercase text-xl"
           >
-            Inizializzare Missione
+            {loc.btn_start_main || "Inizializzare Missione"}
           </button>
         </div>
       </>
@@ -855,19 +904,17 @@ export default function MarsSurvivalGame() {
             {story.plot}
           </p>
           <div className="p-4 border border-[#00ff41] border-dashed">
-            <h3 className="font-bold mb-2">PROTOCOLLO:</h3>
+            <h3 className="font-bold mb-2">{loc.lb_protocol}:</h3>
             <ul className="list-disc list-inside text-sm space-y-1 opacity-80">
-              <li>
-                Trascina gli oggetti per stabilire l'ordine di importanza.
-              </li>
-              <li>Posizione 1 = Vitale, Posizione 15 = Inutile.</li>
+              <li>{loc.lb_instruct_1}</li>
+              <li>{loc.lb_instruct_2}</li>
             </ul>
           </div>
           <button
             onClick={() => setView("game")}
             className="w-full flex items-center justify-center gap-4 border-2 border-[#00ff41] py-4 hover:bg-[#00ff41] hover:text-black font-bold uppercase"
           >
-            Accedi all'Inventario Cargo <ChevronRight />
+            {loc.btn_start_game} <ChevronRight />
           </button>
         </div>
       </>
@@ -877,12 +924,12 @@ export default function MarsSurvivalGame() {
       <>
         <div className="flex justify-between items-end mb-6">
           <div className="text-xs">
-            OPERATORE: {username}
+            {loc.lb_operator} {username}
             <br />
-            TEAM: {currentTeamName}
+            {loc.lb_team} {currentTeamName}
           </div>
           <h2 className="text-xl font-bold uppercase tracking-widest">
-            Configurazione Inventario
+            {loc.lb_configuration}
           </h2>
         </div>
 
@@ -901,7 +948,7 @@ export default function MarsSurvivalGame() {
           onClick={finishGame}
           className="w-full mt-8 bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,255,65,0.5)]"
         >
-          Invia Rapporto alla Base
+          {loc.btn_sendreport}
         </button>
       </>
     );
@@ -930,7 +977,7 @@ export default function MarsSurvivalGame() {
               onClick={() => setView("login")}
               className="text-[10px] uppercase border border-[#00ff41] px-2 py-1 hover:bg-[#00ff41] hover:text-black"
             >
-              Logout
+              {loc.btn_logout}
             </button>
           )}
           {isAdmin && (
@@ -938,12 +985,12 @@ export default function MarsSurvivalGame() {
               onClick={() => setView("admin")}
               className="text-xs flex items-center gap-1 hover:underline"
             >
-              <ArrowLeft size={14} /> Admin
+              <ArrowLeft size={14} />   {loc.btn_admin}
             </button>
           )}
 
           <h2 className="text-lg font-bold uppercase italic tracking-tighter">
-            Resoconto: {currentTeam?.name}
+             {loc.btn_report} {currentTeam?.name}
           </h2>
           <RefreshCcw
             size={18}
@@ -965,13 +1012,13 @@ export default function MarsSurvivalGame() {
               <div className="flex items-center gap-3">
                 {res.username === "Commander" && (
                   <div className="bg-amber-500 text-black text-[10px] px-1 font-black uppercase">
-                    Final Order
+                     {loc.btn_final}
                   </div>
                 )}
                 <span
                   className={`font-bold uppercase ${res.username === "Commander" ? "text-amber-500" : "text-[#00ff41]"}`}
                 >
-                  {res.username}
+                  {res.username} 
                 </span>
               </div>
               <button
@@ -983,7 +1030,7 @@ export default function MarsSurvivalGame() {
                 }}
                 className={`${res.username === "Commander" ? "bg-amber-500" : "bg-[#00ff41] "} text-black px-4 py-1 text-[10px] font-black uppercase`}
               >
-                Analizza
+                {loc.btn_analise}
               </button>
             </div>
           ))}
@@ -1016,7 +1063,7 @@ export default function MarsSurvivalGame() {
               }}
               className={BUTTON_STYLES.primary}
             >
-              Sblocca Risultati NASA
+               {loc.btn_unblock}
             </button>
           ) : (
             /* For a regular player, there are two buttons: “Request Results” and “Become Commander” */
@@ -1033,7 +1080,7 @@ export default function MarsSurvivalGame() {
                 }}
                 className="border-2 border-[#00ff41] text-[#00ff41] py-4 font-black uppercase text-sm hover:bg-[#00ff41] hover:text-black transition-all"
               >
-                Richiedi Risultati NASA
+                 {loc.btn_request}
               </button>
 
               {/* We display the “Become Commander” button only if it isn't already there */}
@@ -1042,7 +1089,7 @@ export default function MarsSurvivalGame() {
                   onClick={handleBecomeCommander}
                   className="border-2 border-amber-500 text-amber-500 py-4 font-black uppercase text-sm hover:bg-amber-500 hover:text-black transition-all"
                 >
-                  Assumi il Comando
+                   {loc.btn_commander}
                 </button>
               )}
             </div>
@@ -1258,39 +1305,37 @@ export default function MarsSurvivalGame() {
             onClick={() => setView(prevView)}
             className="text-xs flex items-center gap-1 hover:underline mb-4"
           >
-            <ArrowLeft size={14} /> Torna a{" "}
-            {prevView === "admin" ? "Amministrazione" : "Classifica"}
+            <ArrowLeft size={14} /> {" "}
           </button>
 
           <div className="mb-8">
             <div className="text-center mb-4">
               <div className="inline-block border border-[#00ff41] px-4 py-1 text-[14px] uppercase tracking-[0.2em] bg-[#00ff41]/10">
-                Operatore:{" "}
+                 {loc.lb_operator}{" "}
                 <span className="text-white">
                   {selectedUserDetail.username}
                 </span>{" "}
-                | Team:{" "}
+                | {loc.lb_team}{" "}
                 <span className="text-white">
                   {selectedUserDetail.team_name}
                 </span>
               </div>
             </div>
 
-            <div className="mt-2 flex justify-center " >
+            <div className="mt-2 flex justify-center ">
               {showDeltas ? (
                 <div className="text-sm font-black uppercase tracking-tight text-[#00ff41] flex items-baseline gap-2">
-                  <span>Punteggio NASA:</span>
+                  <span>{loc.lb_nasapoints}</span>
                   <span className="text-2xl underline decoration-double">
                     {selectedUserDetail.score}
                   </span>
                 </div>
               ) : (
                 <div className="inline-block text-[10px] text-amber-500 font-bold bg-amber-500/10 px-2 py-1 border border-amber-500/30 uppercase tracking-widest animate-pulse">
-                  Status: Risultati Secretati
+                   {loc.lb_status}
                 </div>
               )}
             </div>
-
           </div>
         </div>
 
@@ -1337,7 +1382,7 @@ export default function MarsSurvivalGame() {
                     >
                       <MessageSquare size={22} className="animate-pulse" />
                       <span className="text-[7px] uppercase font-black tracking-tighter">
-                        Esame
+                        {loc.lb_discussione}
                       </span>
                     </div>
                   )}
@@ -1380,13 +1425,43 @@ export default function MarsSurvivalGame() {
           </button>
         </div>
 
-        <div className="space-y-8">
-          {/* Teams Management */}
+        {/* Settings Section */}
+        <div className="border-2 border-[#00ff41]/30 p-4 bg-[#111]/30 mt-8">
+          <h3 className="font-bold uppercase flex items-center gap-2 mb-4 border-b border-[#00ff41]/10 pb-2 text-[#00ff41]">
+            <Globe size={18} /> Settings & Localization
+          </h3>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-[9px] uppercase opacity-50">
+              System Language (Admin View):
+            </label>
+            <select
+              className="w-full bg-black text-[#00ff41] text-xs border border-[#00ff41]/40 p-2 outline-none appearance-none cursor-pointer"
+              value={currentLangId}
+              onChange={(e) => setCurrentLangId(e.target.value)}
+            >
+              {/* CHECK: If the array is empty, display a placeholder */}
+              {availableLangs.length === 0 ? (
+                <option>Loading languages...</option>
+              ) : (
+                availableLangs.map((l) => (
+                  <option key={l.id} value={l.id} className="bg-black">
+                    {l.name}
+                  </option>
+                ))
+              )}
+            </select>
+          </div>
+        </div>
+
+        <div className="space-y-4">
           <div className="border-2 border-[#00ff41]/30 p-6 bg-[#111]/30">
+            {/* Teams Management */}
             <h3 className="font-bold uppercase flex items-center gap-2 mb-4 border-b border-[#00ff41]/10 pb-2">
               <Users size={18} /> Gestione Unità
             </h3>
-            <div className="max-h-80 overflow-y-auto pr-2 pt-4 custom-scrollbar relative">
+
+            <div className="max-h-80 overflow-y-auto pr-2 pt-0 custom-scrollbar relative">
               <div className="flex flex-col gap-2 mb-4">
                 {teamsList
                   .sort((a, b) => a.id - b.id)
