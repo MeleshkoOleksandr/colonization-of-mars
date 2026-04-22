@@ -1,4 +1,6 @@
 {
+   "login_header": "Accesso alla missione",
+   "login_operator_label": "Identificazione Operatore:",
    "btn_start_main": "Inizializzare Missione",
 
    "btn_start_game": "Accedi all'Inventario Cargo",
@@ -22,6 +24,11 @@
 
    "lb_status": "Status: Risultati Secretati",
    "lb_nasapoints": "Punteggio NASA:",
-   "lb_discussione": "Esame"
+   "lb_discussione": "Esame",
 
+   "lb_points": "Punti di Deviazione",
+   "lb_explane": "Meno è meglio",
+   "lb_classific": "Classifica Team",
+   "lb_statuscol": "Status Coloni",
+   "lb_detals": "Dettagli"
 }

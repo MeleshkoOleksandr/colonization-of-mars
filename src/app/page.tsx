@@ -387,6 +387,7 @@ export default function MarsSurvivalGame() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showDeltas, setShowDeltas] = useState<boolean>(true);
   const [adminTeamFilter, setAdminTeamFilter] = useState<number>(0);
+  const [newTeamName, setNewTeamName] = useState("");
 
   // --- LOCALIZATION STATES ---
   const [availableLangs, setAvailableLangs] = useState<Language[]>([]);
@@ -400,7 +401,7 @@ export default function MarsSurvivalGame() {
   // Global Modal System
   const [modal, setModal] = useState<{
     isOpen: boolean;
-    type: "alert" | "confirm" | "prompt";
+    type: "alert" | "confirm" | "prompt" | "prompt-area";
     message: string;
     value: string;
     action: () => void;
@@ -433,55 +434,45 @@ export default function MarsSurvivalGame() {
    * and the dynamic Database records (Teams & Results).
    */
   useEffect(() => {
-    async function initializeMission() {
-      console.log("SYSTEM: Initializing synchronization sequence...");
-
+    async function initializeSystem() {
+      console.log("SYSTEM: Initializing...");
       try {
-        // --- STEP 1: LOAD & PARSE XML CONTENT ---
-        const response = await fetch("/data/story.xml");
-        if (!response.ok)
-          throw new Error("Could not find story.xml in /public");
-
-        const xmlString = await response.text();
-        const parsedData = parseStoryXml(xmlString);
-
-        // Update story and items from XML
-        setStory(parsedData.story);
-        setStaticItems(parsedData.items);
-        setEvaluations(parsedData.evaluations);
-
-        // Prepare the game items (shuffle logic)
-        // We use the freshly parsed data here instead of old INITIAL_ITEMS
-        setItems([...parsedData.items].sort(() => Math.random() - 0.5));
-
-        // --- STEP 2: FETCH DATABASE RECORDS ---
-        // We run these in parallel to speed up the initialization
-        const [teams, results] = await Promise.all([
+        // 1. We load everything we need from the files and the database at the same time
+        const [resScen, resLang, teams, results] = await Promise.all([
+          fetch("/data/scenarios.json").then((r) => r.json()),
+          fetch("/Languages/localization.json").then((r) => r.json()),
           getTeamsAction(),
           getResultsAction(),
         ]);
 
+        setScenarios(resScen);
+        setAvailableLangs(resLang);
         setTeamsList(teams);
         setAllResults(results);
 
-        console.log(
-          "SYSTEM: Synchronization complete. All data modules loaded.",
+        // 2. Обработка URL параметров (?user=Name)
+        const userFromUrl = new URLSearchParams(window.location.search).get(
+          "user",
         );
+        if (userFromUrl) {
+          setUsername(userFromUrl);
+          // Processing URL parameters (?user=Name)
+          const player = results.find(
+            (r) => r.username === userFromUrl && r.score === -1,
+          );
+          if (player) setTeamId(player.team_id);
+        }
+
+        console.log("SYSTEM: Ready.");
       } catch (error) {
-        console.error("SYSTEM CRITICAL ERROR:", error);
-        // Show error message to user via our custom Modal
-        setModal({
-          isOpen: true,
-          type: "alert",
-          message:
-            "ERRORE CRITICO: Impossibile sincronizzare i dati con la base. Controllare la connessione.",
-          value: "",
-          action: () => setModal((prev) => ({ ...prev, isOpen: false })),
-        });
+        console.error("CRITICAL ERROR:", error);
+        triggerModal(
+          "alert",
+          "ERRORE DI SISTEMA: Impossibile sincronizzare i moduli.",
+        );
       }
     }
-    // Launch the sequence
-    initializeMission();
+    initializeSystem();
   }, []); // Run only once on mount
 
   /**
@@ -685,12 +676,14 @@ export default function MarsSurvivalGame() {
       score: totalScore,
       selections: items.map((i) => i.id),
     };
-
+    //Save rusult to DB
     try {
-      await saveResultAction(resultData);
-      // Updating the main list in the background
-      const updatedResults = await getResultsAction();
-      setAllResults(updatedResults);
+      await updatePlayerResultAction({
+        username: username,
+        team_id: teamId,
+        score: totalScore,
+        selections: items.map((i) => i.id),
+      });
     } catch (error) {
       console.error("Failed to save:", error);
     }
@@ -734,21 +727,58 @@ export default function MarsSurvivalGame() {
 
   // Logic for adding a team
   const handleAddTeam = () => {
+    if (!newTeamName.trim()) {
+      return triggerModal(
+        "alert",
+        "ERRORE: Inserire prima il nome del Team nel campo di testo.",
+      );
+    }
     setModal({
       isOpen: true,
-      type: "prompt",
-      message: "Inserire nome della nuova unità coloniale:",
+      type: "prompt-area",
+      message: `Inserire l'elenco dei coloni per il team [${newTeamName.toUpperCase()}]. Un nome per riga:`,
       value: "",
-      action: () => {}, // Action for prompt is handled by executeAddTeam
+      action: () => {},
     });
   };
 
   const executeAddTeam = async () => {
-    if (modal.value.trim()) {
-      // We pass the name and selected scenario
-      await addTeamAction(modal.value, selectedScenarioForNewTeam);
+    // Parsing player names from a TextArea
+    const playerNames = modal.value
+      .split("\n")
+      .map((l) => l.trim())
+      .filter((l) => l !== "");
+
+    if (playerNames.length === 0) {
+      return triggerModal(
+        "alert",
+        "ERRORE: Inserire almeno un giocatore per creare la squadra.",
+      );
+    }
+
+    try {
+      //  We use `newTeamName` and `selectedScenarioForNewTeam` from  states
+      await addTeamWithPlayersAction(
+        newTeamName.trim(),
+        selectedScenarioForNewTeam,
+        playerNames,
+      );
+
+      // Updating data
       setTeamsList(await getTeamsAction());
+      setAllResults(await getResultsAction());
+
+      // Clean the form and close the modal window
+      setNewTeamName("");
       setModal((prev) => ({ ...prev, isOpen: false, value: "" }));
+
+      triggerModal(
+        "alert",
+        "SUCCESSO: Squadra e coloni registrati nel database.",
+      );
+    } catch (error) {
+      console.error(error);
+      triggerModal("alert", "ERRORE: Impossibile salvare i dati nel database.");
     }
   };
 
@@ -1606,8 +1636,9 @@ export default function MarsSurvivalGame() {
 
             {/*Add Team area */}
             <div className="flex flex-col sm:flex-row gap-2 border-t border-[#00ff41]/20 pt-4">
+              {/* 1. Selecting a scenario */}
               <select
-                className="flex-1 bg-black text-[#00ff41] text-xs border border-[#00ff41]/40 p-2 outline-none cursor-pointer min-h-9.5"
+                className="flex-1 bg-black text-[#00ff41] text-sm border border-[#00ff41]/40 p-2 outline-none cursor-pointer min-h-9.5"
                 value={selectedScenarioForNewTeam}
                 onChange={(e) => setSelectedScenarioForNewTeam(e.target.value)}
               >
@@ -1617,9 +1648,20 @@ export default function MarsSurvivalGame() {
                   </option>
                 ))}
               </select>
+
+              {/* 2. Entering a command name  */}
+              <input
+                type="text"
+                placeholder="NOME TEAM..."
+                className="flex-1 bg-black text-[#00ff41] text-sm border border-[#00ff41]/40 p-2 outline-none focus:border-[#00ff41] transition-colors uppercase font-mono"
+                value={newTeamName}
+                onChange={(e) => setNewTeamName(e.target.value)}
+              />
+
+              {/* 3. Create button  */}
               <button
                 onClick={handleAddTeam}
-                className="whitespace-nowrap border-2 border-dashed border-[#00ff41]/30 px-4 py-2 text-[10px] uppercase font-bold hover:bg-[#00ff41]/10 transition-colors sm:w-auto w-full"
+                className="whitespace-nowrap border-2 border-dashed border-[#00ff41]/30 px-4 py-2 text-[12px] uppercase font-bold hover:bg-[#00ff41]/10 transition-colors sm:w-auto w-full"
               >
                 + CREA SQUADRA
               </button>
@@ -1841,16 +1883,16 @@ export default function MarsSurvivalGame() {
         value={modal.value}
         onClose={() => setModal((prev) => ({ ...prev, isOpen: false }))}
         onConfirm={() => {
-          if (modal.type === "prompt") {
-            // If you see an authorization message, check your password
-            if (modal.message.includes("Autorizzazione")) {
-              executeAdminAuth();
-            } else {
-              // Otherwise, this involves adding a new command
-              executeAddTeam();
-            }
-          } else {
-            // If it's a “confirm” or “alert,” just trigger the action
+          // If this is the admin password
+          if (modal.message.includes("Autorizzazione")) {
+            executeAdminAuth();
+          }
+          // 2. If this is adding team  
+          else if (modal.type === "prompt" || modal.type === "prompt-area") {
+            executeAddTeam();
+          }
+          // For all others (alert, confirm)
+          else {
             modal.action();
           }
         }}
