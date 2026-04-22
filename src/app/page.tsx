@@ -440,7 +440,7 @@ export default function MarsSurvivalGame() {
         // 1. We load everything we need from the files and the database at the same time
         const [resScen, resLang, teams, results] = await Promise.all([
           fetch("/data/scenarios.json").then((r) => r.json()),
-          fetch("/Languages/localization.json").then((r) => r.json()),
+          fetch("/languages/localization.json").then((r) => r.json()),
           getTeamsAction(),
           getResultsAction(),
         ]);
@@ -555,7 +555,7 @@ export default function MarsSurvivalGame() {
       setScenarios(manifest);
 
       // LOADING THE LIST OF LANGUAGES
-      const resLang = await fetch("/Languages/localization.json");
+      const resLang = await fetch("/languages/localization.json");
       const langManifest = await resLang.json();
       setAvailableLangs(langManifest);
 
@@ -575,7 +575,7 @@ export default function MarsSurvivalGame() {
   useEffect(() => {
     async function loadDictionary() {
       try {
-        const response = await fetch(`/Languages/${currentLangId}.json`);
+        const response = await fetch(`/languages/${currentLangId}.json`);
         const data = await response.json();
         setLoc(data); // We are updating all the text in the interface
       } catch (e) {
