@@ -18,6 +18,8 @@ import {
   GripVertical,
   Info,
   FileText,
+  MessageSquare,
+  EyeOff,
 } from "lucide-react";
 
 /**
@@ -907,7 +909,13 @@ export default function MarsSurvivalGame() {
     const isAdmin = username.toLowerCase() === "admin";
     const discussionResults = allResults
       .filter((r) => r.team_id === (isAdmin ? adminTeamFilter : teamId))
-      .sort((a, b) => a.username.localeCompare(b.username));
+      .sort((a, b) => {
+        // 1. Commander is always first
+        if (a.username === "Commander") return -1;
+        if (b.username === "Commander") return 1;
+        // 2.  We sort all the rest alphabetically
+        return a.username.localeCompare(b.username);
+      });
 
     const isCommander = username === "Commander";
     const currentTeam = teamsList.find(
@@ -935,7 +943,7 @@ export default function MarsSurvivalGame() {
           )}
 
           <h2 className="text-lg font-bold uppercase italic tracking-tighter">
-            Resoconto della missione: {currentTeam?.name}
+            Resoconto: {currentTeam?.name}
           </h2>
           <RefreshCcw
             size={18}
@@ -1131,7 +1139,7 @@ export default function MarsSurvivalGame() {
             className="text-xs flex items-center gap-1 hover:underline text-[#00ff41]"
           >
             <ArrowLeft size={14} />
-            {isAdmin ? "Torna all'Admin" : "Torna ai Risultati"}
+            {isAdmin ? "Admin" : "Risultati"}
           </button>
           <h2 className="text-xl font-bold uppercase">Status Coloni</h2>
           <button
@@ -1255,35 +1263,34 @@ export default function MarsSurvivalGame() {
           </button>
 
           <div className="mb-8">
-            <h2 className="text-2xl font-black uppercase tracking-tighter mb-1  italic">
-              Analisi: {selectedUserDetail.username}
-            </h2>
-
-            <div className="flex flex-col gap-1">
-              {/* Line 1: Command */}
-              <div className="text-xs opacity-60 uppercase tracking-widest">
-                Unità di missione:{" "}
+            <div className="text-center mb-4">
+              <div className="inline-block border border-[#00ff41] px-4 py-1 text-[14px] uppercase tracking-[0.2em] bg-[#00ff41]/10">
+                Operatore:{" "}
+                <span className="text-white">
+                  {selectedUserDetail.username}
+                </span>{" "}
+                | Team:{" "}
                 <span className="text-white">
                   {selectedUserDetail.team_name}
                 </span>
               </div>
-
-              {/*Line 2: Scores (now always on a new line) */}
-              <div className="mt-2">
-                {showDeltas ? (
-                  <div className="text-sm font-black uppercase tracking-tight text-[#00ff41] flex items-baseline gap-2">
-                    <span>Punteggio NASA:</span>
-                    <span className="text-2xl underline decoration-double">
-                      {selectedUserDetail.score}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="inline-block text-[10px] text-amber-500 font-bold bg-amber-500/10 px-2 py-1 border border-amber-500/30 uppercase tracking-widest animate-pulse">
-                    Status: Risultati Secretati
-                  </div>
-                )}
-              </div>
             </div>
+
+            <div className="mt-2 flex justify-center " >
+              {showDeltas ? (
+                <div className="text-sm font-black uppercase tracking-tight text-[#00ff41] flex items-baseline gap-2">
+                  <span>Punteggio NASA:</span>
+                  <span className="text-2xl underline decoration-double">
+                    {selectedUserDetail.score}
+                  </span>
+                </div>
+              ) : (
+                <div className="inline-block text-[10px] text-amber-500 font-bold bg-amber-500/10 px-2 py-1 border border-amber-500/30 uppercase tracking-widest animate-pulse">
+                  Status: Risultati Secretati
+                </div>
+              )}
+            </div>
+
           </div>
         </div>
 
@@ -1324,8 +1331,14 @@ export default function MarsSurvivalGame() {
                       </div>
                     </>
                   ) : (
-                    <div className="text-[10px] text-amber-500 italic border border-amber-500/30 px-2 py-1">
-                      In Discussione
+                    <div
+                      className="flex flex-col items-center gap-1 text-amber-500 opacity-80"
+                      title="In fase di discussione - Punteggio nascosto"
+                    >
+                      <MessageSquare size={22} className="animate-pulse" />
+                      <span className="text-[7px] uppercase font-black tracking-tighter">
+                        Esame
+                      </span>
                     </div>
                   )}
                 </div>
