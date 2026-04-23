@@ -26,6 +26,8 @@ import {
   Copy,
   Download,
   X,
+  LockOpen,
+  UserCheck,
 } from "lucide-react";
 
 /**
@@ -1600,29 +1602,63 @@ export default function MarsSurvivalGame() {
         </div>
 
         <div className="space-y-4">
-          <div className="border-2 border-[#00ff41]/30 p-6 bg-[#111]/30">
-            {/* Teams Management */}
+          {/* 1. TEAMS MANAGEMENT  */}
+          <div className="border-2 border-[#00ff41]/30 p-4 bg-[#111]/30">
             <h3 className="font-bold uppercase flex items-center gap-2 mb-4 border-b border-[#00ff41]/10 pb-2">
-              <Users size={18} /> Gestione Unità
+              <Users size={18} /> Gestione Unità (Database)
             </h3>
 
-            <div className="max-h-80 overflow-y-auto pr-2 pt-0 custom-scrollbar relative">
-              <div className="flex flex-col gap-2 mb-4">
-                {teamsList
-                  .sort((a, b) => a.id - b.id)
-                  .map((t) => {
-                    // Find the script name for this command
-                    const scenarioName =
-                      scenarios.find((s) => s.id === t.current_scenario)
-                        ?.name || "Default";
-                    return (
-                      <div
-                        key={t.id}
-                        className="flex justify-between items-center bg-[#0a0a0a] border border-[#00ff41]/20 p-2 hover:border-[#00ff41]/50 transition-all"
-                      >
-                        <div className="flex items-center gap-3">
-                          {/* CHECKBOX 1: Unlock Results  */}
-                          <div className="relative group/check1">
+            {/* Контейнер скролла */}
+            <div className="max-h-80 overflow-y-auto pr-2 custom-scrollbar relative">
+              <table className="w-full text-left border-collapse table-fixed">
+                {/*  table-fixed helps keep column widths consistent*/}
+                <thead className="sticky top-0 z-30 bg-[#00ff41] text-black uppercase text-[10px] font-black">
+                  <tr>
+                    {/* Header 1: Unlock Results  */}
+                    <th
+                      className="p-2 border border-black w-11.25 text-center cursor-help"
+                      title="Status Risultati: Sblocca per permettere ai coloni di vedere il rapporto NASA"
+                    >
+                      <LockOpen size={14} className="mx-auto" />
+                    </th>
+
+                    {/* Header 2: Commander Status  */}
+                    <th
+                      className="p-2 border border-black w-11.25 text-center cursor-help"
+                      title="Assegnazione Comandante: Indica если команда выбрала лидера"
+                    >
+                      <UserCheck size={14} className="mx-auto" />
+                    </th>
+
+                    <th className="p-2 border border-black overflow-hidden">
+                      Nome Unità
+                    </th>
+
+                    {/* Header 3: Scenario  */}
+                    <th className="p-2 border border-black w-15 md:w-55">
+                      Scenario
+                    </th>
+
+                    <th className="p-2 border border-black w-11.25 text-center">
+                      Del
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="text-[10px] uppercase">
+                  {teamsList
+                    .sort((a, b) => a.id - b.id)
+                    .map((t) => {
+                      const scenarioName =
+                        scenarios.find((s) => s.id === t.current_scenario)
+                          ?.name || "Default";
+
+                      return (
+                        <tr
+                          key={t.id}
+                          className="border-b border-[#00ff41]/10 hover:bg-[#00ff41]/5 transition-colors"
+                        >
+                          {/* Checkbox 1: Unlock */}
+                          <td className="p-2 text-center">
                             <input
                               type="checkbox"
                               checked={t.is_unlocked}
@@ -1633,19 +1669,12 @@ export default function MarsSurvivalGame() {
                                 );
                                 setTeamsList(await getTeamsAction());
                               }}
-                              className="appearance-none w-5 h-5 border-2 border-[#00ff41]/40 bg-black checked:bg-[#00ff41] checked:border-[#00ff41] cursor-pointer relative shrink-0"
+                              className="appearance-none w-4 h-4 border border-[#00ff41]/40 bg-black checked:bg-[#00ff41] cursor-pointer relative"
                             />
-                            {/* Custom Tooltip for Checkbox 1 */}
-                            <div className="absolute bottom-full left-0 mb-2 hidden group-hover/check1:block group-active/check1:block z-50 pointer-events-none">
-                              <div className="bg-[#00ff41] text-black text-[7px] font-black uppercase px-2 py-0.5 whitespace-nowrap shadow-[0_0_10px_#00ff41]">
-                                Sblocca Risultati
-                              </div>
-                              <div className="w-0 h-0 border-l-4 border-l-transparent border-r-4 border-r-transparent border-t-4 border-t-[#00ff41] ml-1"></div>
-                            </div>
-                          </div>
+                          </td>
 
-                          {/* CHECKBOX 2: Commander Assigned */}
-                          <div className="relative group/check2">
+                          {/* Checkbox 2: Commander */}
+                          <td className="p-2 text-center">
                             <input
                               type="checkbox"
                               checked={t.has_commander}
@@ -1656,54 +1685,44 @@ export default function MarsSurvivalGame() {
                                 );
                                 setTeamsList(await getTeamsAction());
                               }}
-                              className="appearance-none w-5 h-5 border-2 border-amber-500/40 bg-black checked:bg-amber-500 checked:border-amber-500 cursor-pointer relative shrink-0"
+                              className="appearance-none w-4 h-4 border border-amber-500/40 bg-black checked:bg-amber-500 cursor-pointer relative"
                             />
-                            {/* Custom Tooltip for Checkbox 2 */}
-                            <div className="absolute bottom-full left-0 mb-2 hidden group-hover/check2:block group-active/check2:block z-50 pointer-events-none">
-                              <div className="bg-amber-500 text-black text-[7px] font-black uppercase px-2 py-0.5 whitespace-nowrap shadow-[0_0_10px_#f59e0b]">
-                                Status Comandante
-                              </div>
-                              <div className="w-0 h-0 border-l-4 border-l-transparent border-r-4 border-r-transparent border-t-4 border-t-amber-500 ml-1"></div>
-                            </div>
-                          </div>
-                          <span className="text-[10px] font-black uppercase tracking-widest truncate max-w-25 md:max-w-50">
-                            {t.name}
-                          </span>
-                        </div>
+                          </td>
 
-                        {/* Action icons*/}
-                        <div className="flex items-center gap-2">
-                          {/* (Tooltip) */}
-                          <div className="relative group/tooltip flex items-center">
-                            {/* The icon that is hovered over or clicked */}
-                            <FileText
-                              size={14}
-                              className="text-[#00ff41]/40 hover:text-[#00ff41] cursor-help transition-colors"
-                            />
-                            {/* The tooltip window itself */}
-                            <div className="absolute bottom-full right-0 mb-2 hidden group-hover/tooltip:block group-active/tooltip:block z-50">
-                              <div className="bg-[#00ff41] text-black text-[9px] font-black uppercase px-2 py-1 whitespace-nowrap shadow-[0_0_10px_#00ff41]">
-                                Scenario: {scenarioName}
-                              </div>
-                              {/* A small triangular arrow */}
-                              <div className="w-0 h-0 border-l-4 border-l-transparent border-r-4 border-r-transparent border-t-4 border-t-[#00ff41] ml-auto mr-1"></div>
-                            </div>
-                          </div>
+                          {/* Team Name */}
+                          <td className="p-2 font-bold truncate">{t.name}</td>
 
-                          {/* Delete button */}
-                          <button
-                            onClick={() => handleDeleteTeam(t.id!)}
-                            className="text-red-500/50 hover:text-red-500 transition-colors p-1"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-              </div>
+                          {/* SCENARIO: Desktop Text, Mobile Left-side Tooltip */}
+                          <td className="p-2 opacity-70">
+                            <span className="hidden md:block truncate">
+                              {scenarioName}
+                            </span>
+                            <div className="md:hidden relative group/scen flex items-center justify-center">
+                              <Info size={14} className="text-[#00ff41]/50" />
+                              <div className="absolute right-full top-0 mr-2 hidden group-active/scen:block z-50">
+                                <div className="bg-[#00ff41] text-black text-[9px] font-black uppercase px-2 py-1 whitespace-nowrap shadow-[0_0_15px_#00ff41]">
+                                  {scenarioName}
+                                </div>
+                                <div className="w-0 h-0 border-t-4 border-t-transparent border-b-4 border-b-transparent border-l-4 border-l-[#00ff41] absolute top-2 -right-1"></div>
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* Delete Action */}
+                          <td className="p-2 text-center">
+                            <button
+                              onClick={() => handleDeleteTeam(t.id!)}
+                              className="text-red-500 hover:text-red-400 transition-colors"
+                            >
+                              <Trash2 size={14} className="mx-auto" />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
             </div>
-
             {/*Add Team area */}
             <div className="flex flex-col sm:flex-row gap-2 border-t border-[#00ff41]/20 pt-4">
               {/* 1. Selecting a scenario */}
@@ -2009,7 +2028,6 @@ export default function MarsSurvivalGame() {
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(shareData.url);
-                    triggerModal("alert", "LINK COPIATO: Pronto per l'invio.");
                   }}
                   className="text-[#00ff41] hover:text-white"
                 >
