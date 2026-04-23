@@ -52,6 +52,7 @@ In the terminal window, type the following command and press **Enter**:
 ```bash
 npm install
 npm install framer-motion lucide-react.
+npm install qrcode.react
 ```
 ### 3. Connect Database (Postgres)
 The project is optimized for Vercel Postgres (or any Postgres instance).

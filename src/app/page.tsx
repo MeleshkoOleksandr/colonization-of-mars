@@ -1,6 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
 
+import { QRCodeCanvas } from "qrcode.react";
+
 import {
   Reorder,
   AnimatePresence,
@@ -20,6 +22,10 @@ import {
   FileText,
   MessageSquare,
   Globe,
+  QrCode,
+  Copy,
+  Download,
+  X,
 } from "lucide-react";
 
 /**
@@ -389,6 +395,12 @@ export default function MarsSurvivalGame() {
   const [adminTeamFilter, setAdminTeamFilter] = useState<number>(0);
   const [newTeamName, setNewTeamName] = useState("");
 
+  //QrCode
+  const [shareData, setShareData] = useState<{
+    name: string;
+    url: string;
+  } | null>(null);
+
   // --- LOCALIZATION STATES ---
   const [availableLangs, setAvailableLangs] = useState<Language[]>([]);
   const [currentLangId, setCurrentLangId] = useState<string>(PRIMARY_LANG); // Default
@@ -555,7 +567,7 @@ export default function MarsSurvivalGame() {
 
       loadSpecificScenario();
     }
-  // selectedUserDetail for the XML loads when any player is clicked
+    // selectedUserDetail for the XML loads when any player is clicked
   }, [teamId, selectedUserDetail, view, scenarios, teamsList]);
 
   useEffect(() => {
@@ -639,6 +651,24 @@ export default function MarsSurvivalGame() {
       evaluations,
       items,
     };
+  };
+
+  // Saving QrCode
+  const downloadQRCode = () => {
+    const canvas = document.getElementById(
+      "qr-code-canvas",
+    ) as HTMLCanvasElement;
+    if (canvas) {
+      const pngUrl = canvas
+        .toDataURL("image/png")
+        .replace("image/png", "image/octet-stream");
+      let downloadLink = document.createElement("a");
+      downloadLink.href = pngUrl;
+      downloadLink.download = `ARES_ACCESS_${shareData?.name.toUpperCase()}.png`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    }
   };
 
   /**
@@ -1831,19 +1861,19 @@ export default function MarsSurvivalGame() {
                         {r.score}
                       </td>
 
-                      {/* ACTIONS: Icons for mobile, Text+Icons for desktop */}
+                      {/* ACTION buttons */}
                       <td className="p-2">
                         <div className="flex justify-center gap-2 md:gap-4">
                           <button
                             onClick={() => {
-                              setSelectedUserDetail(r);
-                              setPrevView("admin");
-                              setView("user-detail");
+                              // To create the link: your current address + player name
+                              const url = `${window.location.origin}?user=${encodeURIComponent(r.username)}`;
+                              setShareData({ name: r.username, url });
                             }}
                             className="text-[#00ff41] hover:text-white transition-colors p-1"
-                            title="Dettagli"
+                            title="Genera Accesso (QR/Link)"
                           >
-                            <Info size={16} />
+                            <QrCode size={18} />{" "}
                           </button>
                           <button
                             onClick={() => handleDeleteResult(r.id!)}
@@ -1938,6 +1968,65 @@ export default function MarsSurvivalGame() {
         }}
         onChange={(val) => setModal((prev) => ({ ...prev, value: val }))}
       />
+
+      {/* QR ACCESS MODAL */}
+      {shareData && (
+        <div className="fixed inset-0 z-400 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="w-full max-w-sm border-4 border-[#00ff41] bg-black p-6 shadow-[0_0_50px_rgba(0,255,65,0.4)] text-center relative"
+          >
+            <button
+              onClick={() => setShareData(null)}
+              className="absolute top-2 right-2 text-[#00ff41]/50 hover:text-[#00ff41]"
+            >
+              <X size={20} />
+            </button>
+
+            <h3 className="text-[#00ff41] font-black uppercase mb-6 italic border-b border-[#00ff41]/30 pb-2">
+              Accesso Identità: {shareData.name}
+            </h3>
+
+            {/* QR CODE CANVAS */}
+            <div className="bg-[#00ff41] p-3 inline-block mb-6 shadow-[0_0_20px_rgba(0,255,65,0.3)]">
+              <QRCodeCanvas
+                id="qr-code-canvas"
+                value={shareData.url}
+                size={200}
+                level={"H"}
+                bgColor={"#00ff41"}
+                fgColor={"#000000"}
+                includeMargin={false}
+              />
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 bg-[#001100] border border-[#00ff41]/30 p-2 overflow-hidden">
+                <span className="text-[9px] text-[#00ff41] truncate flex-1 font-mono opacity-70">
+                  {shareData.url}
+                </span>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(shareData.url);
+                    triggerModal("alert", "LINK COPIATO: Pronto per l'invio.");
+                  }}
+                  className="text-[#00ff41] hover:text-white"
+                >
+                  <Copy size={16} />
+                </button>
+              </div>
+
+              <button
+                onClick={downloadQRCode}
+                className="w-full bg-[#00ff41] text-black py-3 font-black uppercase text-xs hover:bg-white transition-colors flex items-center justify-center gap-2"
+              >
+                <Download size={16} /> Scarica QR (PNG)
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </CRTWrapper>
   );
 }
