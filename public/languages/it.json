@@ -29,6 +29,9 @@
    "lb_points": "Punti di Deviazione",
    "lb_explane": "Meno è meglio",
    "lb_classific": "Classifica Team",
-   "lb_statuscol": "Status(meno è meglio)",
-   "lb_detals": "Dettagli"
+   "lb_statuscol": "Status",
+   "lb_detals": "Dettagli",
+
+   "msg_team_not_ready": "ACCESSO NEGATO",
+   "msg_waiting_for": "Tutti i membri devono finire il test. In attesa di"
 }

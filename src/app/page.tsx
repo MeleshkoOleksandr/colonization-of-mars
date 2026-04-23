@@ -909,29 +909,42 @@ export default function MarsSurvivalGame() {
     });
   };
 
-  // Action for team mamber becoming Commander
+  // Action for team member becoming Commander
   const handleBecomeCommander = async () => {
+    // 1. CHECK: Have all the players on the team finished the test?
+    // We're looking for players on your team with a score of -1 in the overall results list
+    const missingPlayers = allResults.filter(
+      (r) => r.team_id === teamId && r.score === -1,
+    );
+
+    if (missingPlayers.length > 0) {
+      // If there is even one person who hasn't finished, we stop the process
+      const names = missingPlayers.map((p) => p.username).join(", ");
+
+      return triggerModal(
+        "alert",
+        `${loc.msg_team_not_ready || "IMPOSSIBILE NOMINARE UN COMANDANTE"}: 
+       ${loc.msg_waiting_for || "In attesa di"}: ${names}`,
+      );
+    }
+    // 2. If everyone is ready, let's show the standard confirmation procedure
     triggerModal(
       "confirm",
       "SEI SICURO? Solo un membro può assumere il comando. Dovrai rifare il test per conto di tutta la squadra.",
       async () => {
-        // We check the database to see if the spot is taken
+        //  Check the database to see if the slot is available
         const alreadyHas = await checkCommanderStatusAction(teamId);
         if (alreadyHas) {
           setModal((prev) => ({ ...prev, isOpen: false }));
-          triggerModal(
-            "alert",
-            "ERRORE: Un comandante è già stato assegnato a questa unità.",
-          );
+          triggerModal("alert", "ERRORE: Un comandante è già stato assegnato.");
           return;
         }
 
-        // Set a flag in the database
         await updateCommanderStatusAction(teamId, true);
-
-        // Change the name locally and restart the game
         setUsername("Commander");
-        setItems([...staticItems].sort(() => Math.random() - 0.5)); // Mix again
+
+        // We're shuffling the items for the final team score
+        setItems([...staticItems].sort(() => Math.random() - 0.5));
         setView("game");
         setModal((prev) => ({ ...prev, isOpen: false }));
       },
@@ -1259,15 +1272,15 @@ export default function MarsSurvivalGame() {
         </div>
 
         <div className="text-center mb-4">
-          <div className="text-4xl font-black mb-2">{currentScore} (112 MAX) </div>
+          <div className="text-4xl font-black mb-2">{currentScore} (110) </div>
           <div className="text-sm uppercase tracking-[0.3em] mb-0 opacity-70">
-            {loc.lb_points} 
+            {loc.lb_points}
           </div>
           <div className="text-xs text-white/80 italic mb-4">
             ({loc.lb_explane})
           </div>
           <p className="text-xl italic bg-[#00ff41] text-black p-3 font-bold uppercase">
-            {getScoreMessage(currentScore)}  
+            {getScoreMessage(currentScore)}
           </p>
         </div>
 
