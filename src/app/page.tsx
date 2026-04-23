@@ -722,14 +722,22 @@ export default function MarsSurvivalGame() {
     };
     //Save rusult to DB
     try {
-      await updatePlayerResultAction({
-        username: username,
-        team_id: teamId,
-        score: totalScore,
-        selections: items.map((i) => i.id),
-      });
+      if (username === "Commander") {
+        // Create a new record (INSERT) for the commander
+        await saveResultAction(resultData);
+      } else {
+        // For a regular player, UPDATE the existing record
+        await updatePlayerResultAction(resultData);
+      }
+      // Refresh the list of results to see the changes in the table
+      const updatedResults = await getResultsAction();
+      setAllResults(updatedResults);
     } catch (error) {
-      console.error("Failed to save:", error);
+      console.error("Failed to save result:", error);
+      triggerModal(
+        "alert",
+        "ERRORE CRITICO: Impossibile salvare i dati nel database.",
+      );
     }
   };
 
@@ -1251,15 +1259,15 @@ export default function MarsSurvivalGame() {
         </div>
 
         <div className="text-center mb-4">
-          <div className="text-6xl font-black mb-2">{currentScore}</div>
+          <div className="text-4xl font-black mb-2">{currentScore} (112 MAX) </div>
           <div className="text-sm uppercase tracking-[0.3em] mb-0 opacity-70">
-            {loc.lb_points}
+            {loc.lb_points} 
           </div>
           <div className="text-xs text-white/80 italic mb-4">
             ({loc.lb_explane})
           </div>
           <p className="text-xl italic bg-[#00ff41] text-black p-3 font-bold uppercase">
-            {getScoreMessage(currentScore)}
+            {getScoreMessage(currentScore)}  
           </p>
         </div>
 

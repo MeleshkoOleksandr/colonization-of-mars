@@ -9,6 +9,7 @@
         <Rank threshold="20">ECCELLENTE. Elon Musk sarebbe fiero di te. Sei l'élite della colonizzazione!</Rank>
         <Rank threshold="35">BUONO. Arriverai alla base, anche se con qualche congelamento.</Rank>
         <Rank threshold="50">SUFFICIENTE. Probabilmente rimarrai bloccato a metà strada con le batterie scariche.</Rank>
+        <Rank threshold="70">MOLTO SCARSO. Indica un ricorso a una logica troppo legata alla Terra</Rank>
         <Rank threshold="999">DISASTRO. Sei diventato parte del paesaggio marziano. I tuoi resti serviranno da concime.</Rank>
     </Evaluations>
     <Items>
