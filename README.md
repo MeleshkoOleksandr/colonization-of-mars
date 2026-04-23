@@ -145,6 +145,7 @@ This project leverages modern web technologies to ensure a smooth and reactive e
 *   **[Tailwind CSS v4](https://tailwindcss.com/)**: Custom CRT scanline effects and responsive layout.
 *   **[Framer Motion](https://www.framer.com/motion/)**: Smooth, touch-friendly **Drag & Drop** sorting.
 *   **[Lucide React](https://lucide.dev/)**: Lightweight retro-style UI icons.
+*   **QR Engine:** qrcode.react (Canvas implementation for easy downloads)
 
 ---
 
@@ -153,3 +154,4 @@ This project leverages modern web technologies to ensure a smooth and reactive e
 Before you begin, ensure you have the following installed on your machine:
 *   **[Node.js (LTS)](https://nodejs.org/)** (Version 20 or higher).
 *   **[Visual Studio Code](https://code.visualstudio.com/)** (Recommended editor).
+*   **Database:** Vercel Postgres / Neon Serverless
