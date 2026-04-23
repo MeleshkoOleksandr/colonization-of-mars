@@ -6,33 +6,47 @@
 
 An interactive, web-based platform for survival logic training, inspired by the classic **NASA Moon Survival Task**. While the default settings include Mars and Moon scenarios, the platform is designed to be **fully customizable** with unlimited XML-driven scenarios.
 
+The platform is designed for team-based training sessions and follows a specific "Blind Debrief" methodology.
+
 The game features a **Retro-Futuristic CRT aesthetic** (inspired by 70s-80s sci-fi) and is fully optimized for both Desktop and Mobile devices.
 
 ---
 
 ## 🎮 Gameplay Flow & Features
 
-The platform is designed for team-based training sessions and follows a specific "Blind Debrief" methodology:
-
-1.  **Identity Check**: Players enter their name and select a pre-created Team.
-2.  **Individual Test**: Each player ranks 15 items via **Drag & Drop** based on survival priority. Once submitted, results are stored in the database, but the scores remain **hidden** from the player.
-3.  **Mission Debrief (Discussion Room)**: After submitting, players enter a waiting area. They can see who else has finished and can view other players' item orders to start a verbal discussion.
-4.  **Assuring Command (The Commander)**: The team must choose a **Commander**. The Commander re-takes the test on behalf of the whole team, incorporating the group's discussion into the final decision. Only one player per team can become the Commander.
-5.  **Unlocking Results**: Once the discussion is complete, either the **Admin** or the **Commander** can "Unlock Results". Only then can the team see their scores, the official NASA rankings, and professional survival logic.
+The platform follows a specific "Team Synchronization" methodology designed for educational environments:
+### 1. Identity Verification:
+*   Admin pre-registers players for each team.
+*   Players select their name from an authorized list (or access the game via a direct personal link).
+### 2. Individual Phase:
+*   Each player ranks 15 items via Drag & Drop.
+*   Once submitted, data is archived. Scores and NASA's correct order remain locked and hidden.
+### 3. Collaborative Debrief (Discussion Room):
+*   Players enter a live list where they see who has finished.
+*   They can "Analyze" each other's choices to discuss survival logic without being biased by scores.
+### 4. Assuming Command:
+*   The team elects a Commander.
+*   The Commander re-takes the simulation on behalf of the whole unit, incorporating the group's collective insights.
+### 5. Data Synchronization:
+*   Once the Commander submits the "Final Order", they (or the Admin) can Unlock Results.
+*   The entire team is then granted access to the final NASA report, penalty scores, and survival logic.
 
 ---
 
 ## 🔐 Administrator Access
 
-To access the Command Center:
-*   **Username**: `admin`
-*   **Authorization Code**: `adm` (default, can be changed in `page.tsx`)
+The Command Center provides full control over the training session.
 
-**Admin Capabilities**:
-*   Manage Units (Teams): Create teams and assign them to specific scenarios (Mars, Moon, etc.).
-*   Access Control: Manually unlock results or reset Commander status for any team.
-*   Results Registry: View all historical data with real-time refresh and filtering.
-*   Discussion Management: A dedicated view for project-screen discussions without revealing scores prematurely.
+#### Security: Access requires an Authorization Code (Default: `adm` can be changed in `page.tsx`).
+#### Unit Deployment:
+*   Create teams by selecting a Scenario and entering a Team Name.
+*   **Bulk Enrollment:** Paste a list of player names (one per line) to pre-register the entire unit.
+#### Access Management:
+*   **QR Code Generator**: Generate a unique QR code or direct link for any player to ensure instant login.
+*   **Status Toggles:** Manually unlock results or reset Commander status for any team via the dashboard.
+#### Mission Control:
+*   Real-time monitoring of player progress.
+*   Ability to wipe team records or the entire database to reset for new groups.
 
 ---
 
@@ -109,6 +123,18 @@ Add your new mission to public/data/scenarios.json:
   }
 ]
 ```
+---
+
+## 🌍 Localization System (Multi-Language)
+The platform features a dynamic localization engine that separates the interface from the mission content.
+
+### 1. Interface Strings (JSON)
+Located in public/languages/, these files contain all UI labels (buttons, titles, alerts).
+* The system uses a localization.json to detect available languages.
+* The Admin can switch languages on the fly, while players are automatically assigned a language based on their mission scenario.
+###  2. Mission Content (XML)
+Each survival scenario defines its own language within the XML tag <Language>.
+
 ---
 
 ## 🛠 Tech Stack & Libraries
