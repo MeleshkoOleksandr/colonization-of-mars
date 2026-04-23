@@ -945,7 +945,7 @@ export default function MarsSurvivalGame() {
               }}
             >
               <option value="">
-                {loc.login_select_prompt || "--- Seleziona Identità ---"}
+                {loc.login_select_prompt || "-- Seleziona Identità --"}
               </option>
               <option value="admin" className="text-amber-500 font-black">
                 [ ACCESS CENTER: ADMIN ]
@@ -1075,40 +1075,62 @@ export default function MarsSurvivalGame() {
         </div>
 
         <div className="space-y-2 mb-8">
-          {discussionResults.map((res) => (
-            <div
-              key={res.id}
-              className={`flex justify-between items-center p-3 border ${
-                res.username === "Commander"
-                  ? "bg-[#38180670] border-amber-500/30"
-                  : "bg-[#00ff41]/10 border-[#00ff41] shadow-[0_0_10px_rgba(0,255,65,0.2)]"
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                {res.username === "Commander" && (
-                  <div className="bg-amber-500 text-black text-[10px] px-1 font-black uppercase">
-                    {loc.btn_final}
-                  </div>
-                )}
-                <span
-                  className={`font-bold uppercase ${res.username === "Commander" ? "text-amber-500" : "text-[#00ff41]"}`}
-                >
-                  {res.username}
-                </span>
-              </div>
-              <button
-                onClick={() => {
-                  setSelectedUserDetail(res);
-                  setShowDeltas(false);
-                  setPrevView("discussion-list");
-                  setView("user-detail");
-                }}
-                className={`${res.username === "Commander" ? "bg-amber-500" : "bg-[#00ff41] "} text-black px-4 py-1 text-[10px] font-black uppercase`}
+          {discussionResults.map((res) => {
+            // A commander always gets results. An ordinary player—unless their score is -1.
+            const hasResult = res.score !== -1 || res.username === "Commander";
+            //  Button color: Amber for the commander, Green for those ready, Red for those waiting
+            const btnColorClass =
+              res.username === "Commander"
+                ? "bg-amber-500"
+                : hasResult
+                  ? "bg-[#00ff41]"
+                  : "bg-red-600 animate-pulse";
+            return (
+              <div
+                key={res.id}
+                className={`flex justify-between items-center p-3 border ${
+                  res.username === "Commander"
+                    ? "bg-[#38180670] border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
+                    : "bg-[#111] border-[#00ff41]/20"
+                }`}
               >
-                {loc.btn_analise}
-              </button>
-            </div>
-          ))}
+                <div className="flex items-center gap-3">
+                  {res.username === "Commander" && (
+                    <div className="bg-amber-500 text-black text-[10px] px-1 font-black uppercase">
+                      Final Order
+                    </div>
+                  )}
+                  <span
+                    className={`font-bold uppercase ${res.username === "Commander" ? "text-amber-500" : "text-[#00ff41]"}`}
+                  >
+                    {res.username}
+                  </span>
+                </div>
+
+                <button
+                  onClick={() => {
+                    if (!hasResult) {
+                      // If there is no result, display an error message
+                      triggerModal(
+                        "alert",
+                        loc.msg_no_results ||
+                          "Dati non pervenuti. Il colono non ha ancora inviato il rapporto finale.",
+                      );
+                      return;
+                    }
+                    // If there's a result, let's move on to the details
+                    setSelectedUserDetail(res);
+                    setShowDeltas(false);
+                    setPrevView("discussion-list");
+                    setView("user-detail");
+                  }}
+                  className={`${btnColorClass} text-black px-4 py-1 text-[10px] font-black uppercase transition-colors`}
+                >
+                  {loc.btn_analise || "Analizza"}
+                </button>
+              </div>
+            );
+          })}
         </div>
 
         {/* --- BOTTOM BUTTON PANEL  --- */}
@@ -1287,9 +1309,16 @@ export default function MarsSurvivalGame() {
           </div>
 
           {filteredResults
-            .sort((a, b) => a.score - b.score)
+            .sort((a, b) => {
+              if (a.username === "Commander") return -1;
+              if (b.username === "Commander") return 1;
+              return a.score - b.score;
+            })
             .map((res) => {
               const isCommEntry = res.username === "Commander";
+              // Проверка наличия результата
+              const hasResult = res.score !== -1 || isCommEntry;
+
               return (
                 <div
                   key={res.id}
@@ -1332,22 +1361,21 @@ export default function MarsSurvivalGame() {
                   <div className="flex justify-end">
                     <button
                       onClick={() => {
+                        if (!hasResult) {
+                          triggerModal(
+                            "alert",
+                            loc.msg_no_results || "Rapporto non disponibile.",
+                          );
+                          return;
+                        }
                         setSelectedUserDetail(res);
-                        setShowDeltas(true); // Включаем баллы
+                        setShowDeltas(true);
                         setPrevView("leaderboard");
                         setView("user-detail");
                       }}
-                      // The button also turns orange for the Commander
-                      className={`p-1 ${isCommEntry ? "text-amber-500" : "text-[#00ff41] hover:text-white"}`}
-                      title="Dettagli"
+                      className={`p-1 ${isCommEntry ? "text-amber-500" : hasResult ? "text-[#00ff41]" : "text-red-600"}`}
                     >
-                      {/* Desktop: Text | Mobile: Icon */}
-                      <span className="hidden md:inline text-[10px] underline uppercase">
-                        {loc.lb_detals}
-                      </span>
-                      <span className="md:hidden">
-                        <ChevronRight size={18} />
-                      </span>
+                      <ChevronRight size={18} />
                     </button>
                   </div>
                 </div>
@@ -1887,7 +1915,7 @@ export default function MarsSurvivalGame() {
           if (modal.message.includes("Autorizzazione")) {
             executeAdminAuth();
           }
-          // 2. If this is adding team  
+          // 2. If this is adding team
           else if (modal.type === "prompt" || modal.type === "prompt-area") {
             executeAddTeam();
           }
