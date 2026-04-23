@@ -509,34 +509,45 @@ export default function MarsSurvivalGame() {
    * Automatically reloads XML content when the team (and its scenario) changes.
    */
   useEffect(() => {
-    //  First we find the command and the config
-    const selectedTeam = teamsList.find((t) => t.id === teamId);
+    // 1. DETERMINE THE TARGET COMMAND ID
+    // If we're viewing a player's details, we use their team. If not, we use the player's current team.
+    const targetTeamId =
+      selectedUserDetail &&
+      (view === "user-detail" || view === "discussion-list")
+        ? selectedUserDetail.team_id
+        : teamId;
+
+    // 2. Search for a team in the list
+    const targetTeam = teamsList.find((t) => t.id === targetTeamId);
+
+    // 3. We're looking for a script configuration for this command
     const foundConfig = scenarios.find(
-      (s) => s.id === selectedTeam?.current_scenario,
+      (s) => s.id === targetTeam?.current_scenario,
     );
 
-    //  We are checking - If we find something, we move forward.
-    if (teamId !== 0 && foundConfig) {
+    if (targetTeamId !== 0 && foundConfig) {
       const scenarioFile = foundConfig.file;
       const scenarioName = foundConfig.name;
 
       const loadSpecificScenario = async () => {
         try {
-          console.log(`SYSTEM: Loading scenario [${scenarioName}]...`);
+          console.log(`SYSTEM: Syncing mission data for [${scenarioName}]...`);
           const response = await fetch(`/data/${scenarioFile}`);
-
-          if (!response.ok) throw new Error("XML not found");
+          if (!response.ok) throw new Error("Scenario XML not found");
 
           const xmlString = await response.text();
           const parsedData = parseStoryXml(xmlString);
 
-          // AUTOMATICALLY SWITCH THE INTERFACE LANGUAGE
+          // We'll sync all the data from the XML
           setCurrentLangId(parsedData.story.language);
-
           setStory(parsedData.story);
           setStaticItems(parsedData.items);
           setEvaluations(parsedData.evaluations);
-          setItems([...parsedData.items].sort(() => Math.random() - 0.5));
+
+          // only if we're in game mode
+          if (view === "game" || view === "login") {
+            setItems([...parsedData.items].sort(() => Math.random() - 0.5));
+          }
         } catch (err) {
           console.error("Failed to load scenario XML:", err);
         }
@@ -544,7 +555,8 @@ export default function MarsSurvivalGame() {
 
       loadSpecificScenario();
     }
-  }, [teamId, scenarios, teamsList]);
+  // selectedUserDetail for the XML loads when any player is clicked
+  }, [teamId, selectedUserDetail, view, scenarios, teamsList]);
 
   useEffect(() => {
     async function init() {
