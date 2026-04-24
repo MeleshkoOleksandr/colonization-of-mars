@@ -1199,11 +1199,26 @@ export default function MarsSurvivalGame() {
           <h2 className="text-lg font-bold uppercase italic tracking-tighter">
             {loc.btn_report} {currentTeam?.name}
           </h2>
-          <RefreshCcw
-            size={18}
-            className="cursor-pointer"
-            onClick={async () => setAllResults(await getResultsAction())}
-          />
+          <motion.div
+            // Rotation animation: if isRefreshing = true, rotate 360 degrees
+            animate={{ rotate: isRefreshing ? 360 : 0 }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+            className="flex items-center justify-center"
+          >
+            <RefreshCcw
+              size={18}
+              className="cursor-pointer text-[#00ff41]/60 hover:text-[#00ff41] transition-colors duration-300"
+              onClick={async () => {
+                // 1. Play the animation
+                setIsRefreshing(true);
+                // 2. We are loading the data
+                const freshData = await getResultsAction();
+                setAllResults(freshData);
+                // 3. We pause the animation briefly to allow the rotation to finish
+                setTimeout(() => setIsRefreshing(false), 500);
+              }}
+            />
+          </motion.div>
         </div>
 
         <div className="space-y-2 mb-8">
