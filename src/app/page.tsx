@@ -1440,18 +1440,27 @@ export default function MarsSurvivalGame() {
             {isAdmin ? "Admin" : "Risultati"}
           </button>
           <h2 className="text-xl font-bold uppercase">{loc.lb_statuscol}</h2>
-          <button
-            onClick={async () => {
-              // 1. Fetch fresh data from the Database
-              const freshResults = await getResultsAction();
-              // 2. Update the state (this will trigger a re-render)
-              setAllResults(freshResults);
-            }}
-            className="p-2 hover:rotate-180 transition-transform duration-500 border border-[#00ff41]/30 rounded-full"
-            title="Sincronizza con il Database"
+
+          <motion.div
+            // Rotation animation: if isRefreshing = true, rotate 360 degrees
+            animate={{ rotate: isRefreshing ? 360 : 0 }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+            className="flex items-center justify-center"
           >
-            <RefreshCcw size={20} />
-          </button>
+            <RefreshCcw
+              size={18}
+              className="cursor-pointer text-[#00ff41]/60 hover:text-[#00ff41] transition-colors duration-300"
+              onClick={async () => {
+                // 1. Play the animation
+                setIsRefreshing(true);
+                // 2. We are loading the data
+                const freshData = await getResultsAction();
+                setAllResults(freshData);
+                // 3. We pause the animation briefly to allow the rotation to finish
+                setTimeout(() => setIsRefreshing(false), 500);
+              }}
+            />
+          </motion.div>
         </div>
         <div className="space-y-2">
           {/* TABLE HEADERS - Adjusted for mobile grid */}
