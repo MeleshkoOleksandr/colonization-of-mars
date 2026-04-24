@@ -119,7 +119,8 @@ Add your new mission to public/data/scenarios.json:
   {
     "id": "mission_01",
     "file": "my_mission.xml",
-    "name": "Custom Survival Challenge"
+    "name": "Custom Survival Challenge",
+    "language": "en"
   }
 ]
 ```

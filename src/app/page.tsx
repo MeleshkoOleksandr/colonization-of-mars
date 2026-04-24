@@ -378,7 +378,7 @@ export default function MarsSurvivalGame() {
   const [evaluations, setEvaluations] = useState<ScoreEvaluation[]>([]);
   //List of all available scripts from JSON
   const [scenarios, setScenarios] = useState<
-    { id: string; file: string; name: string }[]
+    { id: string; file: string; name: string; language: string }[]
   >([]);
   //A new state for storing the selected script in the admin panel
   const [selectedScenarioForNewTeam, setSelectedScenarioForNewTeam] =
@@ -479,13 +479,20 @@ export default function MarsSurvivalGame() {
         setTeamsList(teams);
         setAllResults(results);
 
-        // 2. Обработка URL параметров (?user=Name)
-        const userFromUrl = new URLSearchParams(window.location.search).get(
-          "user",
-        );
+        // 2. Processing URL parameters
+        const params = new URLSearchParams(window.location.search);
+        const userFromUrl = params.get("user");
+        const langFromUrl = params.get("lang");
+
+        // Language set
+        if (langFromUrl) {
+          console.log("SYSTEM: Setting language from URL:", langFromUrl);
+      
+        }
+
         if (userFromUrl) {
           setUsername(userFromUrl);
-          // Processing URL parameters (?user=Name)
+          // Processing URL parameters
           const player = results.find(
             (r) => r.username === userFromUrl && r.score === -1,
           );
@@ -617,8 +624,10 @@ export default function MarsSurvivalGame() {
   useEffect(() => {
     async function loadDictionary() {
       try {
+        console.log(`DEBUG: Fetching dictionary for ID: [${currentLangId}]`); // Лог 1
         const response = await fetch(`/languages/${currentLangId}.json`);
         const data = await response.json();
+        console.log("DEBUG: Dictionary data received:", data); // Лог 2
         setLoc(data); // We are updating all the text in the interface
       } catch (e) {
         console.error("Lang Load Error", e);
@@ -637,7 +646,7 @@ export default function MarsSurvivalGame() {
     const title = xmlDoc.getElementsByTagName("Title")[0]?.textContent || "";
     const plot = xmlDoc.getElementsByTagName("Plot")[0]?.textContent || "";
     const scenarioLang =
-      xmlDoc.getElementsByTagName("Language")[0]?.textContent || "PRIMARY_LANG";
+      xmlDoc.getElementsByTagName("Language")[0]?.textContent || PRIMARY_LANG;
     const itemNodes = xmlDoc.getElementsByTagName("Item");
     const items: SurvivalItem[] = [];
 
@@ -1105,7 +1114,7 @@ export default function MarsSurvivalGame() {
             onClick={handleStart}
             className="mt-2 border-4 border-[#00ff41] py-4 hover:bg-[#00ff41] hover:text-black transition-all font-black uppercase text-xl shadow-[0_0_20px_rgba(0,255,65,0.2)] active:scale-95"
           >
-            {loc.btn_start || "Inizializzare"}
+            {loc.btn_start_main}
           </button>
         </div>
       </>
@@ -2014,8 +2023,16 @@ export default function MarsSurvivalGame() {
                         <div className="flex justify-center gap-2 md:gap-4">
                           <button
                             onClick={() => {
+                              // Select the language from the script (or [it] by default)
+                              const team = teamsList.find(
+                                (t) => t.id === r.team_id,
+                              );
+                              const scenario = scenarios.find(
+                                (s) => s.id === team?.current_scenario,
+                              );
+                              const lang = scenario?.language || PRIMARY_LANG;
                               // To create the link: your current address + player name
-                              const url = `${window.location.origin}?user=${encodeURIComponent(r.username)}`;
+                              const url = `${window.location.origin}?user=${encodeURIComponent(r.username)}&lang=${lang}`;
                               setShareData({ name: r.username, url });
                             }}
                             className="text-[#00ff41] hover:text-white transition-colors p-1"
