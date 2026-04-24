@@ -413,7 +413,7 @@ export default function MarsSurvivalGame() {
 
   // Computed helper
   const currentTeamName =
-    teamsList.find((t) => t.id === teamId)?.name || "Anonimo";
+    teamsList.find((t) => t.id === teamId)?.name || "NASA";
 
   // Global Modal System
   type ModalType = "alert" | "confirm" | "prompt" | "prompt-area";
@@ -487,7 +487,6 @@ export default function MarsSurvivalGame() {
         // Language set
         if (langFromUrl) {
           console.log("SYSTEM: Setting language from URL:", langFromUrl);
-      
         }
 
         if (userFromUrl) {
@@ -502,11 +501,7 @@ export default function MarsSurvivalGame() {
         console.log("SYSTEM: Ready.");
       } catch (error) {
         console.error("CRITICAL ERROR:", error);
-        triggerModal(
-          "alert",
-          ModalMode.IDLE,
-          "ERRORE DI SISTEMA: Impossibile sincronizzare i moduli.",
-        );
+        triggerModal("alert", ModalMode.IDLE, loc.msg_modal_sinx);
       }
     }
     initializeSystem();
@@ -624,10 +619,8 @@ export default function MarsSurvivalGame() {
   useEffect(() => {
     async function loadDictionary() {
       try {
-        console.log(`DEBUG: Fetching dictionary for ID: [${currentLangId}]`); // Лог 1
         const response = await fetch(`/languages/${currentLangId}.json`);
         const data = await response.json();
-        console.log("DEBUG: Dictionary data received:", data); // Лог 2
         setLoc(data); // We are updating all the text in the interface
       } catch (e) {
         console.error("Lang Load Error", e);
@@ -703,11 +696,7 @@ export default function MarsSurvivalGame() {
    */
   const handleStart = () => {
     if (!username) {
-      return triggerModal(
-        "alert",
-        ModalMode.IDLE,
-        "Identificazione fallita. Inserire un nome.",
-      );
+      return triggerModal("alert", ModalMode.IDLE, loc.msg_modal_name);
     }
     // ADMIN CHECK
     if (username.toLowerCase() === ADMIN_USER) {
@@ -715,19 +704,14 @@ export default function MarsSurvivalGame() {
         isOpen: true,
         type: "prompt",
         mode: ModalMode.ADMIN_AUTH,
-        message:
-          "ACCESSO RISERVATO: Inserire il Codice di Autorizzazione dell'Ufficiale di Comando.",
+        message: loc.msg_modal_admincode,
         value: "",
         action: () => {},
       });
       return;
     }
     if (teamId === 0) {
-      return triggerModal(
-        "alert",
-        ModalMode.IDLE,
-        "Selezionare una squadra per procedere.",
-      );
+      return triggerModal("alert", ModalMode.IDLE, loc.msg_modal_team);
     }
     setView("story");
   };
@@ -765,11 +749,7 @@ export default function MarsSurvivalGame() {
       setAllResults(updatedResults);
     } catch (error) {
       console.error("Failed to save result:", error);
-      triggerModal(
-        "alert",
-        ModalMode.IDLE,
-        "ERRORE CRITICO: Impossibile salvare i dati nel database.",
-      );
+      triggerModal("alert", ModalMode.IDLE, loc.msg_modal_saveerror);
     }
   };
 
@@ -798,8 +778,7 @@ export default function MarsSurvivalGame() {
       isOpen: true,
       type: "confirm",
       mode: ModalMode.IDLE,
-      message:
-        "ATTENZIONE: L'eliminazione del team rimuoverà tutti i record associati. Procedere?",
+      message: loc.msg_modal_teamdelete,
       value: "",
       action: async () => {
         await deleteTeamAction(id);
@@ -813,17 +792,13 @@ export default function MarsSurvivalGame() {
   // Logic for adding a team
   const handleAddTeam = () => {
     if (!newTeamName.trim()) {
-      return triggerModal(
-        "alert",
-        ModalMode.IDLE,
-        "ERRORE: Inserire prima il nome del Team nel campo di testo.",
-      );
+      return triggerModal("alert", ModalMode.IDLE, loc.msg_modal_teamname);
     }
     setModal({
       isOpen: true,
       type: "prompt-area",
       mode: ModalMode.ADD_TEAM,
-      message: `Inserire l'elenco dei coloni per il team [${newTeamName.toUpperCase()}]. Un nome per riga:`,
+      message: `${loc.msg_modal_new} [${newTeamName.toUpperCase()}]`,
       value: "",
       action: () => {},
     });
@@ -840,7 +815,7 @@ export default function MarsSurvivalGame() {
       return triggerModal(
         "alert",
         ModalMode.IDLE,
-        "ERRORE: Inserire almeno un giocatore per creare la squadra.",
+        loc.msg_modal_teamcrea,
       );
     }
 
@@ -863,14 +838,14 @@ export default function MarsSurvivalGame() {
       triggerModal(
         "alert",
         ModalMode.IDLE,
-        "SUCCESSO: Squadra e coloni registrati nel database.",
+        loc.msg_modal_teamindb,
       );
     } catch (error) {
       console.error(error);
       triggerModal(
         "alert",
         ModalMode.IDLE,
-        "ERRORE: Impossibile salvare i dati nel database.",
+        loc.msg_modal_saveerror,
       );
     }
   };
@@ -885,7 +860,7 @@ export default function MarsSurvivalGame() {
       triggerModal(
         "alert",
         ModalMode.IDLE,
-        "CODICE ERRATO: Accesso negato. Il tentativo è stato registrato.",
+        loc.msg_modal_wrongpass,
       );
     }
   };
@@ -896,8 +871,7 @@ export default function MarsSurvivalGame() {
       isOpen: true,
       type: "confirm",
       mode: ModalMode.IDLE,
-      message:
-        "ATTENZIONE: Eliminare definitivamente questo record di missione? L'azione è irreversibile.",
+      message: loc.msg_modal_recorddel,
       value: "",
       action: async () => {
         try {
@@ -913,7 +887,7 @@ export default function MarsSurvivalGame() {
           setModal((prev) => ({
             ...prev,
             type: "alert",
-            message: "ERRORE: Impossibile eliminare il record.",
+            message: loc.msg_modal_delerror,
           }));
         }
       },
@@ -926,8 +900,7 @@ export default function MarsSurvivalGame() {
       isOpen: true,
       type: "confirm",
       mode: ModalMode.IDLE,
-      message:
-        "PERICOLO: Sei sicuro di voler cancellare TUTTI i risultati dal database? Questa operazione non può essere annullata.",
+      message: loc.msg_modal_cleardb,
       value: "",
       action: async () => {
         await deleteAllResultsAction();
@@ -944,7 +917,7 @@ export default function MarsSurvivalGame() {
       isOpen: true,
       type: "confirm",
       mode: ModalMode.IDLE,
-      message: `ATTENZIONE: Eliminare TUTTI i record per il team [${teamName}]? L'azione è irreversibile.`,
+      message: `${loc.msg_modal_delteamresul} ${teamName}?`,
       value: "",
       action: async () => {
         await deleteResultsByTeamAction(teamId);
@@ -969,15 +942,15 @@ export default function MarsSurvivalGame() {
       return triggerModal(
         "alert",
         ModalMode.IDLE,
-        `${loc.msg_team_not_ready || "IMPOSSIBILE NOMINARE UN COMANDANTE"}: 
-       ${loc.msg_waiting_for || "In attesa di"}: ${names}`,
+        `${loc.msg_team_not_ready }: 
+       ${loc.msg_waiting_for}: ${names}`,
       );
     }
     // 2. If everyone is ready, let's show the standard confirmation procedure
     triggerModal(
       "confirm",
       ModalMode.IDLE,
-      "SEI SICURO? Solo un membro può assumere il comando. Dovrai rifare il test per conto di tutta la squadra.",
+      loc.msg_modal_commander,
       async () => {
         //  Check the database to see if the slot is available
         const alreadyHas = await checkCommanderStatusAction(teamId);
@@ -986,7 +959,7 @@ export default function MarsSurvivalGame() {
           triggerModal(
             "alert",
             ModalMode.IDLE,
-            "ERRORE: Un comandante è già stato assegnato.",
+            loc.msg_modal_commError
           );
           return;
         }
@@ -1009,7 +982,7 @@ export default function MarsSurvivalGame() {
       return triggerModal(
         "alert",
         ModalMode.IDLE,
-        "ERRORE: Selezionare prima un Team dal menu a tendina per aggiungere un colono.",
+        loc.msg_modal_teamselerr
       );
     }
 
@@ -1078,7 +1051,7 @@ export default function MarsSurvivalGame() {
         <div className="flex flex-col gap-6 max-w-sm mx-auto py-8 md:py-12">
           <div className="space-y-2">
             <label className="text-xs uppercase opacity-50 font-bold tracking-widest">
-              {loc.login_operator_label || "Identificazione Operatore:"}
+              {loc.login_operator_label}
             </label>
 
             <select
@@ -1093,14 +1066,12 @@ export default function MarsSurvivalGame() {
                 }
               }}
             >
-              <option value="">
-                {loc.login_select_prompt || "-- Seleziona Identità --"}
-              </option>
+              <option value="">{loc.login_select_prompt}</option>
               <option value="admin" className="text-amber-500 font-black">
                 [ ACCESS CENTER: ADMIN ]
               </option>
 
-              <optgroup label="Colonni Autorizzati:">
+              <optgroup label={loc.login_select_group}>
                 {pendingPlayers.map((p) => (
                   <option key={p.id} value={p.username}>
                     {p.username} ({p.team_name})

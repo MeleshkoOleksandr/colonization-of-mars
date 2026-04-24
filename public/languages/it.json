@@ -1,8 +1,10 @@
 {
    "login_header": "Accesso alla missione",
    "login_operator_label": "Identificazione Operatore:",
-   "btn_start_main": "Inizializzare Missione",
-
+   "btn_start_main": "Inizializzare",
+   "login_select_prompt": "-- Seleziona Identità --",
+   "login_select_group": "Colonni Autorizzati:",
+  
    "btn_start_game": "Accedi all'Inventario Cargo",
    "lb_protocol": "PROTOCOLLO",
    "lb_instruct_1": "Trascina gli oggetti per stabilire l'ordine di importanza.",
@@ -33,5 +35,23 @@
    "lb_detals": "Dettagli",
 
    "msg_team_not_ready": "ACCESSO NEGATO",
-   "msg_waiting_for": "Tutti i membri devono finire il test. In attesa di"
+   "msg_waiting_for": "Tutti i membri devono finire il test. In attesa di",
+   "msg_modal_sinx": "ERRORE DI SISTEMA: Impossibile sincronizzare i moduli.",
+   "msg_modal_name": "Identificazione fallita. Inserire un nome.",
+   "msg_modal_admincode": "ACCESSO RISERVATO: Inserire il Codice di Autorizzazione dell'Ufficiale di Comando.",
+   "msg_modal_team": "Selezionare una squadra per procedere.",
+   "msg_modal_saveerror": "ERRORE CRITICO: Impossibile salvare i dati nel database.",
+   "msg_modal_teamdelete": "ATTENZIONE: L'eliminazione del team rimuoverà tutti i record associati. Procedere?",
+   "msg_modal_teamname": "ERRORE: Inserire prima il nome del Team nel campo di testo.",
+   "msg_modal_new": "Inserire l'elenco dei coloni per il team",
+   "msg_modal_teamcrea": "ERRORE: Inserire almeno un giocatore per creare la squadra.",
+   "msg_modal_teamindb": "SUCCESSO: Squadra e coloni registrati nel database.",
+   "msg_modal_wrongpass":  "CODICE ERRATO: Accesso negato. Il tentativo è stato registrato.",
+   "msg_modal_recorddel": "ATTENZIONE: Eliminare definitivamente questo record di missione? L'azione è irreversibile.",
+   "msg_modal_delerror": "ERRORE: Impossibile eliminare il record.",
+   "msg_modal_cleardb": "PERICOLO: Sei sicuro di voler cancellare TUTTI i risultati dal database? Questa operazione non può essere annullata.",
+   "msg_modal_delteamresult" : "ATTENZIONE: Eliminare TUTTI i record per il team",
+   "msg_modal_commander": "SEI SICURO? Solo un membro può assumere il comando. Dovrai rifare il test per conto di tutta la squadra.",
+   "msg_modal_commError": "ERRORE: Un comandante è già stato assegnato.",
+   "msg_modal_teamselerr": "ERRORE: Selezionare prima un Team dal menu a tendina per aggiungere un colono.",
 }
