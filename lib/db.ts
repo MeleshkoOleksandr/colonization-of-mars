@@ -141,3 +141,13 @@ export async function updatePlayerResult(username: string, teamId: number, score
     WHERE username = ${username} AND team_id = ${teamId} AND score = -1
   `;
 }
+
+/**
+ * Adds a single pending player to an existing team.
+ */
+export async function addSinglePlayer(teamId: number, playerName: string) {
+  await sql`
+    INSERT INTO results (username, team_id, score, selections) 
+    VALUES (${playerName.trim()}, ${teamId}, -1, '[]'::jsonb)
+  `;
+}

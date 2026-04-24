@@ -116,3 +116,14 @@ export async function updatePlayerResultAction(data: {username: string; team_id:
     throw new Error("Failed to update player results");
   }
 }
+
+//  Adds a single  player to an existing team without results.
+export async function addSinglePlayerAction(teamId: number, playerName: string) {
+  try {
+    await db.addSinglePlayer(teamId, playerName);
+    revalidatePath("/");
+  } catch (error) {
+    console.error("Failed to add player:", error);
+    throw new Error("Database error");
+  }
+}

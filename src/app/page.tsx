@@ -28,6 +28,7 @@ import {
   X,
   LockOpen,
   UserCheck,
+  UserPlus,
 } from "lucide-react";
 
 /**
@@ -49,6 +50,7 @@ import {
   checkCommanderStatusAction,
   addTeamWithPlayersAction,
   updatePlayerResultAction,
+  addSinglePlayerAction,
 } from "./actions";
 
 import { Team, GameResult } from "../../lib/db";
@@ -951,6 +953,37 @@ export default function MarsSurvivalGame() {
     );
   };
 
+  // Action for adding new member  to existing team
+  const handleAddSinglePlayer = () => {
+    // Check if a team has been selected in the admin panel filter
+    if (adminTeamFilter === 0) {
+      return triggerModal(
+        "alert",
+        "ERRORE: Selezionare prima un Team dal menu a tendina per aggiungere un colono.",
+      );
+    }
+
+    const teamName =
+      teamsList.find((t) => t.id === adminTeamFilter)?.name || "";
+
+    setModal({
+      isOpen: true,
+      type: "prompt",
+      message: `Aggiungi un nuovo colono all'unità [${teamName.toUpperCase()}]:`,
+      value: "",
+      action: () => {}, // We'll add the confirmation logic to `onConfirm` block
+    });
+  };
+
+  // Function used for save (called from a modal window)
+  const executeAddSinglePlayer = async () => {
+    if (modal.value.trim() && adminTeamFilter !== 0) {
+      await addSinglePlayerAction(adminTeamFilter, modal.value);
+      setAllResults(await getResultsAction()); // Updating the table
+      setModal((prev) => ({ ...prev, isOpen: false, value: "" }));
+    }
+  };
+
   /**
    * VIEW ENGINE
    * Determines which screen to render into the CRTWrapper.
@@ -1112,14 +1145,6 @@ export default function MarsSurvivalGame() {
     content = (
       <>
         <div className="flex justify-between items-center mb-6 border-b-2 border-[#00ff41] pb-2 text-[#00ff41]">
-          {!isAdmin && (
-            <button
-              onClick={() => setView("login")}
-              className="text-[10px] uppercase border border-[#00ff41] px-2 py-1 hover:bg-[#00ff41] hover:text-black"
-            >
-              {loc.btn_logout}
-            </button>
-          )}
           {isAdmin && (
             <button
               onClick={() => setView("admin")}
@@ -1781,7 +1806,7 @@ export default function MarsSurvivalGame() {
         <div className="space-y-4 border-2 border-[#00ff41]/30 p-6 bg-[#111]/50">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-[#00ff41]/30 pb-2 gap-4">
             <h3 className="font-bold uppercase flex items-center gap-2 text-[#00ff41]">
-              <Save size={18} /> Registro Risultati
+              <Save size={18} /> Utenti
             </h3>
 
             <div className="flex flex-wrap items-center gap-4">
@@ -1843,6 +1868,15 @@ export default function MarsSurvivalGame() {
                   ))}
                 </select>
               </div>
+
+              <button
+                onClick={handleAddSinglePlayer}
+                className=" px-3 py-1 border border-[#00ff41] text-[#00ff41] text-[10px] font-black uppercase hover:bg-[#00ff41] hover:text-black transition-all flex items-center gap-1.5"
+                title="Aggiungi un nuovo colono a questo team"
+              >
+                <UserPlus size={12} strokeWidth={2} />
+                <span>ADD</span>
+              </button>
             </div>
           </div>
 
@@ -1999,7 +2033,13 @@ export default function MarsSurvivalGame() {
           }
           // 2. If this is adding team
           else if (modal.type === "prompt" || modal.type === "prompt-area") {
-            executeAddTeam();
+            if (modal.message.includes("elenco dei coloni")) {
+              // Questo serve per creare in massa dei comandi (in base al testo del messaggio)
+              executeAddTeam();
+            } else if (modal.message.includes("Aggiungi un nuovo colono")) {
+              // QUESTO È PER UN GIOCATORE SINGOLO
+              executeAddSinglePlayer();
+            }
           }
           // For all others (alert, confirm)
           else {
