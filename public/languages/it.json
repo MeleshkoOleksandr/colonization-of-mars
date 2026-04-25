@@ -53,5 +53,5 @@
    "msg_modal_delteamresult" : "ATTENZIONE: Eliminare TUTTI i record per il team",
    "msg_modal_commander": "SEI SICURO? Solo un membro può assumere il comando. Dovrai rifare il test per conto di tutta la squadra.",
    "msg_modal_commError": "ERRORE: Un comandante è già stato assegnato.",
-   "msg_modal_teamselerr": "ERRORE: Selezionare prima un Team dal menu a tendina per aggiungere un colono.",
+   "msg_modal_teamselerr": "ERRORE: Selezionare prima un Team dal menu a tendina per aggiungere un colono."
 }
