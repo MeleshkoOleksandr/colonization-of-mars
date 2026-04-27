@@ -53,5 +53,31 @@
    "msg_modal_delteamresult" : "ATTENZIONE: Eliminare TUTTI i record per il team",
    "msg_modal_commander": "SEI SICURO? Solo un membro può assumere il comando. Dovrai rifare il test per conto di tutta la squadra.",
    "msg_modal_commError": "ERRORE: Un comandante è già stato assegnato.",
-   "msg_modal_teamselerr": "ERRORE: Selezionare prima un Team dal menu a tendina per aggiungere un colono."
+   "msg_modal_teamselerr": "ERRORE: Selezionare prima un Team dal menu a tendina per aggiungere un colono.", 
+
+   "admin_lb_terminal": "Terminale di amministrazione",
+   "admin_lb_LOGOUT": "LOGOUT",
+   "admin_lb_lang": "Lingua del sistema:",
+   "admin_lb_langload": "Caricamento delle lingue...",
+   "admin_lb_localiz": "Impostazioni e localizzazione",
+   "admin_lb_teamlist": "Gestione Unità",
+   "admin_lb_teamname": "Nome Unità",
+   "admin_lb_scename": "Scenario",
+   "admin_lb_newteam": "+ CREA SQUADRA",
+   "admin_lb_users": "Utenti",
+   "admin_lb_refresh": "Aggiorna",
+   "admin_lb_clearall": "Cancella tutto",
+   "admin_lb_clear": "Cancella ",
+   "admin_lb_filter": "Filtra :",
+   "admin_lb_allteams": "Tutti i Team",
+   "admin_lb_add": "AGGIUNGI",
+   "admin_lb_delete": "Elimina",
+   "admin_lb_nodata": "Nessun dato.",
+   "admin_btn_results": "Registro Risultati (Con Punteggi)",
+   "admin_btn_dicusion": "Avvia Modalità Discussione (Senza Punteggi)",
+
+   "admin_msg_chkresults": "Status Risultati: Sblocca per permettere ai coloni di vedere il rapporto NASA",
+   "admin_msg_chkcomander": "Assegnazione Comandante: Indica se la squadra ha scelto un capitano",
+   "admin_msg_addteam": "Aggiungi un nuovo colono a questo team",
+   "admin_msg_qr": "Genera Accesso (QR/Link)"
 }

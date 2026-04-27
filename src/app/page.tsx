@@ -812,11 +812,7 @@ export default function MarsSurvivalGame() {
       .filter((l) => l !== "");
 
     if (playerNames.length === 0) {
-      return triggerModal(
-        "alert",
-        ModalMode.IDLE,
-        loc.msg_modal_teamcrea,
-      );
+      return triggerModal("alert", ModalMode.IDLE, loc.msg_modal_teamcrea);
     }
 
     try {
@@ -835,18 +831,10 @@ export default function MarsSurvivalGame() {
       setNewTeamName("");
       setModal((prev) => ({ ...prev, isOpen: false, value: "" }));
 
-      triggerModal(
-        "alert",
-        ModalMode.IDLE,
-        loc.msg_modal_teamindb,
-      );
+      triggerModal("alert", ModalMode.IDLE, loc.msg_modal_teamindb);
     } catch (error) {
       console.error(error);
-      triggerModal(
-        "alert",
-        ModalMode.IDLE,
-        loc.msg_modal_saveerror,
-      );
+      triggerModal("alert", ModalMode.IDLE, loc.msg_modal_saveerror);
     }
   };
 
@@ -857,11 +845,7 @@ export default function MarsSurvivalGame() {
       setView("admin");
     } else {
       // Wrong password
-      triggerModal(
-        "alert",
-        ModalMode.IDLE,
-        loc.msg_modal_wrongpass,
-      );
+      triggerModal("alert", ModalMode.IDLE, loc.msg_modal_wrongpass);
     }
   };
 
@@ -942,7 +926,7 @@ export default function MarsSurvivalGame() {
       return triggerModal(
         "alert",
         ModalMode.IDLE,
-        `${loc.msg_team_not_ready }: 
+        `${loc.msg_team_not_ready}: 
        ${loc.msg_waiting_for}: ${names}`,
       );
     }
@@ -956,11 +940,7 @@ export default function MarsSurvivalGame() {
         const alreadyHas = await checkCommanderStatusAction(teamId);
         if (alreadyHas) {
           setModal((prev) => ({ ...prev, isOpen: false }));
-          triggerModal(
-            "alert",
-            ModalMode.IDLE,
-            loc.msg_modal_commError
-          );
+          triggerModal("alert", ModalMode.IDLE, loc.msg_modal_commError);
           return;
         }
 
@@ -979,11 +959,7 @@ export default function MarsSurvivalGame() {
   const handleAddSinglePlayer = () => {
     // Check if a team has been selected in the admin panel filter
     if (adminTeamFilter === 0) {
-      return triggerModal(
-        "alert",
-        ModalMode.IDLE,
-        loc.msg_modal_teamselerr
-      );
+      return triggerModal("alert", ModalMode.IDLE, loc.msg_modal_teamselerr);
     }
 
     const teamName =
@@ -1662,25 +1638,25 @@ export default function MarsSurvivalGame() {
       <>
         <div className="flex justify-between items-center mb-8 border-b-4 border-[#00ff41] pb-2">
           <h2 className="text-2xl font-black italic uppercase bg-[#00ff41] text-black px-2">
-            Admin Terminal
+            {loc.admin_lb_terminal}
           </h2>
           <button
             onClick={() => setView("login")}
             className="text-xs underline"
           >
-            LOGOUT
+            {loc.admin_lb_LOGOUT}
           </button>
         </div>
 
         {/* Settings Section */}
         <div className="border-2 border-[#00ff41]/30 p-4 bg-[#111]/30 mt-8">
           <h3 className="font-bold uppercase flex items-center gap-2 mb-4 border-b border-[#00ff41]/10 pb-2 text-[#00ff41]">
-            <Globe size={18} /> Settings & Localization
+            <Globe size={18} /> {loc.admin_lb_localiz}
           </h3>
 
           <div className="flex flex-col gap-2">
             <label className="text-[9px] uppercase opacity-50">
-              System Language (Admin View):
+               {loc.admin_lb_lang}
             </label>
             <select
               className="w-full bg-black text-[#00ff41] text-xs border border-[#00ff41]/40 p-2 outline-none appearance-none cursor-pointer"
@@ -1689,7 +1665,7 @@ export default function MarsSurvivalGame() {
             >
               {/* CHECK: If the array is empty, display a placeholder */}
               {availableLangs.length === 0 ? (
-                <option>Loading languages...</option>
+                <option>{loc.admin_lb_langload}</option>
               ) : (
                 availableLangs.map((l) => (
                   <option key={l.id} value={l.id} className="bg-black">
@@ -1705,7 +1681,7 @@ export default function MarsSurvivalGame() {
           {/* 1. TEAMS MANAGEMENT  */}
           <div className="border-2 border-[#00ff41]/30 p-4 bg-[#111]/30">
             <h3 className="font-bold uppercase flex items-center gap-2 mb-4 border-b border-[#00ff41]/10 pb-2">
-              <Users size={18} /> Gestione Unità (Database)
+              <Users size={18} />{loc.admin_lb_teamlist}
             </h3>
 
             {/* Контейнер скролла */}
@@ -1717,7 +1693,7 @@ export default function MarsSurvivalGame() {
                     {/* Header 1: Unlock Results  */}
                     <th
                       className="p-2 border border-black w-11.25 text-center cursor-help"
-                      title="Status Risultati: Sblocca per permettere ai coloni di vedere il rapporto NASA"
+                      title={loc.admin_msg_chkresults}
                     >
                       <LockOpen size={14} className="mx-auto" />
                     </th>
@@ -1725,18 +1701,18 @@ export default function MarsSurvivalGame() {
                     {/* Header 2: Commander Status  */}
                     <th
                       className="p-2 border border-black w-11.25 text-center cursor-help"
-                      title="Assegnazione Comandante: Indica если команда выбрала лидера"
+                      title={loc.admin_msg_chkcomander}
                     >
                       <UserCheck size={14} className="mx-auto" />
                     </th>
 
                     <th className="p-2 border border-black overflow-hidden">
-                      Nome Unità
+                      {loc.admin_lb_teamname}
                     </th>
 
                     {/* Header 3: Scenario  */}
                     <th className="p-2 border border-black w-15 md:w-55">
-                      Scenario
+                      {loc.admin_lb_scename}
                     </th>
 
                     <th className="p-2 border border-black w-11.25 text-center">
@@ -1841,7 +1817,7 @@ export default function MarsSurvivalGame() {
               {/* 2. Entering a command name  */}
               <input
                 type="text"
-                placeholder="NOME TEAM..."
+                placeholder={loc.admin_lb_teamname}
                 className="flex-1 bg-black text-[#00ff41] text-sm border border-[#00ff41]/40 p-2 outline-none focus:border-[#00ff41] transition-colors uppercase font-mono"
                 value={newTeamName}
                 onChange={(e) => setNewTeamName(e.target.value)}
@@ -1852,7 +1828,7 @@ export default function MarsSurvivalGame() {
                 onClick={handleAddTeam}
                 className="whitespace-nowrap border-2 border-dashed border-[#00ff41]/30 px-4 py-2 text-[12px] uppercase font-bold hover:bg-[#00ff41]/10 transition-colors sm:w-auto w-full"
               >
-                + CREA SQUADRA
+                {loc.admin_lb_newteam}
               </button>
             </div>
           </div>
@@ -1860,7 +1836,7 @@ export default function MarsSurvivalGame() {
         <div className="space-y-4 border-2 border-[#00ff41]/30 p-6 bg-[#111]/50">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-[#00ff41]/30 pb-2 gap-4">
             <h3 className="font-bold uppercase flex items-center gap-2 text-[#00ff41]">
-              <Save size={18} /> Utenti
+              <Save size={18} /> {loc.admin_lb_users}
             </h3>
 
             <div className="flex flex-wrap items-center gap-4">
@@ -1879,7 +1855,7 @@ export default function MarsSurvivalGame() {
                   size={12}
                   className="group-hover:rotate-180 transition-transform duration-500"
                 />
-                Refresh
+                {loc.admin_lb_refresh}
               </button>
 
               {/* DELETE data BUTTON */}
@@ -1888,29 +1864,29 @@ export default function MarsSurvivalGame() {
                   onClick={handleDeleteAllResults}
                   className="text-[10px] border border-red-600 px-2 py-1 text-red-500 hover:bg-red-600 hover:text-white transition-colors uppercase font-bold"
                 >
-                  Clear All Database
+                  {loc.admin_lb_clearall}
                 </button>
               ) : (
                 <button
                   onClick={() => handleDeleteTeamResults(adminTeamFilter)}
                   className="text-[10px] border border-amber-600 px-2 py-1 text-amber-500 hover:bg-amber-600 hover:text-white transition-colors uppercase font-bold"
                 >
-                  Clear {teamsList.find((t) => t.id === adminTeamFilter)?.name}{" "}
-                  Records
+                  {loc.admin_lb_clear} {teamsList.find((t) => t.id === adminTeamFilter)?.name}{" "}
+                  
                 </button>
               )}
 
               {/* TEAM FILTER FOR ADMIN */}
               <div className="flex items-center gap-2 bg-black border border-[#00ff41]/50 p-1">
                 <span className="text-[10px] px-2 opacity-50 uppercase italic font-bold">
-                  Filtra per Team:
+                  {loc.admin_lb_filter}
                 </span>
                 <select
                   className="bg-transparent text-[#00ff41] text-xs outline-none cursor-pointer uppercase font-bold"
                   value={adminTeamFilter}
                   onChange={(e) => setAdminTeamFilter(Number(e.target.value))}
                 >
-                  <option value={0}>Tutti i Team</option>
+                  <option value={0}>{loc.admin_lb_allteams}</option>
                   {teamsList.map((t) => (
                     <option
                       key={t.id}
@@ -1926,10 +1902,10 @@ export default function MarsSurvivalGame() {
               <button
                 onClick={handleAddSinglePlayer}
                 className=" px-3 py-1 border border-[#00ff41] text-[#00ff41] text-[10px] font-black uppercase hover:bg-[#00ff41] hover:text-black transition-all flex items-center gap-1.5"
-                title="Aggiungi un nuovo colono a questo team"
+                title={loc.admin_msg_addteam}
               >
                 <UserPlus size={12} strokeWidth={2} />
-                <span>ADD</span>
+                <span>{loc.admin_lb_add}</span>
               </button>
             </div>
           </div>
@@ -2007,14 +1983,14 @@ export default function MarsSurvivalGame() {
                               setShareData({ name: r.username, url });
                             }}
                             className="text-[#00ff41] hover:text-white transition-colors p-1"
-                            title="Genera Accesso (QR/Link)"
+                            title={loc.admin_msg_qr}
                           >
                             <QrCode size={18} />{" "}
                           </button>
                           <button
                             onClick={() => handleDeleteResult(r.id!)}
                             className="text-red-500 hover:text-white transition-colors p-1"
-                            title="Elimina"
+                            title={loc.admin_lb_delete}
                           >
                             <Trash2 size={16} />
                           </button>
@@ -2028,7 +2004,7 @@ export default function MarsSurvivalGame() {
                       colSpan={5}
                       className="p-4 text-center opacity-50 italic"
                     >
-                      Nessun dato.
+                      {loc.admin_lb_nodata}
                     </td>
                   </tr>
                 )}
@@ -2045,7 +2021,7 @@ export default function MarsSurvivalGame() {
             }}
             className="border-2 border-[#00ff41] py-3 hover:bg-[#00ff41] hover:text-black uppercase font-bold text-xs"
           >
-            1. Registro Risultati (Con Punteggi)
+            {loc.admin_btn_results}
           </button>
 
           <button
@@ -2063,7 +2039,7 @@ export default function MarsSurvivalGame() {
             }}
             className="border-2 border-amber-500 py-3 text-amber-500 hover:bg-amber-500 hover:text-black uppercase font-black text-xs shadow-[0_0_15px_rgba(245,158,11,0.3)]"
           >
-            2. Avvia Modalità Discussione (Senza Punteggi)
+            {loc.admin_btn_dicusion}
           </button>
         </div>
       </>
