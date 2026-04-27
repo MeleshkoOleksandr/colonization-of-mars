@@ -1,4 +1,6 @@
 [
-  { "id": "en", "name": "English", "file": "en.json" },
-  { "id": "it", "name": "Italiano", "file": "it.json" }
+    { "id": "it", "name": "Italiano", "file": "it.json" },
+    { "id": "de", "name": "Deutsch", "file": "de.json" },
+    { "id": "fr", "name": "Français", "file": "fr.json" },
+    { "id": "en", "name": "English", "file": "en.json" }
 ]

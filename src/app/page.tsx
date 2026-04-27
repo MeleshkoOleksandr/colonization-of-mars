@@ -279,6 +279,7 @@ const RetroModal = ({
   onClose,
   onConfirm,
   onChange,
+  loc,
 }: {
   isOpen: boolean;
   type: "alert" | "confirm" | "prompt" | "prompt-area";
@@ -287,6 +288,7 @@ const RetroModal = ({
   onClose: () => void;
   onConfirm: () => void;
   onChange?: (val: string) => void;
+  loc: any; // for localization
 }) => {
   if (!isOpen) return null;
 
@@ -301,10 +303,10 @@ const RetroModal = ({
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-size-[100%_2px,3px_100%] opacity-20"></div>
         <h3 className="text-[#00ff41] font-black uppercase tracking-tighter mb-4 text-xl italic border-b border-[#00ff41]/30 pb-2">
           {type === "confirm"
-            ? "> Richiesta Conferma"
-            : type === "prompt"
-              ? "> Input Richiesto"
-              : "> Messaggio Sistema"}
+            ? `> ${loc.modal_title_confirm || "Richiesta Conferma"}`
+            : type === "prompt" || type === "prompt-area"
+              ? `> ${loc.modal_title_input || "Input Richiesto"}`
+              : `> ${loc.modal_title_system || "Messaggio Sistema"}`}
         </h3>
 
         <p className="text-[#00ff41] mb-6 uppercase text-sm leading-relaxed tracking-wide">
@@ -335,14 +337,16 @@ const RetroModal = ({
               onClick={onClose}
               className="px-4 py-2 border border-[#00ff41]/50 text-[#00ff41]/50 hover:text-[#00ff41] uppercase text-xs font-bold"
             >
-              Annulla
+              {loc.msg_modal_cancel}
             </button>
           )}
           <button
             onClick={onConfirm}
             className="px-6 py-2 bg-[#00ff41] text-black font-black uppercase text-xs hover:bg-white transition-colors"
           >
-            {type === "confirm" ? "Conferma" : "Esegui"}
+            {type === "confirm"
+              ? loc.msg_modal_confirm || "Conferma"
+              : loc.msg_modal_exit || "Esegui"}
           </button>
         </div>
       </motion.div>
@@ -1656,7 +1660,7 @@ export default function MarsSurvivalGame() {
 
           <div className="flex flex-col gap-2">
             <label className="text-[9px] uppercase opacity-50">
-               {loc.admin_lb_lang}
+              {loc.admin_lb_lang}
             </label>
             <select
               className="w-full bg-black text-[#00ff41] text-xs border border-[#00ff41]/40 p-2 outline-none appearance-none cursor-pointer"
@@ -1681,7 +1685,8 @@ export default function MarsSurvivalGame() {
           {/* 1. TEAMS MANAGEMENT  */}
           <div className="border-2 border-[#00ff41]/30 p-4 bg-[#111]/30">
             <h3 className="font-bold uppercase flex items-center gap-2 mb-4 border-b border-[#00ff41]/10 pb-2">
-              <Users size={18} />{loc.admin_lb_teamlist}
+              <Users size={18} />
+              {loc.admin_lb_teamlist}
             </h3>
 
             {/* Контейнер скролла */}
@@ -1871,8 +1876,8 @@ export default function MarsSurvivalGame() {
                   onClick={() => handleDeleteTeamResults(adminTeamFilter)}
                   className="text-[10px] border border-amber-600 px-2 py-1 text-amber-500 hover:bg-amber-600 hover:text-white transition-colors uppercase font-bold"
                 >
-                  {loc.admin_lb_clear} {teamsList.find((t) => t.id === adminTeamFilter)?.name}{" "}
-                  
+                  {loc.admin_lb_clear}{" "}
+                  {teamsList.find((t) => t.id === adminTeamFilter)?.name}{" "}
                 </button>
               )}
 
@@ -2085,6 +2090,7 @@ export default function MarsSurvivalGame() {
           }
         }}
         onChange={(val) => setModal((prev) => ({ ...prev, value: val }))}
+        loc={loc}
       />
 
       {/* QR ACCESS MODAL */}

@@ -55,6 +55,14 @@
    "msg_modal_commError": "ERRORE: Un comandante è già stato assegnato.",
    "msg_modal_teamselerr": "ERRORE: Selezionare prima un Team dal menu a tendina per aggiungere un colono.", 
 
+   "msg_modal_cancel": "Annulla", 
+   "msg_modal_confirm": "Conferma",
+   "msg_modal_exit": "Esegui", 
+   "modal_title_confirm": "> Richiesta Conferma", 
+   "modal_title_input": "> Input Richiesto", 
+   "modal_title_system": "> Messaggio Sistema",  
+   
+
    "admin_lb_terminal": "Terminale di amministrazione",
    "admin_lb_LOGOUT": "LOGOUT",
    "admin_lb_lang": "Lingua del sistema:",
