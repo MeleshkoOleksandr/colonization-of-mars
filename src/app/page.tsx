@@ -1697,7 +1697,7 @@ export default function MarsSurvivalGame() {
                   <tr>
                     {/* Header 1: Unlock Results  */}
                     <th
-                      className="p-2 border border-black w-11.25 text-center cursor-help"
+                      className="p-2 border border-black w-9 text-center cursor-help"
                       title={loc.admin_msg_chkresults}
                     >
                       <LockOpen size={14} className="mx-auto" />
@@ -1705,7 +1705,7 @@ export default function MarsSurvivalGame() {
 
                     {/* Header 2: Commander Status  */}
                     <th
-                      className="p-2 border border-black w-11.25 text-center cursor-help"
+                      className="p-2 border border-black w-9 text-center cursor-help"
                       title={loc.admin_msg_chkcomander}
                     >
                       <UserCheck size={14} className="mx-auto" />
@@ -1720,7 +1720,7 @@ export default function MarsSurvivalGame() {
                       {loc.admin_lb_scename}
                     </th>
 
-                    <th className="p-2 border border-black w-11.25 text-center">
+                    <th className="p-2 border border-black w-9 text-center">
                       Del
                     </th>
                   </tr>
