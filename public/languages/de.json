@@ -94,5 +94,10 @@
    "admin_msg_qr": "Zugang generieren (QR/Link)",
 
    "modal_msg_qr": "Identitätszugang: ",
-   "admin_msg_qrsave": "QR herunterladen"
+   "admin_msg_qrsave": "QR herunterladen",
+
+   "result_lb_analis": "Überlebensanalyse",
+   "result_lb_res": "Ergebnisse",
+   "result_lb_newmiss": "Neue Mission starten",
+   "result_lb_atten": "Achtung: Ein Neustart setzt die aktuelle Sitzung zurück"
 }

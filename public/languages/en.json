@@ -94,5 +94,10 @@
    "admin_msg_qr": "Generate Access (QR/Link)",
 
    "modal_msg_qr": "Identity Access: ",
-   "admin_msg_qrsave": "Download QR"
+   "admin_msg_qrsave": "Download QR",
+
+   "result_lb_analis": "Survival Analysis",
+   "result_lb_res": "Results",
+   "result_lb_newmiss": "Start New Mission",
+   "result_lb_atten": "Warning: restarting will reset the current session"
 }

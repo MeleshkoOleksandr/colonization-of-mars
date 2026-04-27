@@ -94,5 +94,10 @@
    "admin_msg_qr": "Genera Accesso (QR/Link)",
 
    "modal_msg_qr": "Accesso Identità: ",
-   "admin_msg_qrsave": "Scarica QR"
+   "admin_msg_qrsave": "Scarica QR",
+
+   "result_lb_analis": "Analisi Sopravvivenza",
+   "result_lb_res": "Risultati",
+   "result_lb_newmiss": "Inizia Nuova Missione",
+   "result_lb_atten": "Attenzione: il riavvio resetterà la sessione corrente"
 }

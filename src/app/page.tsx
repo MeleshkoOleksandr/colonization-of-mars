@@ -1310,7 +1310,7 @@ export default function MarsSurvivalGame() {
   } else if (view === "results") {
     content = (
       <>
-        <Header title="Analisi Sopravvivenza" />
+        <Header title={loc.result_lb_analis} />
         {/* PLAYER INFO BAR */}
         <div className="text-center mb-4">
           <div className="inline-block border border-[#00ff41] px-4 py-1 text-[14px] uppercase tracking-[0.2em] bg-[#00ff41]/10">
@@ -1396,7 +1396,7 @@ export default function MarsSurvivalGame() {
             className="text-xs flex items-center gap-1 hover:underline text-[#00ff41]"
           >
             <ArrowLeft size={14} />
-            {isAdmin ? "Admin" : "Risultati"}
+            {isAdmin ? "Admin" : loc.result_lb_res}
           </button>
           <h2 className="text-xl font-bold uppercase">{loc.lb_statuscol}</h2>
 
@@ -1513,10 +1513,10 @@ export default function MarsSurvivalGame() {
               className="w-full bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors flex items-center justify-center gap-3"
             >
               <RefreshCcw size={24} />
-              Inizia Nuova Missione
+              {loc.result_lb_newmiss}
             </button>
             <p className="text-[10px] text-center mt-4 opacity-50 uppercase tracking-widest">
-              Attenzione: il riavvio resetterà la sessione corrente
+              {loc.result_lb_atten}
             </p>
           </div>
         )}

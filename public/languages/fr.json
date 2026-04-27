@@ -94,5 +94,10 @@
    "admin_msg_qr": "Générer l'accès (QR/Lien)",
 
    "modal_msg_qr": "Accès à l'identité : ",
-   "admin_msg_qrsave": "Télécharger le QR"
+   "admin_msg_qrsave": "Télécharger le QR",
+
+   "result_lb_analis": "Analyse de survie",
+   "result_lb_res": "Résultats",
+   "result_lb_newmiss": "Démarrer une nouvelle mission",
+   "result_lb_atten": "Attention : le redémarrage réinitialisera la session en cours"
 }
