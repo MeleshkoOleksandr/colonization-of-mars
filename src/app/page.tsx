@@ -788,6 +788,7 @@ export default function MarsSurvivalGame() {
         await deleteTeamAction(id);
         setTeamsList(await getTeamsAction());
         setAllResults(await getResultsAction());
+        setAdminTeamFilter(0);
         setModal((prev) => ({ ...prev, isOpen: false }));
       },
     });
@@ -1843,7 +1844,7 @@ export default function MarsSurvivalGame() {
               <Save size={18} /> {loc.admin_lb_users}
             </h3>
 
-            <div className="flex flex-wrap items-center gap-4">
+            <div className="flex flex-wrap items-center gap-2">
               {/* REFRESH ALL TABLES DATA */}
               <button
                 onClick={async () => {
@@ -1932,11 +1933,10 @@ export default function MarsSurvivalGame() {
 
               <button
                 onClick={handleAddSinglePlayer}
-                className=" px-3 py-1 border border-[#00ff41] text-[#00ff41] text-[10px] font-black uppercase hover:bg-[#00ff41] hover:text-black transition-all flex items-center gap-1.5"
+                className=" px-1.5 py-1 border border-[#00ff41] text-[#00ff41] text-[10px] font-black uppercase hover:bg-[#00ff41] hover:text-black transition-all flex items-center gap-1.5"
                 title={loc.admin_msg_addteam}
               >
-                <UserPlus size={12} strokeWidth={2} />
-                <span>{loc.admin_lb_add}</span>
+                <UserPlus size={16} />
               </button>
             </div>
           </div>
