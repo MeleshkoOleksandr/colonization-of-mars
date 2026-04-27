@@ -337,7 +337,7 @@ const RetroModal = ({
               onClick={onClose}
               className="px-4 py-2 border border-[#00ff41]/50 text-[#00ff41]/50 hover:text-[#00ff41] uppercase text-xs font-bold"
             >
-              {loc.msg_modal_cancel}
+                {loc.msg_modal_cancel || "Annulla"}
             </button>
           )}
           <button
@@ -973,7 +973,7 @@ export default function MarsSurvivalGame() {
       isOpen: true,
       type: "prompt",
       mode: ModalMode.ADD_PLAYER,
-      message: `Aggiungi un nuovo colono all'unità [${teamName.toUpperCase()}]:`,
+       message: `${loc.msg_modal_newinit} [${teamName.toUpperCase()}]:`,
       value: "",
       action: () => {}, // We'll add the confirmation logic to `onConfirm` block
     });
@@ -1221,8 +1221,7 @@ export default function MarsSurvivalGame() {
                       triggerModal(
                         "alert",
                         ModalMode.IDLE,
-                        loc.msg_no_results ||
-                          "Dati non pervenuti. Il colono non ha ancora inviato il rapporto finale.",
+                        loc.msg_modal_nodata,
                       );
                       return;
                     }
@@ -1267,7 +1266,7 @@ export default function MarsSurvivalGame() {
                   triggerModal(
                     "alert",
                     ModalMode.IDLE,
-                    "MISSION COMPLETE: I risultati finali sono ora accessibili per tutta la squadra.",
+                    loc.msg_modal_missioncomlite,
                   );
                 }
               }}
@@ -1286,7 +1285,7 @@ export default function MarsSurvivalGame() {
                     triggerModal(
                       "alert",
                       ModalMode.IDLE,
-                      "ACCESSO NEGATO: In attesa dell'ordine finale del Comandante.",
+                      loc.msg_modal_nocommandr,
                     );
                 }}
                 className="border-2 border-[#00ff41] text-[#00ff41] py-4 font-black uppercase text-sm hover:bg-[#00ff41] hover:text-black transition-all"
@@ -2109,7 +2108,7 @@ export default function MarsSurvivalGame() {
             </button>
 
             <h3 className="text-[#00ff41] font-black uppercase mb-6 italic border-b border-[#00ff41]/30 pb-2">
-              Accesso Identità: {shareData.name}
+              {loc.modal_msg_qr}{shareData.name}
             </h3>
 
             {/* QR CODE CANVAS */}
@@ -2144,7 +2143,7 @@ export default function MarsSurvivalGame() {
                 onClick={downloadQRCode}
                 className="w-full bg-[#00ff41] text-black py-3 font-black uppercase text-xs hover:bg-white transition-colors flex items-center justify-center gap-2"
               >
-                <Download size={16} /> Scarica QR (PNG)
+                <Download size={16} /> {loc.admin_msg_qrsave} (PNG)
               </button>
             </div>
           </motion.div>

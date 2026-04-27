@@ -4,18 +4,18 @@
    "btn_start_main": "Initialize",
    "login_select_prompt": "-- Select Identity --",
    "login_select_group": "Authorized Colonists:",
-
+  
    "btn_start_game": "Access Cargo Inventory",
    "lb_protocol": "PROTOCOL",
-   "lb_instruct_1": "Drag items to set their order of importance.",
-   "lb_instruct_2": "Position 1 = Critical, Position 15 = Useless.",
+   "lb_instruct_1": "Drag the items to set their order of importance.",
+   "lb_instruct_2": "Position 1 = Vital, Position 15 = Useless.",
 
    "lb_operator": "OPERATOR: ",
    "lb_team": "TEAM: ",
    "lb_configuration": "Inventory Configuration",
    "btn_sendreport": "Send Report to Base",
 
-   "btn_logout": "Logout",
+   "btn_logout": "Exit",
    "btn_admin": "Admin",
    "btn_report": "Report: ",
    "btn_final": "Final",
@@ -24,7 +24,7 @@
    "btn_request": "Request NASA Results",
    "btn_commander": "Take Command",
 
-   "lb_status": "Status: Results Classified",
+   "lb_status": "Status: Classified Results",
    "lb_nasapoints": "NASA Score:",
    "lb_discussione": "Review",
 
@@ -37,24 +37,36 @@
    "msg_team_not_ready": "ACCESS DENIED",
    "msg_waiting_for": "All members must complete the test. Waiting for",
    "msg_modal_sinx": "SYSTEM ERROR: Unable to synchronize modules.",
-   "msg_modal_name": "Identification failed. Please enter a name.",
+   "msg_modal_name": "Identification failed. Enter a name.",
    "msg_modal_admincode": "RESTRICTED ACCESS: Enter the Command Officer Authorization Code.",
    "msg_modal_team": "Select a team to proceed.",
    "msg_modal_saveerror": "CRITICAL ERROR: Unable to save data to the database.",
    "msg_modal_teamdelete": "WARNING: Deleting the team will remove all associated records. Proceed?",
-   "msg_modal_teamname": "ERROR: Enter the Team name first in the text field.",
+   "msg_modal_teamname": "ERROR: Enter the Team name in the text field first.",
    "msg_modal_new": "Enter the list of colonists for the team",
    "msg_modal_teamcrea": "ERROR: Enter at least one player to create the team.",
    "msg_modal_teamindb": "SUCCESS: Team and colonists registered in the database.",
-   "msg_modal_wrongpass": "WRONG CODE: Access denied. The attempt has been logged.",
+   "msg_modal_wrongpass": "INVALID CODE: Access denied. The attempt has been logged.",
    "msg_modal_recorddel": "WARNING: Permanently delete this mission record? This action is irreversible.",
    "msg_modal_delerror": "ERROR: Unable to delete the record.",
    "msg_modal_cleardb": "DANGER: Are you sure you want to delete ALL results from the database? This operation cannot be undone.",
    "msg_modal_delteamresult": "WARNING: Delete ALL records for the team",
-   "msg_modal_commander": "ARE YOU SURE? Only one member can take command. You will have to redo the test for the entire team.",
+   "msg_modal_commander": "ARE YOU SURE? Only one member can take command. You will have to redo the test on behalf of the entire team.",
    "msg_modal_commError": "ERROR: A commander has already been assigned.",
-   "msg_modal_teamselerr": "ERROR: Select a Team from the dropdown menu before adding a colonist.",
+   "msg_modal_teamselerr": "ERROR: Select a Team from the dropdown menu before adding a colonist.", 
 
+   "msg_modal_nocommandr": "ACCESS DENIED: Awaiting the Commander's final order.",
+   "msg_modal_missioncomlite": "MISSION COMPLETE: Final results are now accessible to the entire team.",
+   "msg_modal_nodata": "No data received. The colonist has not yet submitted the final report.",
+   "msg_modal_newinit": "Add a new colonist to the unit",
+
+   "msg_modal_cancel": "Cancel", 
+   "msg_modal_confirm": "Confirm",
+   "msg_modal_exit": "Execute", 
+   "modal_title_confirm": "> Confirmation Request", 
+   "modal_title_input": "> Input Required", 
+   "modal_title_system": "> System Message",  
+   
    "admin_lb_terminal": "Administration Terminal",
    "admin_lb_LOGOUT": "LOGOUT",
    "admin_lb_lang": "System Language:",
@@ -77,7 +89,10 @@
    "admin_btn_dicusion": "Start Discussion Mode (Without Scores)",
 
    "admin_msg_chkresults": "Results Status: Unlock to allow colonists to view the NASA report",
-   "admin_msg_chkcomander": "Commander Assignment: Indicates if the team has chosen a captain",
+   "admin_msg_chkcomander": "Commander Assignment: Indicates whether the team has chosen a captain",
    "admin_msg_addteam": "Add a new colonist to this team",
-   "admin_msg_qr": "Generate Access (QR/Link)"
+   "admin_msg_qr": "Generate Access (QR/Link)",
+
+   "modal_msg_qr": "Identity Access: ",
+   "admin_msg_qrsave": "Download QR"
 }
