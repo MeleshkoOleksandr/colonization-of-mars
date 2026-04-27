@@ -337,7 +337,7 @@ const RetroModal = ({
               onClick={onClose}
               className="px-4 py-2 border border-[#00ff41]/50 text-[#00ff41]/50 hover:text-[#00ff41] uppercase text-xs font-bold"
             >
-                {loc.msg_modal_cancel || "Annulla"}
+              {loc.msg_modal_cancel || "Annulla"}
             </button>
           )}
           <button
@@ -973,7 +973,7 @@ export default function MarsSurvivalGame() {
       isOpen: true,
       type: "prompt",
       mode: ModalMode.ADD_PLAYER,
-       message: `${loc.msg_modal_newinit} [${teamName.toUpperCase()}]:`,
+      message: `${loc.msg_modal_newinit} [${teamName.toUpperCase()}]:`,
       value: "",
       action: () => {}, // We'll add the confirmation logic to `onConfirm` block
     });
@@ -1844,22 +1844,49 @@ export default function MarsSurvivalGame() {
             </h3>
 
             <div className="flex flex-wrap items-center gap-4">
-              {/* REFRESH Result DATA */}
+              {/* REFRESH ALL TABLES DATA */}
               <button
                 onClick={async () => {
-                  // Fetch fresh data from the Database
-                  const freshResults = await getResultsAction();
-                  // Update the global results state
-                  setAllResults(freshResults);
+                  // 1. Start the rotation animation
+                  if (typeof setIsRefreshing === "function")
+                    setIsRefreshing(true);
+
+                  try {
+                    // 2. We load the latest data into both tables AT THE SAME TIME
+                    const [freshResults, freshTeams] = await Promise.all([
+                      getResultsAction(),
+                      getTeamsAction(),
+                    ]);
+
+                    // 3. Updating global states
+                    setAllResults(freshResults);
+                    setTeamsList(freshTeams);
+
+                    console.log(
+                      "SYSTEM: Full database sync complete (Results & Teams).",
+                    );
+                  } catch (error) {
+                    console.error("Sync failed:", error);
+                  }
+
+                  // 4. We pause the animation after 500 ms to ensure smoothness
+                  if (typeof setIsRefreshing === "function") {
+                    setTimeout(() => setIsRefreshing(false), 500);
+                  }
                 }}
                 className="text-[10px] border border-[#00ff41] px-2 py-1 text-[#00ff41] hover:bg-[#00ff41] hover:text-black transition-colors uppercase font-bold flex items-center gap-2 group"
-                title="Sincronizza con il Database"
+                title={loc.tooltip_sync || "Sincronizza con il Database"}
               >
-                <RefreshCcw
-                  size={12}
-                  className="group-hover:rotate-180 transition-transform duration-500"
-                />
-                {loc.admin_lb_refresh}
+                {/* Icon rotation animation */}
+                <motion.div
+                  animate={{ rotate: isRefreshing ? 360 : 0 }}
+                  transition={{ duration: 0.5, ease: "linear" }}
+                  className="flex items-center justify-center"
+                >
+                  <RefreshCcw size={12} />
+                </motion.div>
+
+                {loc.admin_lb_refresh || "Refresh Records"}
               </button>
 
               {/* DELETE data BUTTON */}
@@ -2108,7 +2135,8 @@ export default function MarsSurvivalGame() {
             </button>
 
             <h3 className="text-[#00ff41] font-black uppercase mb-6 italic border-b border-[#00ff41]/30 pb-2">
-              {loc.modal_msg_qr}{shareData.name}
+              {loc.modal_msg_qr}
+              {shareData.name}
             </h3>
 
             {/* QR CODE CANVAS */}
