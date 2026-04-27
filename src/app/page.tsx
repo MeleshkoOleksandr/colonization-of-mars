@@ -1640,13 +1640,13 @@ export default function MarsSurvivalGame() {
 
     content = (
       <>
-        <div className="flex justify-between items-center mb-8 border-b-4 border-[#00ff41] pb-2">
-          <h2 className="text-2xl font-black italic uppercase bg-[#00ff41] text-black px-2">
+        <div className="flex justify-between items-center mb-8 border-b-4 border-[#00ff41] pb-2 ">
+          <h2 className="text-2xl font-black italic uppercase bg-[#00ff41] text-black px-2 ">
             {loc.admin_lb_terminal}
           </h2>
           <button
             onClick={() => setView("login")}
-            className="text-xs underline"
+            className="text-xs underline pl-3" 
           >
             {loc.admin_lb_LOGOUT}
           </button>
