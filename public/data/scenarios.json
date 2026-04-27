@@ -6,15 +6,39 @@
     "language": "it" 
   },
   {
+    "id": "mars_de",
+    "file": "story_mars_de.xml",
+    "name": "Überleben auf dem Mars (De)",
+    "language": "de" 
+  },
+  {
+    "id": "mars_fr",
+    "file": "story_mars_fr.xml",
+    "name": "Survivre sur Mars (Fr)",
+    "language": "fr" 
+  },
+  {
     "id": "moon_it",
     "file": "story_moon_it.xml",
-    "name": "Esercitazione NASA (It)",
+    "name": "Luna esercitazione NASA (It)",
     "language": "it" 
   },
   {
     "id": "moon_en",
     "file": "story_moon_en.xml",
-    "name": "NASA Exercise (Eng)",
+    "name": "NASA moon exercise (Eng)",
+    "language": "en" 
+  },
+  {
+    "id": "europa_it",
+    "file": "story_europa_it.xml",
+    "name": "Europa La Spedizione nel Sottosuolo (It)",
+    "language": "it" 
+  },
+  {
+    "id": "europa_en",
+    "file": "story_europa_en.xml",
+    "name": "Europa subsurface expedition (Eng)",
     "language": "en" 
   }
 ]

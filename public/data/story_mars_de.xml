@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Mission>
+    <Story>
+        <Language>de</Language>
+        <Title>Überleben im Valles Marineris</Title>
+        <Plot>Sie sind Mitglieder eines Vorhut-Teams von Kolonisten auf dem Weg zur Hauptkuppel der Basis „Ares-1“. Während des Abstiegs wurde Ihr Cargo-Rover von einem heftigen Sandsturm getroffen und 150 Kilometer vom Ziel entfernt umgeworfen. Die Lebenserhaltungssysteme sind ausgefallen und die Kommunikation ist unterbrochen. Ihr Ziel: 150 km bis zur Basis zurücklegen. Die Ressourcen sind begrenzt.</Plot>
+    </Story>
+    <Evaluations>
+        <Rank threshold="20">EXZELLENT. Elon Musk wäre stolz auf Sie.</Rank>
+        <Rank threshold="35">GUT. Sie erreichen die Basis.</Rank>
+        <Rank threshold="50">AUSREICHEND. Sie bleiben wahrscheinlich unterwegs stecken.</Rank>
+        <Rank threshold="70">SEHR SCHLECHT.</Rank>
+        <Rank threshold="999">KATASTROPHE.</Rank>
+    </Evaluations>
+    <Items>
+<Item id="o2">
+    <Name>Drucksauerstoffflaschen</Name>
+    <Photo>item_o2.jpg</Photo>
+    <Position>1</Position>
+    <Description>Ohne Sauerstoff tritt der Tod sofort ein. Absolute Priorität.</Description>
+</Item>
+<Item id="rtg">
+    <Name>RTG (Radioisotopischer Thermogenerator)</Name>
+    <Photo>item_rtg.jpg</Photo>
+    <Position>2</Position>
+    <Description>Die Temperatur fällt unter -60°C. Schützt die Batterien des Raumanzugs.</Description>
+</Item>
+<Item id="nav">
+    <Name>Trägheitsnavigationssystem (Gyroskop)</Name>
+    <Photo>item_nav.jpg</Photo>
+    <Position>3</Position>
+    <Description>Unverzichtbar, um sich nicht zu verirren: Auf dem Mars gibt es kein GPS.</Description>
+</Item>
+<Item id="water">
+    <Name>Mobiler Entsalzungs-Kondensator (entzieht dem Boden Feuchtigkeit)</Name>
+    <Photo>item_water.jpg</Photo>
+    <Position>4</Position>
+    <Description>Wasser ist für eine Strecke von 150 km essenziell.</Description>
+</Item>
+<Item id="seal">
+    <Name>Flüssiges Dichtmittel für Verbundmaterialien</Name>
+    <Photo>item_seal.jpg</Photo>
+    <Position>5</Position>
+    <Description>Das Reparieren eines Mikrorisses im Raumanzug ist lebenswichtig.</Description>
+</Item>
+<Item id="food">
+    <Name>Hochkalorische Proteinpaste in Tuben</Name>
+    <Photo>item_food.jpg</Photo>
+    <Position>6</Position>
+    <Description>Energiequelle für die geplanten 3 bis 5 Tage Marsch.</Description>
+</Item>
+<Item id="tent">
+    <Name>Luftdichtes aufblasbares Zelt</Name>
+    <Photo>item_tent.jpg</Photo>
+    <Position>7</Position>
+    <Description>Ermöglicht Erholung außerhalb des Raumanzugs.</Description>
+</Item>
+<Item id="solar">
+    <Name>Flexible Solarpanels</Name>
+    <Photo>item_solar.jpg</Photo>
+    <Position>8</Position>
+    <Description>Lädt die Systeme des Raumanzugs langfristig auf.</Description>
+</Item>
+<Item id="med">
+    <Name>Erste-Hilfe-Set</Name>
+    <Photo>item_med.jpg</Photo>
+    <Position>9</Position>
+    <Description>Zur Behandlung von Verletzungen oder Infektionen während des Marsches.</Description>
+</Item>
+<Item id="rope">
+    <Name>Kevlarseil (30 m)</Name>
+    <Photo>item_rope.jpg</Photo>
+    <Position>10</Position>
+    <Description>Nützlich zum Überqueren von Canyons und Spalten.</Description>
+</Item>
+<Item id="laser">
+    <Name>Laser-Entfernungsmesser / Laserpointer</Name>
+    <Photo>item_laser.jpg</Photo>
+    <Position>11</Position>
+    <Description>Visuelles Signalgerät für Rettungsteams.</Description>
+</Item>
+<Item id="blanket">
+    <Name>Metallfolie mit Titanbeschichtung (Thermodecke)</Name>
+    <Photo>item_blanket.jpg</Photo>
+    <Position>12</Position>
+    <Description>Zusätzliche Isolierung, aber wenig wirksam gegen extreme Kälte.</Description>
+</Item>
+<Item id="n2">
+    <Name>Druckstickstoffflasche</Name>
+    <Photo>item_n2.jpg</Photo>
+    <Position>13</Position>
+    <Description>Nicht atmungsfähig. Gefährlich bei Verwendung als Antrieb.</Description>
+</Item>
+<Item id="comp">
+    <Name>Magnetkompass</Name>
+    <Photo>item_comp.jpg</Photo>
+    <Position>14</Position>
+    <Description>Nutzlos: Der Mars besitzt kein globales Magnetfeld.</Description>
+</Item>
+<Item id="fire">
+    <Name>Plasma-Zünder</Name>
+    <Photo>item_fire.jpg</Photo>
+    <Position>15</Position>
+    <Description>Nutzlos. Die Atmosphäre besteht zu 95% aus CO2. Verbrennung ist unmöglich.</Description>
+</Item>
+    </Items>
+</Mission>
