@@ -19,7 +19,7 @@ import {
   ArrowLeft,
   GripVertical,
   Info,
-  FileText,
+  CircleSlash,
   MessageSquare,
   Globe,
   QrCode,
@@ -39,7 +39,6 @@ import {
   getTeamsAction,
   saveResultAction,
   getResultsAction,
-  addTeamAction,
   deleteTeamAction,
   deleteResultAction,
   deleteAllResultsAction,
@@ -1646,7 +1645,7 @@ export default function MarsSurvivalGame() {
           </h2>
           <button
             onClick={() => setView("login")}
-            className="text-xs underline pl-3" 
+            className="text-xs underline pl-3"
           >
             {loc.admin_lb_LOGOUT}
           </button>
@@ -1962,73 +1961,106 @@ export default function MarsSurvivalGame() {
               </thead>
               <tbody className="text-[10px] md:text-[11px] uppercase">
                 {filteredAdminResults.length > 0 ? (
-                  filteredAdminResults.map((r) => (
-                    <tr
-                      key={r.id}
-                      className="border-b border-[#00ff41]/10 hover:bg-[#00ff41]/5"
-                    >
-                      {/* DATE: Short format for mobile */}
-                      <td className="p-2 opacity-60 whitespace-nowrap">
-                        {r.created_at
-                          ? new Date(r.created_at).toLocaleDateString([], {
-                              day: "2-digit",
-                              month: "2-digit",
-                            })
-                          : "N/A"}
-                        <span className="hidden md:inline">
-                          {r.created_at &&
-                            `/${new Date(r.created_at).getFullYear().toString().slice(-2)}`}
-                        </span>
-                      </td>
+                  filteredAdminResults.map((r) => {
+                    const isPending = r.score === -1;
+                    return (
+                      <tr
+                        key={r.id}
+                        // Добавляем очень легкий оранжевый фон для всей строки, если игрок "в ожидании"
+                        className={`border-b border-[#00ff41]/10 transition-colors ${
+                          isPending
+                            ? "bg-amber-500/5 hover:bg-amber-500/10"
+                            : "hover:bg-[#00ff41]/5"
+                        }`}
+                      >
+                        {/* DATE: Short format for mobile */}
+                        <td
+                          className={`p-2 whitespace-nowrap ${isPending ? "text-amber-500/50" : "opacity-60"}`}
+                        >
+                          {r.created_at
+                            ? new Date(r.created_at).toLocaleDateString([], {
+                                day: "2-digit",
+                                month: "2-digit",
+                              })
+                            : "N/A"}
+                          <span className="hidden md:inline">
+                            {r.created_at &&
+                              `/${new Date(r.created_at).getFullYear().toString().slice(-2)}`}
+                          </span>
+                        </td>
 
-                      {/* USERNAME: Wraps if long */}
-                      <td className="p-2 font-bold wrap-break-word max-w-80px md:max-w-none">
-                        {r.username}
-                      </td>
+                        {/* USERNAME: Wraps if long */}
+                        <td
+                          className={`p-2 font-bold wrap-break-word max-w-80px md:max-w-none ${
+                            isPending ? "text-amber-500" : ""
+                          }`}
+                        >
+                          {r.username}
+                          {isPending && (
+                            <span className="ml-2 text-[8px] animate-pulse">
+                              [LOAD...]
+                            </span>
+                          )}
+                        </td>
 
-                      {/* TEAM: Hidden on very small screens, visible on tablets/desktop */}
-                      <td className="p-2 italic opacity-80 truncate hidden sm:table-cell">
-                        {r.team_name}
-                      </td>
+                        {/* TEAM: Hidden on very small screens, visible on tablets/desktop */}
+                        <td
+                          className={`p-2 italic truncate hidden sm:table-cell ${
+                            isPending
+                              ? "text-amber-500 opacity-100"
+                              : "text-[#00ff41] opacity-60"
+                          }`}
+                        >
+                          {r.team_name}
+                        </td>
 
-                      {/* SCORE */}
-                      <td className="p-2 font-black text-[#00ff41] text-right">
-                        {r.score}
-                      </td>
+                        {/* SCORE */}
+                        <td
+                          className={`p-2 font-black text-right ${isPending ? "text-amber-500" : "text-[#00ff41]"}`}
+                        >
+                          {isPending ? (
+                            <div className="flex justify-end opacity-50">
+                              <CircleSlash size={14} strokeWidth={3} />
+                            </div>
+                          ) : (
+                            r.score
+                          )}
+                        </td>
 
-                      {/* ACTION buttons */}
-                      <td className="p-2">
-                        <div className="flex justify-center gap-2 md:gap-4">
-                          <button
-                            onClick={() => {
-                              // Select the language from the script (or [it] by default)
-                              const team = teamsList.find(
-                                (t) => t.id === r.team_id,
-                              );
-                              const scenario = scenarios.find(
-                                (s) => s.id === team?.current_scenario,
-                              );
-                              const lang = scenario?.language || PRIMARY_LANG;
-                              // To create the link: your current address + player name
-                              const url = `${window.location.origin}?user=${encodeURIComponent(r.username)}&lang=${lang}`;
-                              setShareData({ name: r.username, url });
-                            }}
-                            className="text-[#00ff41] hover:text-white transition-colors p-1"
-                            title={loc.admin_msg_qr}
-                          >
-                            <QrCode size={18} />{" "}
-                          </button>
-                          <button
-                            onClick={() => handleDeleteResult(r.id!)}
-                            className="text-red-500 hover:text-white transition-colors p-1"
-                            title={loc.admin_lb_delete}
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                        {/* ACTION buttons */}
+                        <td className="p-2">
+                          <div className="flex justify-center gap-2 md:gap-4">
+                            <button
+                              onClick={() => {
+                                // Select the language from the script (or [it] by default)
+                                const team = teamsList.find(
+                                  (t) => t.id === r.team_id,
+                                );
+                                const scenario = scenarios.find(
+                                  (s) => s.id === team?.current_scenario,
+                                );
+                                const lang = scenario?.language || PRIMARY_LANG;
+                                // To create the link: your current address + player name
+                                const url = `${window.location.origin}?user=${encodeURIComponent(r.username)}&lang=${lang}`;
+                                setShareData({ name: r.username, url });
+                              }}
+                              className={`${isPending ? "text-amber-500" : "text-[#00ff41]"} hover:text-white transition-colors p-1`}
+                              title={loc.admin_msg_qr}
+                            >
+                              <QrCode size={18} />{" "}
+                            </button>
+                            <button
+                              onClick={() => handleDeleteResult(r.id!)}
+                              className="text-red-500 hover:text-white transition-colors p-1"
+                              title={loc.admin_lb_delete}
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
                 ) : (
                   <tr>
                     <td
