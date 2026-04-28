@@ -2,6 +2,7 @@
 <Mission>
     <Story>
         <Language>de</Language>
+        <Logo>logo_mars.png</Logo> 
         <Title>Überleben im Valles Marineris</Title>
         <Plot>Sie sind Mitglieder eines Vorhut-Teams von Kolonisten auf dem Weg zur Hauptkuppel der Basis „Ares-1“. Während des Abstiegs wurde Ihr Cargo-Rover von einem heftigen Sandsturm getroffen und 150 Kilometer vom Ziel entfernt umgeworfen. Die Lebenserhaltungssysteme sind ausgefallen und die Kommunikation ist unterbrochen. Ihr Ziel: 150 km bis zur Basis zurücklegen. Die Ressourcen sind begrenzt.</Plot>
     </Story>

@@ -103,5 +103,6 @@
 
    "admin_msg_teamQr": "Générer un QR pour toute l'équipe",
    "login_select_admin": "[ CENTRE D'ACCÈS : ADMIN ]",
-   "login_select_team": "-- SÉLECTION DE L'UNITÉ --"
+   "login_select_team": "-- SÉLECTION DE L'UNITÉ --",
+   "login_team_label": "Sélectionner l'unité :"
 }

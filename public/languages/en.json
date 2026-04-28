@@ -103,5 +103,6 @@
 
    "admin_msg_teamQr": "Generate QR for the entire team",
    "login_select_admin": "[ ACCESS CENTER: ADMIN ]",
-   "login_select_team": "-- UNIT SELECTION --"
+   "login_select_team": "-- UNIT SELECTION --",
+   "login_team_label": "Select Unit:"
 }

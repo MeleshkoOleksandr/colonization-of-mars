@@ -2,6 +2,7 @@
 <Mission>
     <Story>
         <Language>it</Language>
+        <Logo>logo_europa.png</Logo> 
         <Title>Europa. La Spedizione nel Sottosuolo</Title>
         <Plot>Fai parte di una squadra di esplorazione della crosta profonda su Europa, la luna ghiacciata di Giove. Durante il ritorno dal cratere "Pwyll" alla base principale, il tuo cryo-shuttle ha subito un guasto catastrofico al motore ed è precipitato. Sei bloccato sulla superficie, a 100 chilometri dall'habitat principale. La gravità è molto bassa, circa il 13% di quella terrestre. L'atmosfera contiene solo una sottile traccia di ossigeno, essenzialmente un vuoto. Le temperature sono di -160°C e la superficie è bombardata dalle radiazioni letali di Giove. Il terreno è formato da creste frastagliate di ghiaccio d'acqua e profondi crepacci.</Plot>
     </Story>

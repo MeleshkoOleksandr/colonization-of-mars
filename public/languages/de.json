@@ -103,5 +103,6 @@
 
    "admin_msg_teamQr": "QR für das gesamte Team generieren",
    "login_select_admin": "[ ZUGANGSZENTRUM: ADMIN ]",
-   "login_select_team": "-- EINHEIT AUSWÄHLEN --"
+   "login_select_team": "-- EINHEIT AUSWÄHLEN --",
+   "login_team_label": "Einheit auswählen:"
 }

@@ -2,6 +2,7 @@
 <Mission>
     <Story>
         <Language>en</Language>
+        <Logo>logo_europa.png</Logo> 
         <Title>Europa. The Subsurface Expedition</Title>
         <Plot>You are part of a deep-crust exploration team on Europa, Jupiter.s frozen moon. While returning from the "Pwyll" crater to the main base, your cryo-shuttle suffered a catastrophic engine failure and crashed. You are stranded on the surface, 100 kilometers from the primary habitat. Gravity is very low, about 13% of Earth's. The atmosphere is only a thin oxygen trace, essentially a vacuum. Temperatures are -160°C, and the surface is bombarded by Jupiter's lethal radiation. The terrain is made of jagged ridges of water-ice and deep crevasses.</Plot>
     </Story>

@@ -375,7 +375,11 @@ export default function MarsSurvivalGame() {
   >("leaderboard");
 
   // Game Content from XML and scenarios
-  const [story, setStory] = useState({ title: "Caricamento...", plot: "" });
+  const [story, setStory] = useState({
+    title: "Loading...",
+    plot: "",
+    logo: "login_page.png",
+  });
   const [items, setItems] = useState<SurvivalItem[]>([]);
   const [staticItems, setStaticItems] = useState<SurvivalItem[]>([]);
   const [evaluations, setEvaluations] = useState<ScoreEvaluation[]>([]);
@@ -647,6 +651,8 @@ export default function MarsSurvivalGame() {
     const xmlDoc = parser.parseFromString(xmlString, "text/xml");
     const title = xmlDoc.getElementsByTagName("Title")[0]?.textContent || "";
     const plot = xmlDoc.getElementsByTagName("Plot")[0]?.textContent || "";
+    const logo =
+      xmlDoc.getElementsByTagName("Logo")[0]?.textContent || "login_page.png";
     const scenarioLang =
       xmlDoc.getElementsByTagName("Language")[0]?.textContent || PRIMARY_LANG;
     const itemNodes = xmlDoc.getElementsByTagName("Item");
@@ -676,7 +682,7 @@ export default function MarsSurvivalGame() {
       });
     }
     return {
-      story: { title, plot, language: scenarioLang },
+      story: { title, plot, language: scenarioLang, logo },
       evaluations,
       items,
     };
@@ -994,6 +1000,40 @@ export default function MarsSurvivalGame() {
     }
   };
 
+  // Image block
+  const MissionImageBlock = ({
+    src,
+    isFullWidth,
+  }: {
+    src: string;
+    isFullWidth: boolean;
+  }) => (
+    <div
+      className={`${isFullWidth ? "w-full" : "max-w-md mx-auto"} border border-[#00ff41]/30 bg-black relative overflow-hidden group shadow-[0_0_15px_rgba(0,255,65,0.1)] transition-all duration-700`}
+    >
+      {/* Corner decorative elements */}
+      <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#00ff41]"></div>
+      <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-[#00ff41]"></div>
+
+      <img
+        src={`/img/${src}`}
+        alt="Mission Visual"
+        className={`w-full ${isFullWidth ? "h-64 md:h-80" : "h-48"} object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-1000  hover:grayscale-0`}
+      />
+
+      {/* Text caption */}
+      <div className="absolute bottom-2 left-3 flex items-center gap-2">
+        <div className="w-1.5 h-1.5 bg-red-600 animate-pulse rounded-full"></div>
+        <span className="text-[8px] uppercase tracking-[0.3em] text-[#00ff41]/70 font-black">
+          Ares-1 Live Stream
+        </span>
+      </div>
+
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent"></div>
+    </div>
+  );
+
   /**
    * VIEW ENGINE
    * Determines which screen to render into the CRTWrapper.
@@ -1006,38 +1046,17 @@ export default function MarsSurvivalGame() {
     const availablePlayers = allResults
       .filter((r) => r.team_id === teamId && r.score === -1)
       .sort((a, b) => a.username.localeCompare(b.username));
-
     content = (
       <>
         <Header title={loc.login_header || "Mission Login"} />
-
         {/* --- Image block --- */}
-        <div className="w-full max-w-md mx-auto border border-[#00ff41]/30 bg-black relative overflow-hidden group shadow-[0_0_15px_rgba(0,255,65,0.1)]">
-          {/* Corner decorative elements (terminal style)  */}
-          <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#00ff41]"></div>
-          <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-[#00ff41]"></div>
-          <img
-            src="/img/login_page.png"
-            alt="Ares-1 Mission"
-            className="w-full h-48 md:h-48 object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-1000  hover:grayscale-0"
-          />
-          {/* Text caption on the image  */}
-          <div className="absolute bottom-2 left-3 flex items-center gap-2">
-            <div className="w-1.5 h-1.5 bg-red-600 animate-pulse rounded-full"></div>
-            <span className="text-[8px] uppercase tracking-[0.3em] text-[#00ff41]/70 font-black">
-              Live Stream
-            </span>
-          </div>
-          {/* Apply a gradient over the image so that it fades smoothly into black */}
-          <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent"></div>
-        </div>
-
+        <MissionImageBlock src={"login_page.png"} isFullWidth={false} />
         {/* --- LOGIN FORM--- */}
-        <div className="flex flex-col gap-6 max-w-sm mx-auto py-8 md:py-12">
+        <div className="flex flex-col gap-3 max-w-sm mx-auto py-4 ">
           {/* SELECTOR 1: TEAM SELECTION (Grouped by scenarios) */}
-          <div className="space-y-2">
+          <div className="space-y-1">
             <label className="text-[10px] uppercase opacity-50 font-bold tracking-widest">
-              {loc.login_team_label || "1. Seleziona Unità:"}
+              {loc.login_team_label || "Seleziona Unità:"}
             </label>
             <select
               className="w-full bg-black border-2 border-[#00ff41] p-3 outline-none cursor-pointer text-sm font-bold uppercase"
@@ -1071,9 +1090,9 @@ export default function MarsSurvivalGame() {
           </div>
 
           {/* SELECTOR 2: PLAYER SELECTION */}
-          <div className="space-y-2">
+          <div className="space-y-1">
             <label className="text-[10px] uppercase opacity-50 font-bold tracking-widest">
-              {loc.login_operator_label || "2. Identificativo Operatore:"}
+              {loc.login_operator_label || "Identificativo Operatore:"}
             </label>
             <select
               className={`w-full bg-black border-2 p-3 outline-none cursor-pointer text-sm font-bold uppercase transition-all ${
@@ -1112,7 +1131,10 @@ export default function MarsSurvivalGame() {
     content = (
       <>
         <Header title={story.title} />
-        <div className="space-y-6 text-lg leading-relaxed">
+        <div className="my-6 px-4 md:px-10">
+          <MissionImageBlock src={story.logo} isFullWidth={true} />
+        </div>
+        <div className="space-y-6 text-lg  leading-relaxed">
           <p className="bg-[#003300] p-4 border-l-8 border-[#00ff41]">
             {story.plot}
           </p>

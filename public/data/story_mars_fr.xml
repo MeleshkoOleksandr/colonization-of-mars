@@ -2,6 +2,7 @@
 <Mission>
     <Story>
         <Language>fr</Language>
+        <Logo>logo_mars.png</Logo> 
         <Title>Survie dans la Vallée Marineris</Title>
         <Plot>Vous êtes les membres d'une équipe de colons d'avant-garde en route vers le dôme principal de la base "Ares-1". Lors de la descente, votre rover cargo a été frappé par une violente tempête de sable et s'est renversé à 150 kilomètres de la destination. Les systèmes de survie du rover sont hors service et les communications avec la base sont interrompues. Votre objectif : parcourir 150 km dans le désert martien jusqu'à la base. Vous portez des combinaisons spatiales, mais les ressources sont limitées.</Plot>
     </Story>
