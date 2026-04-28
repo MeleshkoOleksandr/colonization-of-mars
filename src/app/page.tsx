@@ -1715,7 +1715,7 @@ export default function MarsSurvivalGame() {
                     </th>
 
                     {/* Header 3: Scenario  */}
-                    <th className="p-2 border border-black w-15 md:w-55">
+                    <th className="p-2 border border-black w-15 md:w-60">
                       {loc.admin_lb_scename}
                     </th>
 
