@@ -484,12 +484,18 @@ export default function MarsSurvivalGame() {
 
         // 2. Processing URL parameters
         const params = new URLSearchParams(window.location.search);
+        const teamFromUrl = params.get("team");
         const userFromUrl = params.get("user");
         const langFromUrl = params.get("lang");
 
         // Language set
         if (langFromUrl) {
           console.log("SYSTEM: Setting language from URL:", langFromUrl);
+        }
+
+        //  Let's set the command
+        if (teamFromUrl) {
+          setTeamId(Number(teamFromUrl));
         }
 
         if (userFromUrl) {
@@ -994,9 +1000,11 @@ export default function MarsSurvivalGame() {
    */
   let content;
   if (view === "login") {
-    // Get the list of players who haven't played yet (score -1)
-    const pendingPlayers = allResults
-      .filter((r) => r.score === -1)
+    // 1. Filter the commands that haven't finished yet (is_unlocked === false)
+    const activeTeams = teamsList.filter((t) => !t.is_unlocked);
+    // 2. Filter players for the SELECTED team who have not yet played (score === -1)
+    const availablePlayers = allResults
+      .filter((r) => r.team_id === teamId && r.score === -1)
       .sort((a, b) => a.username.localeCompare(b.username));
 
     content = (
@@ -1008,13 +1016,11 @@ export default function MarsSurvivalGame() {
           {/* Corner decorative elements (terminal style)  */}
           <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#00ff41]"></div>
           <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-[#00ff41]"></div>
-
           <img
             src="/img/login_page.png"
             alt="Ares-1 Mission"
             className="w-full h-48 md:h-48 object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-1000  hover:grayscale-0"
           />
-
           {/* Text caption on the image  */}
           <div className="absolute bottom-2 left-3 flex items-center gap-2">
             <div className="w-1.5 h-1.5 bg-red-600 animate-pulse rounded-full"></div>
@@ -1022,49 +1028,81 @@ export default function MarsSurvivalGame() {
               Live Stream
             </span>
           </div>
-
           {/* Apply a gradient over the image so that it fades smoothly into black */}
           <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent"></div>
         </div>
 
         {/* --- LOGIN FORM--- */}
         <div className="flex flex-col gap-6 max-w-sm mx-auto py-8 md:py-12">
+          {/* SELECTOR 1: TEAM SELECTION (Grouped by scenarios) */}
           <div className="space-y-2">
-            <label className="text-xs uppercase opacity-50 font-bold tracking-widest">
-              {loc.login_operator_label}
+            <label className="text-[10px] uppercase opacity-50 font-bold tracking-widest">
+              {loc.login_team_label || "1. Seleziona Unità:"}
             </label>
-
             <select
-              className="w-full bg-black border-2 border-[#00ff41] p-3 outline-none cursor-pointer text-sm font-bold uppercase transition-colors focus:bg-[#002200]"
-              value={username}
+              className="w-full bg-black border-2 border-[#00ff41] p-3 outline-none cursor-pointer text-sm font-bold uppercase"
+              value={teamId}
               onChange={(e) => {
-                const val = e.target.value;
-                setUsername(val);
-                if (val && val !== "admin") {
-                  const player = pendingPlayers.find((p) => p.username === val);
-                  if (player) setTeamId(player.team_id);
-                }
+                setTeamId(Number(e.target.value));
+                setUsername(""); // Reset the name when changing teams
               }}
             >
-              <option value="">{loc.login_select_prompt}</option>
-              <option value="admin" className="text-amber-500 font-black">
-                [ ACCESS CENTER: ADMIN ]
-              </option>
-
-              <optgroup label={loc.login_select_group}>
-                {pendingPlayers.map((p) => (
-                  <option key={p.id} value={p.username}>
-                    {p.username} ({p.team_name})
-                  </option>
-                ))}
-              </optgroup>
+              <option value={0}>{loc.login_select_team}</option>
+              {scenarios.map((scen) => {
+                const teamsInScen = activeTeams.filter(
+                  (t) => t.current_scenario === scen.id,
+                );
+                if (teamsInScen.length === 0) return null;
+                return (
+                  <optgroup
+                    key={scen.id}
+                    label={scen.name.toUpperCase()}
+                    className="bg-[#002200] text-[#00ff41]"
+                  >
+                    {teamsInScen.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                );
+              })}
             </select>
           </div>
 
-          <button
-            onClick={handleStart}
-            className="mt-2 border-4 border-[#00ff41] py-4 hover:bg-[#00ff41] hover:text-black transition-all font-black uppercase text-xl shadow-[0_0_20px_rgba(0,255,65,0.2)] active:scale-95"
-          >
+          {/* SELECTOR 2: PLAYER SELECTION */}
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase opacity-50 font-bold tracking-widest">
+              {loc.login_operator_label || "2. Identificativo Operatore:"}
+            </label>
+            <select
+              className={`w-full bg-black border-2 p-3 outline-none cursor-pointer text-sm font-bold uppercase transition-all ${
+                teamId === 0 && username !== "admin"
+                  ? "border-[#00ff41]/20 opacity-50"
+                  : "border-[#00ff41]"
+              }`}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            >
+              <option value="">{loc.login_select_prompt}</option>
+              {/* ADMIN IS ALWAYS AVAILABLE */}
+              <option value="admin" className="text-amber-500 font-black">
+                {loc.login_select_admin}
+              </option>
+              {/* PLAYERS APPEAR ONLY AFTER A TEAM IS SELECTED */}
+              {teamId !== 0 && (
+                <optgroup label={`${loc.login_select_group}`}>
+                  {availablePlayers.map((p) => (
+                    <option key={p.id} value={p.username}>
+                      {p.username}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+            </select>
+          </div>
+
+          <button onClick={handleStart} className={BUTTON_STYLES.primary}>
             {loc.btn_start_main}
           </button>
         </div>
@@ -1688,7 +1726,7 @@ export default function MarsSurvivalGame() {
               {loc.admin_lb_teamlist}
             </h3>
 
-            {/* Контейнер скролла */}
+            {/* Scroll container */}
             <div className="max-h-80 overflow-y-auto pr-2 custom-scrollbar relative">
               <table className="w-full text-left border-collapse table-fixed">
                 {/*  table-fixed helps keep column widths consistent*/}
@@ -1719,8 +1757,8 @@ export default function MarsSurvivalGame() {
                       {loc.admin_lb_scename}
                     </th>
 
-                    <th className="p-2 border border-black w-9 text-center">
-                      Del
+                    <th className="p-2 border border-black w-12 text-center">
+                      CMD
                     </th>
                   </tr>
                 </thead>

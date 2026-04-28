@@ -99,5 +99,9 @@
    "result_lb_analis": "Analyse de survie",
    "result_lb_res": "Résultats",
    "result_lb_newmiss": "Démarrer une nouvelle mission",
-   "result_lb_atten": "Attention : le redémarrage réinitialisera la session en cours"
+   "result_lb_atten": "Attention : le redémarrage réinitialisera la session en cours",
+
+   "admin_msg_teamQr": "Générer un QR pour toute l'équipe",
+   "login_select_admin": "[ CENTRE D'ACCÈS : ADMIN ]",
+   "login_select_team": "-- SÉLECTION DE L'UNITÉ --"
 }

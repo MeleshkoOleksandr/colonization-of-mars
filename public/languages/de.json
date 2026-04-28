@@ -99,5 +99,9 @@
    "result_lb_analis": "Überlebensanalyse",
    "result_lb_res": "Ergebnisse",
    "result_lb_newmiss": "Neue Mission starten",
-   "result_lb_atten": "Achtung: Ein Neustart setzt die aktuelle Sitzung zurück"
+   "result_lb_atten": "Achtung: Ein Neustart setzt die aktuelle Sitzung zurück",
+
+   "admin_msg_teamQr": "QR für das gesamte Team generieren",
+   "login_select_admin": "[ ZUGANGSZENTRUM: ADMIN ]",
+   "login_select_team": "-- EINHEIT AUSWÄHLEN --"
 }

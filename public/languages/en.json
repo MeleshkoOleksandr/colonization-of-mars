@@ -99,5 +99,9 @@
    "result_lb_analis": "Survival Analysis",
    "result_lb_res": "Results",
    "result_lb_newmiss": "Start New Mission",
-   "result_lb_atten": "Warning: restarting will reset the current session"
+   "result_lb_atten": "Warning: restarting will reset the current session",
+
+   "admin_msg_teamQr": "Generate QR for the entire team",
+   "login_select_admin": "[ ACCESS CENTER: ADMIN ]",
+   "login_select_team": "-- UNIT SELECTION --"
 }
