@@ -1788,14 +1788,34 @@ export default function MarsSurvivalGame() {
                             </div>
                           </td>
 
-                          {/* Delete Action */}
                           <td className="p-2 text-center">
-                            <button
-                              onClick={() => handleDeleteTeam(t.id!)}
-                              className="text-red-500 hover:text-red-400 transition-colors"
-                            >
-                              <Trash2 size={14} className="mx-auto" />
-                            </button>
+                            <div className="flex justify-center gap-2">
+                              {/* QR code for the whole team */}
+                              <button
+                                onClick={() => {
+                                  const scenario = scenarios.find(
+                                    (s) => s.id === t.current_scenario,
+                                  );
+                                  const url = `${window.location.origin}?team=${t.id}&lang=${scenario?.language || "en"}`;
+                                  setShareData({
+                                    name: `${t.name}`,
+                                    url,
+                                  });
+                                }}
+                                className="text-[#00ff41] hover:text-white transition-colors p-1"
+                                title={loc.admin_msg_teamQr}
+                              >
+                                <QrCode size={14} />
+                              </button>
+
+                              {/* Delete Action */}
+                              <button
+                                onClick={() => handleDeleteTeam(t.id!)}
+                                className="text-red-500 hover:text-red-400 transition-colors"
+                              >
+                                <Trash2 size={14} className="mx-auto" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
@@ -1822,7 +1842,7 @@ export default function MarsSurvivalGame() {
               <input
                 type="text"
                 placeholder={loc.admin_lb_teamname}
-                className="flex-1 bg-black text-[#00ff41] text-sm border border-[#00ff41]/40 p-2 outline-none focus:border-[#00ff41] transition-colors uppercase font-mono"
+                className="flex-1 bg-black text-[#00ff41] text-sm border border-c/40 p-2 outline-none focus:border-[#00ff41] transition-colors uppercase font-mono"
                 value={newTeamName}
                 onChange={(e) => setNewTeamName(e.target.value)}
               />
