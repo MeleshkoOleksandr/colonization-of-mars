@@ -847,7 +847,7 @@ export default function MarsSurvivalGame() {
       setNewTeamName("");
       setModal((prev) => ({ ...prev, isOpen: false, value: "" }));
 
-      triggerModal("alert", ModalMode.IDLE, loc.msg_modal_teamindb);
+      //triggerModal("alert", ModalMode.IDLE, loc.msg_modal_teamindb);
     } catch (error) {
       console.error(error);
       triggerModal("alert", ModalMode.IDLE, loc.msg_modal_saveerror);
