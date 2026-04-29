@@ -204,10 +204,10 @@ const AnalysisSequence = ({ onComplete }: { onComplete: () => void }) => {
     phrases.forEach((phrase, index) => {
       setTimeout(() => {
         setLogs((prev) => [...prev, phrase]);
-      }, index * 450);
+      }, index * 300);
     });
     // 3. Complete after some time
-    const timeout = setTimeout(onComplete, 4500);
+    const timeout = setTimeout(onComplete, 3000);
     return () => {
       clearInterval(interval);
       clearTimeout(timeout);
@@ -421,6 +421,10 @@ export default function MarsSurvivalGame() {
   // Computed helper
   const currentTeamName =
     teamsList.find((t) => t.id === teamId)?.name || "NASA";
+
+  // Auto Refresh timer component:
+  const [isAutoRefresh, setIsAutoRefresh] = useState(false);
+  const [lastResultsCount, setLastResultsCount] = useState(0);
 
   // Global Modal System
   type ModalType = "alert" | "confirm" | "prompt" | "prompt-area";
@@ -688,6 +692,15 @@ export default function MarsSurvivalGame() {
     };
   };
 
+  // Audio playback function
+  const playBeep = () => {
+    const audio = new Audio("/sounds/soft_beep.wav");
+    audio.volume = 0.4; // Не слишком громко
+    audio
+      .play()
+      .catch((e) => console.log("Audio play blocked by browser policy"));
+  };
+
   // Saving QrCode
   const downloadQRCode = () => {
     const canvas = document.getElementById(
@@ -705,6 +718,57 @@ export default function MarsSurvivalGame() {
       document.body.removeChild(downloadLink);
     }
   };
+
+  /**
+   * SMART ADMIN AUTO-REFRESH
+   * Polls the database every 15 seconds, only if the tab is active.
+   */
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    if (view === "admin" && isAutoRefresh) {
+      interval = setInterval(async () => {
+        // 1. CHECK: If the tab is minimized, we don't use Vercel/Neon resources
+        if (document.hidden) return;
+
+        try {
+          console.log("SYSTEM: Auto-syncing database...");
+
+          // 2. We're getting the latest data
+          const [freshResults, freshTeams] = await Promise.all([
+            getResultsAction(),
+            getTeamsAction(),
+          ]);
+
+          // 3. CHECK FOR NEW DATA (for sound)
+          // If there are more records than before, play the sound
+          if (freshResults.length > allResults.length) {
+            playBeep();
+          }
+          // Additional check: if the count is the same, but someone's status is missing
+          else {
+            const oldPending = allResults.filter((r) => r.score === -1).length;
+            const newPending = freshResults.filter(
+              (r) => r.score === -1,
+            ).length;
+            if (newPending < oldPending) {
+              playBeep();
+            }
+          }
+
+          // 4. Updating the states
+          setAllResults(freshResults);
+          setTeamsList(freshTeams);
+        } catch (error) {
+          console.error("Auto-sync failed", error);
+        }
+      }, 15000); // 15 sec.
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [view, isAutoRefresh, allResults.length]);
 
   /**
    * LOGIC HANDLERS
@@ -846,8 +910,6 @@ export default function MarsSurvivalGame() {
       // Clean the form and close the modal window
       setNewTeamName("");
       setModal((prev) => ({ ...prev, isOpen: false, value: "" }));
-
-      //triggerModal("alert", ModalMode.IDLE, loc.msg_modal_teamindb);
     } catch (error) {
       console.error(error);
       triggerModal("alert", ModalMode.IDLE, loc.msg_modal_saveerror);
@@ -1871,7 +1933,7 @@ export default function MarsSurvivalGame() {
                               {/* Delete Action */}
                               <button
                                 onClick={() => handleDeleteTeam(t.id!)}
-                                className="text-red-500 hover:text-red-400 transition-colors"
+                                 className="text-red-500 hover:text-white transition-colors p-1"
                               >
                                 <Trash2 size={14} className="mx-auto" />
                               </button>
@@ -1922,6 +1984,29 @@ export default function MarsSurvivalGame() {
             <h3 className="font-bold uppercase flex items-center gap-2 text-[#00ff41]">
               <Save size={18} /> {loc.admin_lb_users}
             </h3>
+
+            {/* В блоке управления результатами в Админке */}
+            <div className="flex items-center gap-4 border-l border-[#00ff41]/20 pl-4">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    checked={isAutoRefresh}
+                    onChange={(e) => setIsAutoRefresh(e.target.checked)}
+                    className="appearance-none w-8 h-4 border border-[#00ff41]/40 bg-black checked:bg-[#00ff41]/20 transition-all cursor-pointer"
+                  />
+                  {/* Маленький ползунок для красоты */}
+                  <div
+                    className={`absolute top-1 left-1 w-2 h-2 transition-all ${isAutoRefresh ? "translate-x-4 bg-[#00ff41]" : "bg-[#00ff41]/30"}`}
+                  ></div>
+                </div>
+                <span
+                  className={`text-[9px] uppercase font-bold ${isAutoRefresh ? "text-[#00ff41] animate-pulse" : "text-[#00ff41]/40"}`}
+                >
+                  {isAutoRefresh ? "Auto-Sync: ON" : "Auto-Sync: OFF"}
+                </span>
+              </label>
+            </div>
 
             <div className="flex flex-wrap items-center gap-2">
               {/* REFRESH ALL TABLES DATA */}
@@ -2132,7 +2217,6 @@ export default function MarsSurvivalGame() {
                             <button
                               onClick={() => handleDeleteResult(r.id!)}
                               className="text-red-500 hover:text-white transition-colors p-1"
-                              title={loc.admin_lb_delete}
                             >
                               <Trash2 size={16} />
                             </button>
