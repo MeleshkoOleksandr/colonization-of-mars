@@ -1996,33 +1996,26 @@ export default function MarsSurvivalGame() {
             <h3 className="font-bold uppercase flex items-center gap-2 text-[#00ff41]">
               <Save size={18} /> {loc.admin_lb_users}
             </h3>
-
             {/* ПАНЕЛЬ УПРАВЛЕНИЯ РЕЗУЛЬТАТАМИ */}
-            <div className="flex flex-wrap items-center gap-3 w-full">
-              {/* --- ЛЕВАЯ ГРУППА (System) --- */}
-              <div className="flex items-center gap-3">
-                {/* КНОПКА AUTO-SYNC */}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 w-full overflow-hidden">
+              {/* ГРУППА 1: СИСТЕМНЫЕ КНОПКИ (Не сжимаются) */}
+              <div className="flex items-center gap-3 shrink-0">
                 <button
                   onClick={() => setIsAutoRefresh(!isAutoRefresh)}
                   className={`px-3 py-1 border transition-all duration-300 flex items-center gap-2 ${
                     isAutoRefresh
                       ? "border-[#00ff41] bg-[#00ff41]/10 text-[#00ff41]"
-                      : "border-[#00ff41]/30 text-[#00ff41]/40 hover:border-[#00ff41]/60"
+                      : "border-[#00ff41]/30 text-[#00ff41]/40"
                   }`}
                 >
                   <div
-                    className={`w-1.5 h-1.5 transition-all duration-500 ${
-                      isAutoRefresh
-                        ? "bg-[#00ff41] shadow-[0_0_8px_#00ff41] animate-pulse"
-                        : "bg-black border border-[#00ff41]/30"
-                    }`}
+                    className={`w-1.5 h-1.5 ${isAutoRefresh ? "bg-[#00ff41] animate-pulse shadow-[0_0_8px_#00ff41]" : "bg-black border border-[#00ff41]/30"}`}
                   ></div>
-                  <span className="text-[9px] font-black uppercase tracking-widest">
+                  <span className="text-[9px] font-black uppercase tracking-widest whitespace-nowrap">
                     Auto-Sync: {isAutoRefresh ? "ON" : "OFF"}
                   </span>
                 </button>
 
-                {/* КНОПКА REFRESH */}
                 <button
                   onClick={async () => {
                     setIsRefreshing(true);
@@ -2034,50 +2027,52 @@ export default function MarsSurvivalGame() {
                     setTeamsList(freshTeams);
                     setTimeout(() => setIsRefreshing(false), 500);
                   }}
-                  className="px-3 py-1 border border-[#00ff41]/30 text-[#00ff41]/60 hover:border-[#00ff41] hover:text-[#00ff41] transition-all flex items-center gap-2 group text-[9px] font-black uppercase tracking-widest"
+                  className="px-3 py-1 border border-[#00ff41]/30 text-[#00ff41]/60 hover:border-[#00ff41] transition-all flex items-center gap-2 group text-[9px] font-black uppercase tracking-widest"
                 >
                   <motion.div
                     animate={{ rotate: isRefreshing ? 360 : 0 }}
                     transition={{ duration: 0.5, ease: "linear" }}
-                    className="flex items-center justify-center"
+                    className="flex"
                   >
                     <RefreshCcw size={12} />
                   </motion.div>
-                  {loc.admin_lb_refresh || "Refresh"}
+                  <span className="whitespace-nowrap">Refresh</span>
                 </button>
 
-                {/* ВЕРТИКАЛЬНАЯ ПОЛОСА-РАЗДЕЛИТЕЛЬ */}
-                <div className="h-6 w-[1px] bg-[#00ff41]/20 mx-1 hidden sm:block"></div>
+                <div className="h-6 w-[1px] bg-[#00ff41]/20 mx-1 hidden lg:block"></div>
               </div>
 
-              {/* --- ПРАВАЯ ГРУППА (Data Operations) --- */}
-              {/* ml-auto прижимает этот блок к правому краю на больших экранах */}
-              <div className="flex flex-wrap items-center gap-3 ml-auto">
-                {/* КНОПКА УДАЛЕНИЯ (Условная) */}
-                {adminTeamFilter === 0 ? (
-                  <button
-                    onClick={handleDeleteAllResults}
-                    className="text-[9px] border border-red-600 px-2 py-1 text-red-500 hover:bg-red-600 hover:text-white transition-colors uppercase font-bold"
-                  >
-                    Clear All DB
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => handleDeleteTeamResults(adminTeamFilter)}
-                    className="text-[9px] border border-amber-600 px-2 py-1 text-amber-500 hover:bg-amber-600 hover:text-white transition-colors uppercase font-bold"
-                  >
-                    Clear{" "}
-                    {teamsList.find((t) => t.id === adminTeamFilter)?.name}
-                  </button>
-                )}
+              {/* ГРУППА 2: ОПЕРАЦИИ С ДАННЫМИ (Удаление, Фильтр, Add) */}
+              {/* КЛЮЧЕВОЙ КЛАСС: min-w-0 позволяет блоку не распирать экран */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1 min-w-0 lg:justify-end">
+                {/* КНОПКА УДАЛЕНИЯ */}
+                <button
+                  onClick={
+                    adminTeamFilter === 0
+                      ? handleDeleteAllResults
+                      : () => handleDeleteTeamResults(adminTeamFilter)
+                  }
+                  className={`px-3 py-1.5 border text-[9px] font-bold uppercase transition-colors truncate shrink-0 sm:max-w-[150px] lg:max-w-[180px] ${
+                    adminTeamFilter === 0
+                      ? "border-red-600 text-red-500 hover:bg-red-600 hover:text-white"
+                      : "border-amber-600 text-amber-500 hover:bg-amber-600 hover:text-white"
+                  }`}
+                >
+                  {adminTeamFilter === 0
+                    ? "Clear All DB"
+                    : `Clear: ${teamsList.find((t) => t.id === adminTeamFilter)?.name}`}
+                </button>
 
-                {/* ФИЛЬТР И КНОПКА ADD PLAYER */}
-                <div className="flex items-center gap-2 bg-black border border-[#00ff41]/40 p-1">
-                  <span className="text-[9px] px-1 opacity-50 uppercase italic font-bold">
+                {/* КОНТЕЙНЕР ФИЛЬТРА И КНОПКИ ADD */}
+                {/* min-w-0 здесь обязателен для работы truncate внутри */}
+                <div className="flex items-center bg-black border border-[#00ff41]/40 p-1 flex-1 min-w-0">
+                  <span className="text-[9px] px-2 opacity-50 uppercase italic font-bold whitespace-nowrap border-r border-[#00ff41]/20 mr-2 shrink-0">
                     Filtra:
                   </span>
+
+                  {/* СЕЛЕКТОР КОМАНД */}
                   <select
-                    className="bg-transparent text-[#00ff41] text-[10px] outline-none cursor-pointer uppercase font-bold pr-4"
+                    className="bg-transparent text-[#00ff41] text-[10px] outline-none cursor-pointer uppercase font-bold flex-1 min-w-0 max-w-full truncate"
                     value={adminTeamFilter}
                     onChange={(e) => setAdminTeamFilter(Number(e.target.value))}
                   >
@@ -2089,12 +2084,13 @@ export default function MarsSurvivalGame() {
                     ))}
                   </select>
 
+                  {/* КНОПКА ADD */}
                   <button
                     onClick={handleAddSinglePlayer}
-                    className="ml-1 px-2 py-0.5 border border-[#00ff41] text-[#00ff41] text-[9px] font-black uppercase hover:bg-[#00ff41] hover:text-black transition-all flex items-center gap-1"
+                    className="ml-2 px-3 py-1 border border-[#00ff41] text-[#00ff41] text-[9px] font-black uppercase hover:bg-[#00ff41] hover:text-black transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0"
                   >
                     <UserPlus size={12} strokeWidth={2.5} />
-                    <span>Add</span>
+                    <span className="hidden xs:inline">Add</span>
                   </button>
                 </div>
               </div>
