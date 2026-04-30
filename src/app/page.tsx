@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import { QRCodeCanvas } from "qrcode.react";
 
@@ -424,7 +424,7 @@ export default function MarsSurvivalGame() {
 
   // Auto Refresh timer component:
   const [isAutoRefresh, setIsAutoRefresh] = useState(false);
-  const [lastResultsCount, setLastResultsCount] = useState(0);
+  const resultsSnapshotRef = useRef<GameResult[]>([]);
 
   // Global Modal System
   type ModalType = "alert" | "confirm" | "prompt" | "prompt-area";
@@ -720,55 +720,67 @@ export default function MarsSurvivalGame() {
   };
 
   /**
-   * SMART ADMIN AUTO-REFRESH
-   * Polls the database every 15 seconds, only if the tab is active.
+   * SMART AUTO-REFRESH (Admin Only)
+   * Works on Admin, Leaderboard, and Discussion views for the administrator.
    */
   useEffect(() => {
     let interval: NodeJS.Timeout;
+    const isAdmin = username.toLowerCase() === "admin";
 
-    if (view === "admin" && isAutoRefresh) {
+    // Condition: Only for admins on authorized screens
+    const isAllowedView =
+      view === "admin" || view === "leaderboard" || view === "discussion-list";
+
+    if (isAdmin && isAllowedView && isAutoRefresh) {
       interval = setInterval(async () => {
-        // 1. CHECK: If the tab is minimized, we don't use Vercel/Neon resources
         if (document.hidden) return;
 
         try {
-          console.log("SYSTEM: Auto-syncing database...");
+          console.log(`SYSTEM: Auto-sync active for [${view}]...`);
 
-          // 2. We're getting the latest data
           const [freshResults, freshTeams] = await Promise.all([
             getResultsAction(),
             getTeamsAction(),
           ]);
 
-          // 3. CHECK FOR NEW DATA (for sound)
-          // If there are more records than before, play the sound
-          if (freshResults.length > allResults.length) {
+          // --- LOGIC OF THE AUDIO SIGNAL (Using Snapshot Ref)
+          const prevResults = resultsSnapshotRef.current;
+
+          // 1. Checking for new players
+          const hasNewEntries = freshResults.length > prevResults.length;
+
+          // 2. Check for completed games
+          const prevPendingCount = prevResults.filter(
+            (r) => r.score === -1,
+          ).length;
+          const newPendingCount = freshResults.filter(
+            (r) => r.score === -1,
+          ).length;
+          const hasNewFinishes = newPendingCount < prevPendingCount;
+
+          if (hasNewEntries || hasNewFinishes) {
+            console.log("SYSTEM: New telemetry received!");
             playBeep();
           }
-          // Additional check: if the count is the same, but someone's status is missing
-          else {
-            const oldPending = allResults.filter((r) => r.score === -1).length;
-            const newPending = freshResults.filter(
-              (r) => r.score === -1,
-            ).length;
-            if (newPending < oldPending) {
-              playBeep();
-            }
-          }
 
-          // 4. Updating the states
+          // Updating statuses
           setAllResults(freshResults);
           setTeamsList(freshTeams);
         } catch (error) {
-          console.error("Auto-sync failed", error);
+          console.error("Auto-sync error:", error);
         }
-      }, 15000); // 15 sec.
+      }, 15000); // 15 sec. refresh time
     }
 
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [view, isAutoRefresh, allResults.length]);
+  }, [view, isAutoRefresh, username]);
+
+  // We update the snapshot every time allResults changes
+  useEffect(() => {
+    resultsSnapshotRef.current = allResults;
+  }, [allResults]);
 
   /**
    * LOGIC HANDLERS
@@ -1933,7 +1945,7 @@ export default function MarsSurvivalGame() {
                               {/* Delete Action */}
                               <button
                                 onClick={() => handleDeleteTeam(t.id!)}
-                                 className="text-red-500 hover:text-white transition-colors p-1"
+                                className="text-red-500 hover:text-white transition-colors p-1"
                               >
                                 <Trash2 size={14} className="mx-auto" />
                               </button>
@@ -1985,123 +1997,107 @@ export default function MarsSurvivalGame() {
               <Save size={18} /> {loc.admin_lb_users}
             </h3>
 
-            {/* В блоке управления результатами в Админке */}
-            <div className="flex items-center gap-4 border-l border-[#00ff41]/20 pl-4">
-              <label className="flex items-center gap-2 cursor-pointer group">
-                <div className="relative">
-                  <input
-                    type="checkbox"
-                    checked={isAutoRefresh}
-                    onChange={(e) => setIsAutoRefresh(e.target.checked)}
-                    className="appearance-none w-8 h-4 border border-[#00ff41]/40 bg-black checked:bg-[#00ff41]/20 transition-all cursor-pointer"
-                  />
-                  {/* Маленький ползунок для красоты */}
-                  <div
-                    className={`absolute top-1 left-1 w-2 h-2 transition-all ${isAutoRefresh ? "translate-x-4 bg-[#00ff41]" : "bg-[#00ff41]/30"}`}
-                  ></div>
-                </div>
-                <span
-                  className={`text-[9px] uppercase font-bold ${isAutoRefresh ? "text-[#00ff41] animate-pulse" : "text-[#00ff41]/40"}`}
+            {/* ПАНЕЛЬ УПРАВЛЕНИЯ РЕЗУЛЬТАТАМИ */}
+            <div className="flex flex-wrap items-center gap-3 w-full">
+              {/* --- ЛЕВАЯ ГРУППА (System) --- */}
+              <div className="flex items-center gap-3">
+                {/* КНОПКА AUTO-SYNC */}
+                <button
+                  onClick={() => setIsAutoRefresh(!isAutoRefresh)}
+                  className={`px-3 py-1 border transition-all duration-300 flex items-center gap-2 ${
+                    isAutoRefresh
+                      ? "border-[#00ff41] bg-[#00ff41]/10 text-[#00ff41]"
+                      : "border-[#00ff41]/30 text-[#00ff41]/40 hover:border-[#00ff41]/60"
+                  }`}
                 >
-                  {isAutoRefresh ? "Auto-Sync: ON" : "Auto-Sync: OFF"}
-                </span>
-              </label>
-            </div>
+                  <div
+                    className={`w-1.5 h-1.5 transition-all duration-500 ${
+                      isAutoRefresh
+                        ? "bg-[#00ff41] shadow-[0_0_8px_#00ff41] animate-pulse"
+                        : "bg-black border border-[#00ff41]/30"
+                    }`}
+                  ></div>
+                  <span className="text-[9px] font-black uppercase tracking-widest">
+                    Auto-Sync: {isAutoRefresh ? "ON" : "OFF"}
+                  </span>
+                </button>
 
-            <div className="flex flex-wrap items-center gap-2">
-              {/* REFRESH ALL TABLES DATA */}
-              <button
-                onClick={async () => {
-                  // 1. Start the rotation animation
-                  if (typeof setIsRefreshing === "function")
+                {/* КНОПКА REFRESH */}
+                <button
+                  onClick={async () => {
                     setIsRefreshing(true);
-
-                  try {
-                    // 2. We load the latest data into both tables AT THE SAME TIME
                     const [freshResults, freshTeams] = await Promise.all([
                       getResultsAction(),
                       getTeamsAction(),
                     ]);
-
-                    // 3. Updating global states
                     setAllResults(freshResults);
                     setTeamsList(freshTeams);
-
-                    console.log(
-                      "SYSTEM: Full database sync complete (Results & Teams).",
-                    );
-                  } catch (error) {
-                    console.error("Sync failed:", error);
-                  }
-
-                  // 4. We pause the animation after 500 ms to ensure smoothness
-                  if (typeof setIsRefreshing === "function") {
                     setTimeout(() => setIsRefreshing(false), 500);
-                  }
-                }}
-                className="text-[10px] border border-[#00ff41] px-2 py-1 text-[#00ff41] hover:bg-[#00ff41] hover:text-black transition-colors uppercase font-bold flex items-center gap-2 group"
-                title={loc.tooltip_sync || "Sincronizza con il Database"}
-              >
-                {/* Icon rotation animation */}
-                <motion.div
-                  animate={{ rotate: isRefreshing ? 360 : 0 }}
-                  transition={{ duration: 0.5, ease: "linear" }}
-                  className="flex items-center justify-center"
+                  }}
+                  className="px-3 py-1 border border-[#00ff41]/30 text-[#00ff41]/60 hover:border-[#00ff41] hover:text-[#00ff41] transition-all flex items-center gap-2 group text-[9px] font-black uppercase tracking-widest"
                 >
-                  <RefreshCcw size={12} />
-                </motion.div>
-
-                {loc.admin_lb_refresh || "Refresh Records"}
-              </button>
-
-              {/* DELETE data BUTTON */}
-              {adminTeamFilter === 0 ? (
-                <button
-                  onClick={handleDeleteAllResults}
-                  className="text-[10px] border border-red-600 px-2 py-1 text-red-500 hover:bg-red-600 hover:text-white transition-colors uppercase font-bold"
-                >
-                  {loc.admin_lb_clearall}
+                  <motion.div
+                    animate={{ rotate: isRefreshing ? 360 : 0 }}
+                    transition={{ duration: 0.5, ease: "linear" }}
+                    className="flex items-center justify-center"
+                  >
+                    <RefreshCcw size={12} />
+                  </motion.div>
+                  {loc.admin_lb_refresh || "Refresh"}
                 </button>
-              ) : (
-                <button
-                  onClick={() => handleDeleteTeamResults(adminTeamFilter)}
-                  className="text-[10px] border border-amber-600 px-2 py-1 text-amber-500 hover:bg-amber-600 hover:text-white transition-colors uppercase font-bold"
-                >
-                  {loc.admin_lb_clear}{" "}
-                  {teamsList.find((t) => t.id === adminTeamFilter)?.name}{" "}
-                </button>
-              )}
 
-              {/* TEAM FILTER FOR ADMIN */}
-              <div className="flex items-center gap-2 bg-black border border-[#00ff41]/50 p-1">
-                <span className="text-[10px] px-2 opacity-50 uppercase italic font-bold">
-                  {loc.admin_lb_filter}
-                </span>
-                <select
-                  className="bg-transparent text-[#00ff41] text-xs outline-none cursor-pointer uppercase font-bold"
-                  value={adminTeamFilter}
-                  onChange={(e) => setAdminTeamFilter(Number(e.target.value))}
-                >
-                  <option value={0}>{loc.admin_lb_allteams}</option>
-                  {teamsList.map((t) => (
-                    <option
-                      key={t.id}
-                      value={t.id}
-                      className="bg-black text-[#00ff41]"
-                    >
-                      {t.name}
-                    </option>
-                  ))}
-                </select>
+                {/* ВЕРТИКАЛЬНАЯ ПОЛОСА-РАЗДЕЛИТЕЛЬ */}
+                <div className="h-6 w-[1px] bg-[#00ff41]/20 mx-1 hidden sm:block"></div>
               </div>
 
-              <button
-                onClick={handleAddSinglePlayer}
-                className=" px-1.5 py-1 border border-[#00ff41] text-[#00ff41] text-[10px] font-black uppercase hover:bg-[#00ff41] hover:text-black transition-all flex items-center gap-1.5"
-                title={loc.admin_msg_addteam}
-              >
-                <UserPlus size={16} />
-              </button>
+              {/* --- ПРАВАЯ ГРУППА (Data Operations) --- */}
+              {/* ml-auto прижимает этот блок к правому краю на больших экранах */}
+              <div className="flex flex-wrap items-center gap-3 ml-auto">
+                {/* КНОПКА УДАЛЕНИЯ (Условная) */}
+                {adminTeamFilter === 0 ? (
+                  <button
+                    onClick={handleDeleteAllResults}
+                    className="text-[9px] border border-red-600 px-2 py-1 text-red-500 hover:bg-red-600 hover:text-white transition-colors uppercase font-bold"
+                  >
+                    Clear All DB
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleDeleteTeamResults(adminTeamFilter)}
+                    className="text-[9px] border border-amber-600 px-2 py-1 text-amber-500 hover:bg-amber-600 hover:text-white transition-colors uppercase font-bold"
+                  >
+                    Clear{" "}
+                    {teamsList.find((t) => t.id === adminTeamFilter)?.name}
+                  </button>
+                )}
+
+                {/* ФИЛЬТР И КНОПКА ADD PLAYER */}
+                <div className="flex items-center gap-2 bg-black border border-[#00ff41]/40 p-1">
+                  <span className="text-[9px] px-1 opacity-50 uppercase italic font-bold">
+                    Filtra:
+                  </span>
+                  <select
+                    className="bg-transparent text-[#00ff41] text-[10px] outline-none cursor-pointer uppercase font-bold pr-4"
+                    value={adminTeamFilter}
+                    onChange={(e) => setAdminTeamFilter(Number(e.target.value))}
+                  >
+                    <option value={0}>Tutti i Team</option>
+                    {teamsList.map((t) => (
+                      <option key={t.id} value={t.id} className="bg-black">
+                        {t.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  <button
+                    onClick={handleAddSinglePlayer}
+                    className="ml-1 px-2 py-0.5 border border-[#00ff41] text-[#00ff41] text-[9px] font-black uppercase hover:bg-[#00ff41] hover:text-black transition-all flex items-center gap-1"
+                  >
+                    <UserPlus size={12} strokeWidth={2.5} />
+                    <span>Add</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -2131,7 +2127,7 @@ export default function MarsSurvivalGame() {
                     return (
                       <tr
                         key={r.id}
-                        // Добавляем очень легкий оранжевый фон для всей строки, если игрок "в ожидании"
+                        // Add a very light orange background to the entire line if the player is “waiting”
                         className={`border-b border-[#00ff41]/10 transition-colors ${
                           isPending
                             ? "bg-amber-500/5 hover:bg-amber-500/10"
