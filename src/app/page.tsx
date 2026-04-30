@@ -1996,9 +1996,9 @@ export default function MarsSurvivalGame() {
             <h3 className="font-bold uppercase flex items-center gap-2 text-[#00ff41]">
               <Save size={18} /> {loc.admin_lb_users}
             </h3>
-            {/* ПАНЕЛЬ УПРАВЛЕНИЯ РЕЗУЛЬТАТАМИ */}
+            {/* RESULTS DASHBOARD */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 w-full overflow-hidden">
-              {/* ГРУППА 1: СИСТЕМНЫЕ КНОПКИ (Не сжимаются) */}
+              {/* GROUP 1: SYSTEM BUTTONS */}
               <div className="flex items-center gap-3 shrink-0">
                 <button
                   onClick={() => setIsAutoRefresh(!isAutoRefresh)}
@@ -2036,41 +2036,41 @@ export default function MarsSurvivalGame() {
                   >
                     <RefreshCcw size={12} />
                   </motion.div>
-                  <span className="whitespace-nowrap">Refresh</span>
+                  <span className="whitespace-nowrap">
+                    {loc.admin_lb_refresh}
+                  </span>
                 </button>
 
-                <div className="h-6 w-[1px] bg-[#00ff41]/20 mx-1 hidden lg:block"></div>
+                <div className="h-6 w-px bg-[#00ff41]/20 mx-1 hidden lg:block"></div>
               </div>
 
-              {/* ГРУППА 2: ОПЕРАЦИИ С ДАННЫМИ (Удаление, Фильтр, Add) */}
-              {/* КЛЮЧЕВОЙ КЛАСС: min-w-0 позволяет блоку не распирать экран */}
+              {/* GROUP 2: DATA OPERATIONS (Delete, Filter, Add) */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1 min-w-0 lg:justify-end">
-                {/* КНОПКА УДАЛЕНИЯ */}
+                {/* DELETE BUTTON */}
                 <button
                   onClick={
                     adminTeamFilter === 0
                       ? handleDeleteAllResults
                       : () => handleDeleteTeamResults(adminTeamFilter)
                   }
-                  className={`px-3 py-1.5 border text-[9px] font-bold uppercase transition-colors truncate shrink-0 sm:max-w-[150px] lg:max-w-[180px] ${
+                  className={`px-3 py-1.5 border text-[9px] font-bold uppercase transition-colors truncate shrink-0 m:max-w-37.5 lg:max-w-45 ${
                     adminTeamFilter === 0
                       ? "border-red-600 text-red-500 hover:bg-red-600 hover:text-white"
                       : "border-amber-600 text-amber-500 hover:bg-amber-600 hover:text-white"
                   }`}
                 >
                   {adminTeamFilter === 0
-                    ? "Clear All DB"
-                    : `Clear: ${teamsList.find((t) => t.id === adminTeamFilter)?.name}`}
+                    ? loc.admin_lb_clearall || "Clear All DB"
+                    : `${loc.admin_lb_clear || "Clear"}: ${teamsList.find((t) => t.id === adminTeamFilter)?.name || ""}`}
                 </button>
 
-                {/* КОНТЕЙНЕР ФИЛЬТРА И КНОПКИ ADD */}
-                {/* min-w-0 здесь обязателен для работы truncate внутри */}
+                {/* FILTER CONTAINER AND ADD BUTTONS */}
                 <div className="flex items-center bg-black border border-[#00ff41]/40 p-1 flex-1 min-w-0">
                   <span className="text-[9px] px-2 opacity-50 uppercase italic font-bold whitespace-nowrap border-r border-[#00ff41]/20 mr-2 shrink-0">
-                    Filtra:
+                    {loc.admin_lb_filter}
                   </span>
 
-                  {/* СЕЛЕКТОР КОМАНД */}
+                  {/* COMMAND SELECTOR */}
                   <select
                     className="bg-transparent text-[#00ff41] text-[10px] outline-none cursor-pointer uppercase font-bold flex-1 min-w-0 max-w-full truncate"
                     value={adminTeamFilter}
@@ -2084,13 +2084,14 @@ export default function MarsSurvivalGame() {
                     ))}
                   </select>
 
-                  {/* КНОПКА ADD */}
+                  {/* ADD BUTTON */}
                   <button
                     onClick={handleAddSinglePlayer}
                     className="ml-2 px-3 py-1 border border-[#00ff41] text-[#00ff41] text-[9px] font-black uppercase hover:bg-[#00ff41] hover:text-black transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0"
+                    title={loc.admin_msg_addteam}
                   >
                     <UserPlus size={12} strokeWidth={2.5} />
-                    <span className="hidden xs:inline">Add</span>
+                    <span className="hidden xs:inline">{loc.admin_lb_add}</span>
                   </button>
                 </div>
               </div>
