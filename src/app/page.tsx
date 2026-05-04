@@ -1361,20 +1361,15 @@ export default function MarsSurvivalGame() {
     );
   } else if (view === "discussion-list") {
     const isAdmin = username.toLowerCase() === "admin";
-    const discussionResults = allResults
-      .filter((r) => r.team_id === (isAdmin ? adminTeamFilter : teamId))
-      .sort((a, b) => {
-        // 1. Commander is always first
-        if (a.username === "Commander") return -1;
-        if (b.username === "Commander") return 1;
-        // 2.  We sort all the rest alphabetically
-        return a.username.localeCompare(b.username);
-      });
-
     const isCommander = username === "Commander";
     const currentTeam = teamsList.find(
       (t) => t.id === (isAdmin ? adminTeamFilter : teamId),
     );
+
+    // Get the IDs of all unique commands in the current list of results
+    const uniqueTeamIds: number[] = Array.from(
+      new Set(discussionResults.map((r) => r.team_id)),
+    ).sort((a, b) => a - b);
 
     content = (
       <>
@@ -1391,6 +1386,7 @@ export default function MarsSurvivalGame() {
           <h2 className="text-lg font-bold uppercase italic tracking-tighter">
             {loc.btn_report} {currentTeam?.name}
           </h2>
+
           <motion.div
             // Rotation animation: if isRefreshing = true, rotate 360 degrees
             animate={{ rotate: isRefreshing ? 360 : 0 }}
@@ -1413,60 +1409,83 @@ export default function MarsSurvivalGame() {
           </motion.div>
         </div>
 
-        <div className="space-y-2 mb-8">
-          {leaderboardResults.map((res) => {
-            // A commander always gets results. An ordinary player—unless their score is -1.
-            const hasResult = res.score !== -1 || res.username === "Commander";
-            //  Button color: Amber for the commander, Green for those ready, Red for those waiting
-            const btnColorClass =
-              res.username === "Commander"
-                ? "bg-amber-500"
-                : hasResult
-                  ? "bg-[#00ff41]"
-                  : "bg-red-600 animate-pulse";
+        <div className="space-y-8 mb-8">
+          {/* 2. OUTER LOOP: Iterate through each command */}
+          {uniqueTeamIds.map((tId) => {
+            const teamName =
+              teamsList.find((t) => t.id === tId)?.name || "Unità Sconosciuta";
+            const teamMembers = discussionResults.filter(
+              (r) => r.team_id === tId,
+            );
+
             return (
-              <div
-                key={res.id}
-                className={`flex justify-between items-center p-3 border ${
-                  res.username === "Commander"
-                    ? "bg-[#38180670] border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
-                    : "bg-[#111] border-[#00ff41]/20"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  {res.username === "Commander" && (
-                    <div className="bg-amber-500 text-black text-[10px] px-1 font-black uppercase">
-                      Final Order
-                    </div>
-                  )}
-                  <span
-                    className={`font-bold uppercase ${res.username === "Commander" ? "text-amber-500" : "text-[#00ff41]"}`}
-                  >
-                    {res.username}
-                  </span>
+              <div key={tId} className="space-y-2">
+                {/* TEAM HEADING */}
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="h-0.5 flex-1 bg-[#00ff41]" ></div>
+                  <h3 className="text-xs font-black uppercase text-[#00ff41] tracking-[0.2em] px-2">
+                    - {teamName} -
+                  </h3>
+                  <div className="h-0.5 flex-1 bg-[#00ff41]"></div>
                 </div>
 
-                <button
-                  onClick={() => {
-                    if (!hasResult) {
-                      // If there is no result, display an error message
-                      triggerModal(
-                        "alert",
-                        ModalMode.IDLE,
-                        loc.msg_modal_nodata,
-                      );
-                      return;
-                    }
-                    // If there's a result, let's move on to the details
-                    setSelectedUserDetail(res);
-                    setShowDeltas(false);
-                    setPrevView("discussion-list");
-                    setView("user-detail");
-                  }}
-                  className={`${btnColorClass} text-black px-4 py-1 text-[10px] font-black uppercase transition-colors`}
-                >
-                  {loc.btn_analise || "Analizza"}
-                </button>
+                {/* 3. INER LOOP: Players on this team */}
+                <div className="space-y-2">
+                  {teamMembers.map((res) => {
+                    const isCommander = res.username === "Commander";
+                    const hasResult = res.score !== -1;
+                    const btnColorClass = isCommander
+                      ? "bg-amber-500"
+                      : hasResult
+                        ? "bg-[#00ff41]"
+                        : "bg-red-600 animate-pulse";
+
+                    return (
+                      <div
+                        key={res.id}
+                        className={`flex justify-between items-center p-3 border ${
+                          isCommander
+                            ? "bg-[#38180670] border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
+                            : "bg-[#00ff41]/5 border-[#00ff41]/20"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          {isCommander && (
+                            <div className="bg-amber-500 text-black text-[8px] px-1 font-black uppercase">
+                              Final Order
+                            </div>
+                          )}
+                          <span
+                            className={`font-bold uppercase text-xs ${isCommander ? "text-amber-500" : "text-[#00ff41]"}`}
+                          >
+                            {res.username}
+                          </span>
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            if (!hasResult) {
+                              triggerModal(
+                                "alert",
+                                ModalMode.IDLE,
+                                loc.msg_no_results ||
+                                  "Rapporto non disponibile.",
+                              );
+                              return;
+                            }
+                            setSelectedUserDetail(res);
+                            setShowDeltas(false);
+                            setPrevView("discussion-list");
+                            setView("user-detail");
+                          }}
+                          className={`${btnColorClass} text-black px-4 py-1 text-[10px] font-black uppercase`}
+                        >
+                          {loc.btn_analise || "Analizza"}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             );
           })}
@@ -1718,9 +1737,7 @@ export default function MarsSurvivalGame() {
                 {/* SCORE: The commander can also be highlighted in orange */}
                 <span
                   className={`text-right font-black text-xs md:text-base ${
-                    isCommEntry
-                      ? "text-amber-500"
-                      : "text-[#00ff41]"
+                    isCommEntry ? "text-amber-500" : "text-[#00ff41]"
                   }`}
                 >
                   {res.score === -1 ? (

@@ -112,5 +112,6 @@
    "msg_selectteam" : "Selezionare una squadra specifica.",
    "msg_confirm_wipe_system" : "PERICOLO CRITICO: Questa azione cancellerà TUTTE le squadre e TUTTI i risultati. Sei assolutamente sicuro?",
    "tooltip_wipe_all" : "Cancella tutto il database (Team + Player)",
-   "filter_all" : "TUTTI I RISULTATI"
+   "filter_all" : "TUTTI I RISULTATI",
+   "loc.msg_no_results" : "Rapporto non disponibile."
 }
