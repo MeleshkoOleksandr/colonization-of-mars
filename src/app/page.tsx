@@ -50,6 +50,7 @@ import {
   addTeamWithPlayersAction,
   updatePlayerResultAction,
   addSinglePlayerAction,
+  wipeEntireDatabaseAction,
 } from "./actions";
 
 import { Team, GameResult } from "../../lib/db";
@@ -403,7 +404,7 @@ export default function MarsSurvivalGame() {
   const [currentScore, setCurrentScore] = useState<number>(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showDeltas, setShowDeltas] = useState<boolean>(true);
-  const [adminTeamFilter, setAdminTeamFilter] = useState<number>(0);
+  const [adminTeamFilter, setAdminTeamFilter] = useState<string>("all");
   const [newTeamName, setNewTeamName] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -692,6 +693,59 @@ export default function MarsSurvivalGame() {
     };
   };
 
+  /**
+   * UNIVERSAL DATA FILTERING LOGIC
+   * Filters results based on "all", "scen:id", or "team:id"
+   */
+  const isAdmin = username.toLowerCase() === "admin";
+
+  const getEffectiveResults = () => {
+    // 1. If it's a regular PLAYER, we always show only their team
+    if (!isAdmin) {
+      return allResults.filter((r) => r.team_id === teamId);
+    }
+
+    // 2. If this is ADMIN, we'll follow your algorithm for strings
+    if (adminTeamFilter === "all") return allResults;
+
+    if (adminTeamFilter.startsWith("scen:")) {
+      const targetScenId = adminTeamFilter.split(":")[1];
+      return allResults.filter((r) => {
+        const team = teamsList.find((t) => t.id === r.team_id);
+        return team?.current_scenario === targetScenId;
+      });
+    }
+
+    if (adminTeamFilter.startsWith("team:")) {
+      const targetTeamId = parseInt(adminTeamFilter.split(":")[1]);
+      return allResults.filter((r) => r.team_id === targetTeamId);
+    }
+
+    return allResults;
+  };
+
+  // 3. We use this function to create lists for each screen:
+  // For the main admin table (sorted by date)
+  const displayedResults = getEffectiveResults().sort((a, b) => {
+    const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+    return dateB - dateA;
+  });
+
+  // For the discussion list (sorted by Commander -> Name)
+  const discussionResults = getEffectiveResults().sort((a, b) => {
+    if (a.username === "Commander") return -1;
+    if (b.username === "Commander") return 1;
+    return a.username.localeCompare(b.username);
+  });
+
+  // For the leaderboard (sorted by Commander -> Points)
+  const leaderboardResults = getEffectiveResults().sort((a, b) => {
+    if (a.username === "Commander") return -1;
+    if (b.username === "Commander") return 1;
+    return a.score - b.score;
+  });
+
   // Audio playback function
   const playBeep = () => {
     const audio = new Audio("/sounds/soft_beep.wav");
@@ -862,7 +916,6 @@ export default function MarsSurvivalGame() {
   /**
    * ADMIN & DATABASE HANDLERS
    */
-
   // Logic for deleting a team
   const handleDeleteTeam = (id: number) => {
     setModal({
@@ -875,7 +928,7 @@ export default function MarsSurvivalGame() {
         await deleteTeamAction(id);
         setTeamsList(await getTeamsAction());
         setAllResults(await getResultsAction());
-        setAdminTeamFilter(0);
+        setAdminTeamFilter("all");
         setModal((prev) => ({ ...prev, isOpen: false }));
       },
     });
@@ -986,19 +1039,21 @@ export default function MarsSurvivalGame() {
 
   // Delete all results for one team
   const handleDeleteTeamResults = (teamId: number) => {
-    const teamName = teamsList.find((t) => t.id === teamId)?.name || "Unità";
-    setModal({
-      isOpen: true,
-      type: "confirm",
-      mode: ModalMode.IDLE,
-      message: `${loc.msg_modal_delteamresul} ${teamName}?`,
-      value: "",
-      action: async () => {
-        await deleteResultsByTeamAction(teamId);
-        setAllResults(await getResultsAction());
-        setModal((prev) => ({ ...prev, isOpen: false }));
+    const teamName = teamsList.find((t) => t.id === teamId)?.name;
+    triggerModal(
+      "confirm",
+      ModalMode.IDLE,
+      `${loc.msg_confirm_clear_team || "Cancellare tutti i record di"} [${teamName}]?`,
+      async () => {
+        try {
+          await deleteResultsByTeamAction(teamId); // Экшен тоже ждет число
+          setAllResults(await getResultsAction());
+          setModal((prev) => ({ ...prev, isOpen: false }));
+        } catch (error) {
+          console.error(error);
+        }
       },
-    });
+    );
   };
 
   // Action for team member becoming Commander
@@ -1047,13 +1102,17 @@ export default function MarsSurvivalGame() {
 
   // Action for adding new member  to existing team
   const handleAddSinglePlayer = () => {
-    // Check if a team has been selected in the admin panel filter
-    if (adminTeamFilter === 0) {
-      return triggerModal("alert", ModalMode.IDLE, loc.msg_modal_teamselerr);
+    if (!adminTeamFilter.startsWith("team:")) {
+      return triggerModal(
+        "alert",
+        ModalMode.IDLE,
+        loc.msg_err_select_team ||
+          "ERRORE: Seleziona una squadra specifica (non l'intero scenario) per aggiungere un colono.",
+      );
     }
 
-    const teamName =
-      teamsList.find((t) => t.id === adminTeamFilter)?.name || "";
+    const targetTeamId = parseInt(adminTeamFilter.split(":")[1]);
+    const teamName = teamsList.find((t) => t.id === targetTeamId)?.name || "";
 
     setModal({
       isOpen: true,
@@ -1061,16 +1120,53 @@ export default function MarsSurvivalGame() {
       mode: ModalMode.ADD_PLAYER,
       message: `${loc.msg_modal_newinit} [${teamName.toUpperCase()}]:`,
       value: "",
-      action: () => {}, // We'll add the confirmation logic to `onConfirm` block
+      action: () => {},
+    });
+  };
+
+  // Action for deleting all teams and, consequently, all results
+  const handleWipeEverything = () => {
+    setModal({
+      isOpen: true,
+      type: "confirm",
+      mode: ModalMode.IDLE,
+      message: loc.msg_confirm_wipe_system,
+      value: "",
+      action: async () => {
+        try {
+          // 1. Initiate a full deletion
+          await wipeEntireDatabaseAction();
+          // 2. Мгновенно очищаем локальные списки
+          setTeamsList([]);
+          setAllResults([]);
+          // 3. Set the filter to “all”
+          setAdminTeamFilter("all");
+          // 4. Closing the modal window
+          setModal((prev) => ({ ...prev, isOpen: false }));
+
+          console.log("SYSTEM: Full database wipe complete.");
+        } catch (error) {
+          console.error(error);
+        }
+      },
     });
   };
 
   // Function used for save (called from a modal window)
   const executeAddSinglePlayer = async () => {
-    if (modal.value.trim() && adminTeamFilter !== 0) {
-      await addSinglePlayerAction(adminTeamFilter, modal.value);
-      setAllResults(await getResultsAction()); // Updating the table
-      setModal((prev) => ({ ...prev, isOpen: false, value: "" }));
+    if (modal.value.trim() && adminTeamFilter.startsWith("team:")) {
+      const targetTeamId = parseInt(adminTeamFilter.split(":")[1]);
+
+      try {
+        await addSinglePlayerAction(targetTeamId, modal.value);
+        setAllResults(await getResultsAction());
+        setModal((prev) => ({ ...prev, isOpen: false, value: "" }));
+      } catch (error) {
+        console.error("Error adding player:", error);
+        triggerModal("alert", ModalMode.IDLE, loc.msg_saveplayer);
+      }
+    } else {
+      triggerModal("alert", ModalMode.IDLE, loc.msg_selectteam);
     }
   };
 
@@ -1316,7 +1412,7 @@ export default function MarsSurvivalGame() {
         </div>
 
         <div className="space-y-2 mb-8">
-          {discussionResults.map((res) => {
+          {leaderboardResults.map((res) => {
             // A commander always gets results. An ordinary player—unless their score is -1.
             const hasResult = res.score !== -1 || res.username === "Commander";
             //  Button color: Amber for the commander, Green for those ready, Red for those waiting
@@ -1380,23 +1476,42 @@ export default function MarsSurvivalGame() {
           {isAdmin || isCommander ? (
             <button
               onClick={async () => {
-                const targetId = isAdmin ? adminTeamFilter : teamId;
-                if (targetId === 0)
+                // If it's an admin, we try to extract the ID from the string “team:123”
+                // If it's a player, we use their numeric teamId
+                const isAdmin = username.toLowerCase() === "admin";
+                let teamIdToUnlock: number = 0;
+
+                if (isAdmin) {
+                  if (adminTeamFilter.startsWith("team:")) {
+                    teamIdToUnlock = parseInt(adminTeamFilter.split(":")[1]);
+                  } else if (adminTeamFilter.startsWith("scen:")) {
+                    // Optional: if you want to unlock the entire script
+                    return triggerModal(
+                      "alert",
+                      ModalMode.IDLE,
+                      "Seleziona una squadra specifica per sbloccare i risultati.",
+                    );
+                  }
+                } else {
+                  teamIdToUnlock = teamId;
+                }
+                // Security check
+                if (teamIdToUnlock === 0)
                   return triggerModal(
                     "alert",
                     ModalMode.IDLE,
                     "Seleziona un team.",
                   );
-                // Unlock the results in the database
-                await updateTeamStatusAction(targetId, true);
-                //  Updating the list of commands locally
-                const freshTeams = await getTeamsAction();
-                setTeamsList(freshTeams);
-                //  CHECK: If it's the Commander, send him directly to the results
+
+                // CALL ACTION (Now pass a number)
+                await updateTeamStatusAction(teamIdToUnlock, true);
+
+                // Refresh data
+                setTeamsList(await getTeamsAction());
+
                 if (username === "Commander") {
                   setView("results");
                 } else {
-                  // If it's an admin, we just display the confirmation and stay where we are
                   triggerModal(
                     "alert",
                     ModalMode.IDLE,
@@ -1564,80 +1679,74 @@ export default function MarsSurvivalGame() {
             <span className="text-right md:pr-2">Info</span>
           </div>
 
-          {filteredResults
-            .sort((a, b) => {
-              if (a.username === "Commander") return -1;
-              if (b.username === "Commander") return 1;
-              return a.score - b.score;
-            })
-            .map((res) => {
-              const isCommEntry = res.username === "Commander";
-              // Проверка наличия результата
-              const hasResult = res.score !== -1 || isCommEntry;
+          {leaderboardResults.map((res) => {
+            const isCommEntry = res.username === "Commander";
+            // Проверка наличия результата
+            const hasResult = res.score !== -1 || isCommEntry;
 
-              return (
-                <div
-                  key={res.id}
-                  // Responsive grid: wider for name, narrow for score/action
-                  // Amber color for Commander
-                  className={`grid grid-cols-[1.5fr_1fr_45px_35px] md:grid-cols-4 items-center p-3 md:p-4 border transition-colors gap-2 ${
-                    isCommEntry
-                      ? "bg-amber-500/10 border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)]"
-                      : "bg-[#111] border-[#00ff41]/20 hover:border-[#00ff41]"
+            return (
+              <div
+                key={res.id}
+                // Responsive grid: wider for name, narrow for score/action
+                // Amber color for Commander
+                className={`grid grid-cols-[1.5fr_1fr_45px_35px] md:grid-cols-4 items-center p-3 md:p-4 border transition-colors gap-2 ${
+                  isCommEntry
+                    ? "bg-amber-500/10 border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)]"
+                    : "bg-[#111] border-[#00ff41]/20 hover:border-[#00ff41]"
+                }`}
+              >
+                {/* NAME: Allow wrapping and multi-line for long names. Amber color for Commander */}
+                <span
+                  className={`font-bold text-xs md:text-sm leading-tight wrap-break-word pr-2 ${
+                    isCommEntry ? "text-amber-500" : ""
                   }`}
                 >
-                  {/* NAME: Allow wrapping and multi-line for long names. Amber color for Commander */}
-                  <span
-                    className={`font-bold text-xs md:text-sm leading-tight wrap-break-word pr-2 ${
-                      isCommEntry ? "text-amber-500" : ""
-                    }`}
-                  >
-                    {res.username}
-                  </span>
+                  {res.username}
+                </span>
 
-                  {/* TEAM: Small and truncated to save space. Amber color for Commander */}
-                  <span
-                    className={`text-[10px] md:text-xs truncate uppercase ${
-                      isCommEntry ? "text-amber-500 opacity-100" : "opacity-70"
-                    }`}
-                  >
-                    {res.team_name}
-                  </span>
+                {/* TEAM: Small and truncated to save space. Amber color for Commander */}
+                <span
+                  className={`text-[10px] md:text-xs truncate uppercase ${
+                    isCommEntry ? "text-amber-500 opacity-100" : "opacity-70"
+                  }`}
+                >
+                  {res.team_name}
+                </span>
 
-                  {/* SCORE: The commander can also be highlighted in orange */}
-                  <span
-                    className={`text-right font-black text-xs md:text-base ${
-                      isCommEntry ? "text-amber-500" : "text-[#00ff41]"
-                    }`}
-                  >
-                    {res.score}
-                  </span>
+                {/* SCORE: The commander can also be highlighted in orange */}
+                <span
+                  className={`text-right font-black text-xs md:text-base ${
+                    isCommEntry ? "text-amber-500" : "text-[#00ff41]"
+                  }`}
+                >
+                  {res.score}
+                </span>
 
-                  {/* ACTION: Icon instead of text on mobile */}
-                  <div className="flex justify-end">
-                    <button
-                      onClick={() => {
-                        if (!hasResult) {
-                          triggerModal(
-                            "alert",
-                            ModalMode.IDLE,
-                            loc.msg_no_results || "Rapporto non disponibile.",
-                          );
-                          return;
-                        }
-                        setSelectedUserDetail(res);
-                        setShowDeltas(true);
-                        setPrevView("leaderboard");
-                        setView("user-detail");
-                      }}
-                      className={`p-1 ${isCommEntry ? "text-amber-500" : hasResult ? "text-[#00ff41]" : "text-red-600"}`}
-                    >
-                      <ChevronRight size={18} />
-                    </button>
-                  </div>
+                {/* ACTION: Icon instead of text on mobile */}
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => {
+                      if (!hasResult) {
+                        triggerModal(
+                          "alert",
+                          ModalMode.IDLE,
+                          loc.msg_no_results || "Rapporto non disponibile.",
+                        );
+                        return;
+                      }
+                      setSelectedUserDetail(res);
+                      setShowDeltas(true);
+                      setPrevView("leaderboard");
+                      setView("user-detail");
+                    }}
+                    className={`p-1 ${isCommEntry ? "text-amber-500" : hasResult ? "text-[#00ff41]" : "text-red-600"}`}
+                  >
+                    <ChevronRight size={18} />
+                  </button>
                 </div>
-              );
-            })}
+              </div>
+            );
+          })}
         </div>
 
         {!isAdmin && (
@@ -1754,22 +1863,38 @@ export default function MarsSurvivalGame() {
       </>
     );
   } else if (view === "admin") {
-    const filteredAdminResults = (
-      adminTeamFilter === 0
-        ? allResults
-        : allResults.filter((r) => r.team_id === adminTeamFilter)
-    ).sort((a, b) => {
-      //  Convert dates to timestamps for comparison
-      const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
-      const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
-      // Sort by: largest to smallest (freshest first)
-      return dateB - dateA;
+    // ---  UNIVERSAL FILTERING LOGIC ---
+    const resultsFilteredByMenu = allResults.filter((r) => {
+      // If “All Teams” is selected
+      if (adminTeamFilter === "all") return true;
+
+      // If a specific scenario (scen:id) is selected
+      if (adminTeamFilter.startsWith("scen:")) {
+        const targetScenId = adminTeamFilter.split(":")[1];
+        // Let's check what scenario this player's team is facing
+        const teamOfPlayer = teamsList.find((t) => t.id === r.team_id);
+        return teamOfPlayer?.current_scenario === targetScenId;
+      }
+
+      // If a specific team (team:id) is selected
+      if (adminTeamFilter.startsWith("team:")) {
+        const targetTeamId = parseInt(adminTeamFilter.split(":")[1]);
+        return r.team_id === targetTeamId;
+      }
+      return true;
     });
 
-    // Logic for discussion filter
-    const discussionResults = allResults
-      .filter((r) => adminTeamFilter === 0 || r.team_id === adminTeamFilter)
-      .sort((a, b) => a.username.localeCompare(b.username));
+    //  PREPARING THE LIST FOR THE REGISTRY (Sort by date) ---
+    const filteredAdminResults = [...resultsFilteredByMenu].sort((a, b) => {
+      const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return dateB - dateA; // Сначала новые
+    });
+
+    // --- PREPARING THE DISCUSSION LIST (Sort by name) ---
+    const discussionResults = [...resultsFilteredByMenu].sort((a, b) =>
+      a.username.localeCompare(b.username),
+    );
 
     content = (
       <>
@@ -2046,22 +2171,13 @@ export default function MarsSurvivalGame() {
 
               {/* GROUP 2: DATA OPERATIONS (Delete, Filter, Add) */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1 min-w-0 lg:justify-end">
-                {/* DELETE BUTTON */}
+                {/* DELETE ALL BUTTON */}
                 <button
-                  onClick={
-                    adminTeamFilter === 0
-                      ? handleDeleteAllResults
-                      : () => handleDeleteTeamResults(adminTeamFilter)
-                  }
-                  className={`px-3 py-1.5 border text-[9px] font-bold uppercase transition-colors truncate shrink-0 m:max-w-37.5 lg:max-w-45 ${
-                    adminTeamFilter === 0
-                      ? "border-red-600 text-red-500 hover:bg-red-600 hover:text-white"
-                      : "border-amber-600 text-amber-500 hover:bg-amber-600 hover:text-white"
-                  }`}
+                  onClick={handleWipeEverything}
+                  className="px-3 py-1.5 border border-red-600 text-red-500 hover:bg-red-600 hover:text-white text-[9px] font-black uppercase transition-all shadow-[0_0_10px_rgba(220,38,38,0.2)] shrink-0"
+                  title={loc.tooltip_wipe_all}
                 >
-                  {adminTeamFilter === 0
-                    ? loc.admin_lb_clearall || "Clear All DB"
-                    : `${loc.admin_lb_clear || "Clear"}: ${teamsList.find((t) => t.id === adminTeamFilter)?.name || ""}`}
+                  {loc.admin_lb_clearall}
                 </button>
 
                 {/* FILTER CONTAINER AND ADD BUTTONS */}
@@ -2074,14 +2190,43 @@ export default function MarsSurvivalGame() {
                   <select
                     className="bg-transparent text-[#00ff41] text-[10px] outline-none cursor-pointer uppercase font-bold flex-1 min-w-0 max-w-full truncate"
                     value={adminTeamFilter}
-                    onChange={(e) => setAdminTeamFilter(Number(e.target.value))}
+                    onChange={(e) => setAdminTeamFilter(e.target.value)}
                   >
-                    <option value={0}>Tutti i Team</option>
-                    {teamsList.map((t) => (
-                      <option key={t.id} value={t.id} className="bg-black">
-                        {t.name}
-                      </option>
-                    ))}
+                    {/* 1. General filter */}
+                    <option value="all" className="bg-black text-[#00ff41]">
+                      -- {loc.filter_all || "TUTTI I RISULTATI"} --
+                    </option>
+
+                    {/* 2. We only consider scenarios that contain at least one command */}
+                    {scenarios
+                      .filter((scen) =>
+                        teamsList.some((t) => t.current_scenario === scen.id),
+                      )
+                      .map((scen) => (
+                        <React.Fragment key={scen.id}>
+                          {/* SELECTED SCENARIO (marked with an asterisk) */}
+                          <option
+                            value={`scen:${scen.id}`}
+                            className="bg-[#002200] text-amber-500 font-black italic"
+                          >
+                            * {scen.name.toUpperCase()}
+                          </option>
+
+                          {/* COMMANDS IN THIS SCRIPT */}
+                          {teamsList
+                            .filter((t) => t.current_scenario === scen.id)
+                            .sort((a, b) => a.id - b.id)
+                            .map((t) => (
+                              <option
+                                key={t.id}
+                                value={`team:${t.id}`}
+                                className="bg-black text-[#00ff41]"
+                              >
+                                &nbsp;&nbsp;&nbsp;{t.name}
+                              </option>
+                            ))}
+                        </React.Fragment>
+                      ))}
                   </select>
 
                   {/* ADD BUTTON */}
@@ -2246,11 +2391,12 @@ export default function MarsSurvivalGame() {
 
           <button
             onClick={() => {
-              if (adminTeamFilter === 0) {
+              if (adminTeamFilter === "all") {
                 triggerModal(
                   "alert",
                   ModalMode.IDLE,
-                  "Selezionare una squadra per avviare la discussione.",
+                  loc.msg_err_select_team  ||
+                    "Selezionare un Team o uno Scenario per avviare la discussione.",
                 );
               } else {
                 setPrevView("admin");

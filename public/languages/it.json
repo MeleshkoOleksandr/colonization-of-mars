@@ -104,5 +104,13 @@
    "admin_msg_teamQr": "Genera QR per l'intera squadra",
    "login_select_admin": "[ ACCESS CENTER: ADMIN ]",
    "login_select_team": "-- UNIT SELECTION --",
-   "login_team_label": "Seleziona Unità:"
+   "login_team_label": "Seleziona Unità:",
+
+   "msg_confirm_clear_team" : "Cancellare tutti i record di",
+   "loc.msg_err_select_team" : "Selezionare una squadra specifica per avviare la discussione.",
+   "msg_saveplayer" : "Errore nel salvataggio del giocatore.",
+   "msg_selectteam" : "Selezionare una squadra specifica.",
+   "msg_confirm_wipe_system" : "PERICOLO CRITICO: Questa azione cancellerà TUTTE le squadre e TUTTI i risultati. Sei assolutamente sicuro?",
+   "tooltip_wipe_all" : "Cancella tutto il database (Team + Player)",
+   "filter_all" : "TUTTI I RISULTATI"
 }
