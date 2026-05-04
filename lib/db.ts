@@ -151,3 +151,10 @@ export async function addSinglePlayer(teamId: number, playerName: string) {
     VALUES (${playerName.trim()}, ${teamId}, -1, '[]'::jsonb)
   `;
 }
+
+/**
+ * DANGER: Deletes all teams and, consequently, all results (via CASCADE).
+ */
+export async function wipeEntireDatabase() {
+  await sql`DELETE FROM teams`;
+}

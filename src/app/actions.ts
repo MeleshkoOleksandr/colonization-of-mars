@@ -127,3 +127,13 @@ export async function addSinglePlayerAction(teamId: number, playerName: string) 
     throw new Error("Database error");
   }
 }
+
+// Deletes all teams and all results
+export async function wipeEntireDatabaseAction() {
+  try {
+    await db.wipeEntireDatabase();
+    revalidatePath("/");
+  } catch (error) {
+    console.error("Wipe error:", error);
+  }
+}
