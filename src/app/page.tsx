@@ -1108,8 +1108,7 @@ export default function MarsSurvivalGame() {
       return triggerModal(
         "alert",
         ModalMode.IDLE,
-        loc.msg_err_select_team ||
-          "ERRORE: Seleziona una squadra specifica (non l'intero scenario) per aggiungere un colono.",
+        loc.msg_err_select_team,
       );
     }
 
@@ -2427,8 +2426,7 @@ export default function MarsSurvivalGame() {
                 triggerModal(
                   "alert",
                   ModalMode.IDLE,
-                  loc.msg_err_select_team ||
-                    "Selezionare un Team o uno Scenario per avviare la discussione.",
+                  loc.msg_err_select_team,
                 );
               } else {
                 setPrevView("admin");
