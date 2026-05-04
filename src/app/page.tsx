@@ -739,10 +739,12 @@ export default function MarsSurvivalGame() {
     return a.username.localeCompare(b.username);
   });
 
-  // For the leaderboard (sorted by Commander -> Points)
+  // For the leaderboard
   const leaderboardResults = getEffectiveResults().sort((a, b) => {
-    if (a.username === "Commander") return -1;
-    if (b.username === "Commander") return 1;
+    // 1. If one player has finished and the other hasn't, the one who has finished always ranks higher
+    if (a.score === -1 && b.score !== -1) return 1;
+    if (a.score !== -1 && b.score === -1) return -1;
+    // 2. If both are finished, sort them from best to worst (lower = better)
     return a.score - b.score;
   });
 
@@ -1716,10 +1718,23 @@ export default function MarsSurvivalGame() {
                 {/* SCORE: The commander can also be highlighted in orange */}
                 <span
                   className={`text-right font-black text-xs md:text-base ${
-                    isCommEntry ? "text-amber-500" : "text-[#00ff41]"
+                    isCommEntry
+                      ? "text-amber-500"
+                      : "text-[#00ff41]"
                   }`}
                 >
-                  {res.score}
+                  {res.score === -1 ? (
+                    // Показываем иконку вместо -1
+                    <div
+                      className="flex justify-end"
+                      title={loc.msg_waiting || "In attesa..."}
+                    >
+                      <CircleSlash size={16} strokeWidth={3} />
+                    </div>
+                  ) : (
+                    // Показываем реальный балл
+                    res.score
+                  )}
                 </span>
 
                 {/* ACTION: Icon instead of text on mobile */}
@@ -2395,7 +2410,7 @@ export default function MarsSurvivalGame() {
                 triggerModal(
                   "alert",
                   ModalMode.IDLE,
-                  loc.msg_err_select_team  ||
+                  loc.msg_err_select_team ||
                     "Selezionare un Team o uno Scenario per avviare la discussione.",
                 );
               } else {
