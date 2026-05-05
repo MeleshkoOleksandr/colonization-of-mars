@@ -29,6 +29,7 @@ import {
   LockOpen,
   UserCheck,
   UserPlus,
+  FileDown,
 } from "lucide-react";
 
 /**
@@ -1105,11 +1106,7 @@ export default function MarsSurvivalGame() {
   // Action for adding new member  to existing team
   const handleAddSinglePlayer = () => {
     if (!adminTeamFilter.startsWith("team:")) {
-      return triggerModal(
-        "alert",
-        ModalMode.IDLE,
-        loc.msg_err_select_team,
-      );
+      return triggerModal("alert", ModalMode.IDLE, loc.msg_err_select_team);
     }
 
     const targetTeamId = parseInt(adminTeamFilter.split(":")[1]);
@@ -1204,6 +1201,56 @@ export default function MarsSurvivalGame() {
       <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent"></div>
     </div>
   );
+
+  const exportToCSV = () => {
+    // 1. Column headers
+    const headers = [
+      loc.csv_h_operator || "Operatore",
+      loc.csv_h_team || "Unità",
+      loc.csv_h_score || "Score",
+      loc.csv_h_date || "Data",
+      loc.csv_h_time || "Ora",
+    ];
+
+    // 2. Converting results into text strings
+    const rows = leaderboardResults.map((res) => [
+      `"${res.username}"`, // Quotation are needed so that commas in names don't mess up the table
+      `"${res.team_name}"`,
+      res.score === -1 ? loc.csv_status_waiting || "WAIT" : res.score,
+      res.created_at ? new Date(res.created_at).toLocaleDateString() : "N/A",
+      res.created_at ? new Date(res.created_at).toLocaleTimeString() : "N/A",
+    ]);
+
+    // 3. Combine everything into one long string
+    const csvContent = [
+      "sep=;", // tell Excel to use semicolons
+      headers.join(";"),
+      ...rows.map((e) => e.join(";")),
+    ].join("\n");
+
+    // 4. Create a file in the browser's memory (Blob)
+    // Add a BOM (Byte Order Mark) so that Excel can correctly display special characters
+    const blob = new Blob(["\ufeff" + csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
+
+    //File name with current data
+    const now = new Date();
+    const dateStr = now.toISOString().split("T")[0];
+    const timeStr =
+      now.getHours().toString().padStart(2, "0") +
+      now.getMinutes().toString().padStart(2, "0");
+    const fileName = `MISSION_REPORT_${dateStr}_${timeStr}.csv`;
+
+    // 5. Click here to download
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", fileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   /**
    * VIEW ENGINE
@@ -1421,7 +1468,7 @@ export default function MarsSurvivalGame() {
               <div key={tId} className="space-y-2">
                 {/* TEAM HEADING */}
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="h-0.5 flex-1 bg-[#00ff41]" ></div>
+                  <div className="h-0.5 flex-1 bg-[#00ff41]"></div>
                   <h3 className="text-xs font-black uppercase text-[#00ff41] tracking-[0.2em] px-2">
                     - {teamName} -
                   </h3>
@@ -1780,20 +1827,33 @@ export default function MarsSurvivalGame() {
           })}
         </div>
 
-        {!isAdmin && (
-          <div className="mt-8 pt-6 border-t-2 border-[#00ff41]/30">
+        {/* BOTTOM ACTION BAR */}
+        <div className="mt-8 pt-6 border-t-2 border-[#00ff41]/30">
+          {isAdmin ? (
+            /* 1. ADMIN OPTION: EXPORT button */
             <button
-              onClick={() => window.location.reload()}
-              className="w-full bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors flex items-center justify-center gap-3"
+              onClick={exportToCSV}
+              className="w-full bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(0,255,65,0.3)] active:scale-[0.98]"
             >
-              <RefreshCcw size={24} />
-              {loc.result_lb_newmiss}
+              <FileDown size={24} />
+              {loc.csv_btn_export}
             </button>
-            <p className="text-[10px] text-center mt-4 opacity-50 uppercase tracking-widest">
-              {loc.result_lb_atten}
-            </p>
-          </div>
-        )}
+          ) : (
+            /* 2. PLAYER OPTION: NEW MISSION button */
+            <>
+              <button
+                onClick={() => window.location.reload()}
+                className="w-full bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors flex items-center justify-center gap-3 active:scale-[0.98]"
+              >
+                <RefreshCcw size={24} />
+                {loc.result_lb_newmiss}
+              </button>
+              <p className="text-[10px] text-center mt-4 opacity-50 uppercase tracking-widest">
+                {loc.result_lb_atten}
+              </p>
+            </>
+          )}
+        </div>
       </>
     );
   } else if (view === "user-detail" && selectedUserDetail) {
@@ -2423,11 +2483,7 @@ export default function MarsSurvivalGame() {
           <button
             onClick={() => {
               if (adminTeamFilter === "all") {
-                triggerModal(
-                  "alert",
-                  ModalMode.IDLE,
-                  loc.msg_err_select_team,
-                );
+                triggerModal("alert", ModalMode.IDLE, loc.msg_err_select_team);
               } else {
                 setPrevView("admin");
                 setView("discussion-list");
