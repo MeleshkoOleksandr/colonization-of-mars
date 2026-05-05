@@ -6,7 +6,7 @@
 
 An interactive, web-based platform for survival logic training, inspired by the classic **NASA Moon Survival Task**. While the default settings include Mars and Moon scenarios, the platform is designed to be **fully customizable** with unlimited XML-driven scenarios.
 
-The platform is designed for team-based training sessions and follows a specific "Blind Debrief" methodology.
+The platform is designed for classroom environments and team-based training sessions and follows a specific "Blind Debrief" methodology.
 
 The game features a **Retro-Futuristic CRT aesthetic** (inspired by 70s-80s sci-fi) and is fully optimized for both Desktop and Mobile devices.
 
@@ -38,15 +38,13 @@ The platform follows a specific "Team Synchronization" methodology designed for 
 The Command Center provides full control over the training session.
 
 #### Security: Access requires an Authorization Code (Default: `adm` can be changed in `page.tsx`).
-#### Unit Deployment:
-*   Create teams by selecting a Scenario and entering a Team Name.
-*   **Bulk Enrollment:** Paste a list of player names (one per line) to pre-register the entire unit.
-#### Access Management:
-*   **QR Code Generator**: Generate a unique QR code or direct link for any player to ensure instant login.
-*   **Status Toggles:** Manually unlock results or reset Commander status for any team via the dashboard.
-#### Mission Control:
-*   Real-time monitoring of player progress.
-*   Ability to wipe team records or the entire database to reset for new groups.
+### 🛠 Management Features:
+*   **Unit Deployment**: Select a scenario (Mars, Moon, etc.) and mass-enroll players by pasting names (one per line).
+*   **Access Control**: Generate **Unit QR Codes** (for the whole team) or **Individual QR Codes** (for specific players). Links automatically set the correct language and pre-select names.
+*   **Live Monitoring**: A real-time dashboard with **Audio Cues** (soft beep) and **Auto-Sync** alerts you when players finish their tasks.
+*   **Data Export**: Download professional **CSV Mission Reports** compatible with Excel for post-training analysis.
+*   **Access Overrides**: Manually toggle "Unlock Results" or "Commander Status" for any team.
+*   **System Wipe**: Quickly reset the entire database or specific team records for new training sessions.
 
 ---
 
@@ -94,6 +92,7 @@ Create a new file in public/data/my_mission.xml:
 <Mission>
     <Story>
         <Language>en</Language>
+        <Logo>logo_mars.png</Logo> 
         <Title>Mission Name</Title>
         <Plot>The survival story text here...</Plot>
     </Story>
@@ -103,7 +102,7 @@ Create a new file in public/data/my_mission.xml:
         <Rank threshold="999">Failure message...</Rank>
     </Evaluations>
     <Items>
-        <Item id="o2">
+        <Item id="id">
             <Name>Item Name</Name>
             <Photo>item_photo.jpg</Photo> <!-- Must exist in public/img/ -->
             <Position>1</Position> <!-- NASA priority rank -->
@@ -138,6 +137,17 @@ Each survival scenario defines its own language within the XML tag <Language>.
 
 ---
 
+## 📂 Project Structure
+
+*   `/app/page.tsx` - The "Engine": Handles navigation, logic, and the retro CRT UI.
+*   `/app/actions.ts` - The "Bridge": Secure Server Actions for database communication.
+*   `/lib/db.ts` - The "Vault": Core Postgres queries and relational logic.
+*   `/public/data/` - The "Missions": XML scenario files and the Scenario Manifest.
+*   `/public/languages/` - The "Dictionaries": JSON translation files.
+*   `/public/img/` - The "Assets": Photos for survival items and mission logos.
+
+---
+
 ## 🛠 Tech Stack & Libraries
 
 This project leverages modern web technologies to ensure a smooth and reactive experience:
@@ -156,3 +166,8 @@ Before you begin, ensure you have the following installed on your machine:
 *   **[Node.js (LTS)](https://nodejs.org/)** (Version 20 or higher).
 *   **[Visual Studio Code](https://code.visualstudio.com/)** (Recommended editor).
 *   **Database:** Vercel Postgres / Neon Serverless
+
+---
+
+### 📜 Credits
+*Logic based on official NASA survival training protocols. Developed for educational and team-building purposes with a focus on UX and atmospheric immersion.*
