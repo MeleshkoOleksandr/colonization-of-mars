@@ -113,5 +113,16 @@
   "tooltip_wipe_all": "Gesamte Datenbank löschen",
   "btn_logout": "Abmelden",
   "btn_admin": "Admin",
-  "btn_report": "Bericht: "
+  "btn_report": "Bericht: ",
+
+    "/* --- CSV EXPORT --- */": "",
+  "csv_h_operator": "Operator",
+  "csv_h_team": "Einheit (Team)",
+  "csv_h_score": "NASA-Punktzahl",
+  "csv_h_date": "Datum",
+  "csv_h_time": "Uhrzeit",
+  "csv_status_waiting": "Wartet",
+  "csv_status_na": "N/V",
+  "msg_export_success": "BERICHT ERSTELLT: Die CSV-Datei wurde heruntergeladen. Sie können sie mit Excel öffnen.",
+  "csv_btn_export": "Missionsbericht exportieren (CSV)"
 }

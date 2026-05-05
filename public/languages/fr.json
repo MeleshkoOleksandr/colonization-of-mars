@@ -113,5 +113,16 @@
   "tooltip_wipe_all": "Effacer toute la base de données (Team + Player)",
   "btn_logout": "Quitter",
   "btn_admin": "Admin",
-  "btn_report": "Rapport : "
+  "btn_report": "Rapport : ",
+
+    "/* --- CSV EXPORT --- */": "",
+  "csv_h_operator": "Opérateur",
+  "csv_h_team": "Unité (Équipe)",
+  "csv_h_score": "Score NASA",
+  "csv_h_date": "Date",
+  "csv_h_time": "Heure",
+  "csv_status_waiting": "En attente",
+  "csv_status_na": "N/A",
+  "msg_export_success": "RAPPORT GÉNÉRÉ : Le fichier CSV a été téléchargé. Vous pouvez l'ouvrir avec Excel.",
+  "csv_btn_export": "Exporter le rapport de mission (CSV)"
 }

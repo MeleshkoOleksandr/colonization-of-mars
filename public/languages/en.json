@@ -113,5 +113,16 @@
   "tooltip_wipe_all": "Clear entire database (Team + Player)",
   "btn_logout": "Logout",
   "btn_admin": "Admin",
-  "btn_report": "Report: "
+  "btn_report": "Report: ",
+
+  "/* --- CSV EXPORT --- */": "",
+  "csv_h_operator": "Operator",
+  "csv_h_team": "Unit (Team)",
+  "csv_h_score": "NASA Score",
+  "csv_h_date": "Date",
+  "csv_h_time": "Time",
+  "csv_status_waiting": "Pending",
+  "csv_status_na": "N/A",
+  "msg_export_success": "REPORT GENERATED: CSV file has been downloaded. You can open it with Excel.",
+  "csv_btn_export": "Export Mission Report (CSV)"
 }
