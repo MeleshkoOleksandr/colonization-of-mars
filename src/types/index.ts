@@ -2,7 +2,21 @@
  * SHARED DATA TYPES AND ENUMS
  */
 
+// --- CONSTANT for primary Language ---
+export const PRIMARY_LANG = 'it';
+
+// --- STYLES ---
+export const BUTTON_STYLES =
+  'w-full bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,255,65,0.5)]';
+
 // INTERFACES & TYPES
+export interface Story {
+  title: string;
+  plot: string;
+  language: string;
+  photo: string;
+}
+
 export interface SurvivalItem {
   id: string;
   name: string;

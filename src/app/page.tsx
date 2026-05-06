@@ -7,6 +7,10 @@ import { CRTWrapper } from '../components/CRTWrapper';
 import { Header } from '../components/Header';
 import { RetroModal } from '../components/RetroModal';
 import { MissionImageBlock } from '../components/MissionImageBlock';
+import { DraggableItem } from '../components/DraggableItem';
+import { AnalysisSequence } from '../components/AnalysisSequence';
+
+import { parseStoryXml } from '../utils/xmlParser';
 
 import {
   X,
@@ -16,7 +20,6 @@ import {
   Trash2,
   RefreshCcw,
   ArrowLeft,
-  GripVertical,
   Info,
   CircleSlash,
   MessageSquare,
@@ -53,161 +56,32 @@ import {
 } from './actions';
 
 // Import all INTERFACES & TYPES
-import { SurvivalItem, GameResult, Team, ModalMode, ModalType, ScoreEvaluation, Language, Localization } from '../types';
+import {
+  SurvivalItem,
+  GameResult,
+  Team,
+  ModalMode,
+  ModalType,
+  ScoreEvaluation,
+  Language,
+  Localization,
+  Story,
+  PRIMARY_LANG,
+  BUTTON_STYLES,
+} from '../types';
 
 // --- CONSTANTS FOR ADMIN MODE ---
 const ADMIN_PASSWORD = 'adm'; // Password to prevent players from seeing game results
 const ADMIN_USER = 'admin';
 
-// --- CONSTANTS FOR primary Language ---
-const PRIMARY_LANG = 'it';
-
-// --- STYLES ---
-const BUTTON_STYLES = {
-  primary: 'w-full bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,255,65,0.5)]',
-  secondary: 'border-2 border-[#00ff41] py-3 hover:bg-[#00ff41] hover:text-black uppercase font-bold transition-all',
-};
-
-/**
- * Item component for the Drag & Drop list.
- * Restricted to drag only via the GripVertical handle for better mobile UX.
- */
-const DraggableItem = ({ item, index }: { item: SurvivalItem; index: number }) => {
-  const controls = useDragControls();
-
-  return (
-    <Reorder.Item
-      value={item}
-      id={item.id}
-      dragListener={false}
-      dragControls={controls}
-      className="group bg-[#111] border-2 border-[#00ff41]/30 p-3 flex items-center gap-4 hover:border-[#00ff41]/60 transition-colors"
-      style={{ touchAction: 'pan-y' }}>
-      {/* 1. THE DRAG HANDLE */}
-      <div
-        className="cursor-grab active:cursor-grabbing p-2 text-[#00ff41]/30 hover:text-[#00ff41] transition-colors"
-        // Start dragging only when touching this handle ---
-        onPointerDown={e => controls.start(e)}
-        style={{ touchAction: 'none' }}>
-        <GripVertical size={20} />
-      </div>
-      {/* 2. INDEX NUMBER */}
-      <span className="text-xl font-black w-8 text-[#00ff41]/40 group-hover:text-[#00ff41]">{index + 1}</span>
-      {/* 3. ITEM PHOTO */}
-      <div className="w-20 h-20 border border-[#00ff41]/20 overflow-hidden bg-black shrink-0">
-        <img src={`/img/${item.photo}`} alt={item.name} draggable="false" className="w-full h-full object-cover opacity-80" />
-      </div>
-      {/* 4. ITEM NAME */}
-      <div className="flex-1">
-        <div className="uppercase font-bold text-xs leading-tight">{item.name}</div>
-      </div>
-    </Reorder.Item>
-  );
-};
-
-/**
- * Retro-styled analysis sequence shown after the player submits their order.
- */
-const AnalysisSequence = ({ onComplete }: { onComplete: () => void }) => {
-  const [logs, setLogs] = useState<string[]>([]);
-  const [progress, setProgress] = useState(0);
-
-  const phrases = [
-    '> INIZIALIZZAZIONE ANALISI...',
-    '> CONNESSIONE SATELLITE ARES-1',
-    '> SCANSIONE INVENTARIO...',
-    '> VALUTAZIONE O2: CRITICO',
-    '> CALCOLO TRAIETTORIA...',
-    '> ANALISI PRIORITÀ NASA...',
-    '> SINCRONIZZAZIONE DATABASE...',
-    '> CALCOLO PROBABILITÀ...',
-    '> GENERAZIONE RAPPORTO...',
-  ];
-
-  useEffect(() => {
-    // 1. Progress bar simulation
-    const interval = setInterval(() => setProgress(prev => (prev < 100 ? prev + 1 : 100)), 40);
-    // 2. Typing logs simulation
-    phrases.forEach((phrase, index) => {
-      setTimeout(() => setLogs(prev => [...prev, phrase]), index * 300);
-    });
-    // 3. Complete after some time
-    const timeout = setTimeout(onComplete, 3000);
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
-  }, [onComplete]);
-
-  return (
-    <div className="fixed inset-0 z-200 bg-black text-[#00ff41] font-mono p-6 flex flex-col overflow-hidden">
-      <div className="flex-1 flex flex-col justify-between max-w-lg mx-auto w-full py-4 md:py-10">
-        <div className="flex-1 min-h-0 mb-6 relative">
-          <div className="absolute inset-0 overflow-hidden flex flex-col justify-end border-l border-[#00ff41]/20 pl-4">
-            <AnimatePresence>
-              {logs.slice(-8).map((log, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="text-[10px] md:text-xs leading-tight mb-2 flex gap-2">
-                  <span className="opacity-40 shrink-0 hidden xs:inline">[ {new Date().toLocaleTimeString([], { second: '2-digit' })} s]</span>
-                  <span>{log}</span>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        </div>
-
-        {/* PROGRESS BAR BLOCK (Fixed size)  */}
-        <div className="shrink-0 space-y-3 bg-black">
-          <div className="flex justify-between text-[10px] uppercase font-black tracking-widest">
-            <span className="animate-pulse">Analyzing...</span>
-            <span>{progress}%</span>
-          </div>
-          <div className="w-full h-4 border-2 border-[#00ff41] p-0.5 shadow-[0_0_10px_rgba(0,255,65,0.2)]">
-            <div
-              className="h-full bg-[#00ff41] transition-all duration-100 ease-linear shadow-[0_0_15px_#00ff41]"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-        </div>
-
-        {/* DECORATIVE FOOTER */}
-        <div className="shrink-0 mt-8 grid grid-cols-3 gap-2 opacity-30 text-[7px] md:text-[8px] uppercase border-t border-[#00ff41]/10 pt-4">
-          <div className="animate-pulse">CPU: 98%</div>
-          <div className="animate-pulse delay-75">O2: OK</div>
-          <div className="animate-pulse delay-150">TMP: -64C</div>
-        </div>
-      </div>
-
-      {/* A scanning effect designed specifically for this screen */}
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%)] bg-size-[100%_4px] opacity-10"></div>
-    </div>
-  );
-};
-
-/**
- * Universal Modal UI used for Alerts, Confirms, and Admin Prompts.
- * Supports Enter and Escape keys for fast interaction.
- */
-
 // --- MAIN APPLICATION LOGIC ---
 export default function MarsSurvivalGame() {
-  /**
-   * STATE MANAGEMENT
-   */
+  //  STATE MANAGEMENT
   const [view, setView] = useState<'login' | 'story' | 'game' | 'results' | 'admin' | 'leaderboard' | 'user-detail' | 'discussion-list'>('login');
-
-  // Remember where to go back from 'user-detail' view
   const [prevView, setPrevView] = useState<'leaderboard' | 'admin' | 'results' | 'discussion-list'>('leaderboard');
 
   // Game Content from XML and scenarios
-  const [story, setStory] = useState({
-    title: 'Loading...',
-    plot: '',
-    logo: 'login_page.png',
-  });
+  const [story, setStory] = useState({ title: 'Loading...', plot: '', language: PRIMARY_LANG, photo: 'login_page.png' });
   const [items, setItems] = useState<SurvivalItem[]>([]);
   const [staticItems, setStaticItems] = useState<SurvivalItem[]>([]);
   const [evaluations, setEvaluations] = useState<ScoreEvaluation[]>([]);
@@ -232,10 +106,7 @@ export default function MarsSurvivalGame() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   //QrCode
-  const [shareData, setShareData] = useState<{
-    name: string;
-    url: string;
-  } | null>(null);
+  const [shareData, setShareData] = useState<{ name: string; url: string } | null>(null);
 
   // --- LOCALIZATION STATES ---
   const [availableLangs, setAvailableLangs] = useState<Language[]>([]);
@@ -438,47 +309,6 @@ export default function MarsSurvivalGame() {
     }
     loadDictionary();
   }, [currentLangId]);
-
-  /**
-   * XML PARSER
-   * Converts XML string from public/story.xml into JavaScript objects
-   */
-  const parseStoryXml = (xmlString: string) => {
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
-    const title = xmlDoc.getElementsByTagName('Title')[0]?.textContent || '';
-    const plot = xmlDoc.getElementsByTagName('Plot')[0]?.textContent || '';
-    const logo = xmlDoc.getElementsByTagName('Logo')[0]?.textContent || 'login_page.png';
-    const scenarioLang = xmlDoc.getElementsByTagName('Language')[0]?.textContent || PRIMARY_LANG;
-    const itemNodes = xmlDoc.getElementsByTagName('Item');
-    const items: SurvivalItem[] = [];
-
-    for (let i = 0; i < itemNodes.length; i++) {
-      const node = itemNodes[i];
-      items.push({
-        id: node.getAttribute('id') || '',
-        name: node.getElementsByTagName('Name')[0]?.textContent || '',
-        photo: node.getElementsByTagName('Photo')[0]?.textContent || '',
-        idealPosition: parseInt(node.getElementsByTagName('Position')[0]?.textContent || '15'),
-        description: node.getElementsByTagName('Description')[0]?.textContent || '',
-      });
-    }
-
-    // Parsing ranks
-    const evalNodes = xmlDoc.getElementsByTagName('Rank');
-    const evaluations: ScoreEvaluation[] = [];
-    for (let i = 0; i < evalNodes.length; i++) {
-      evaluations.push({
-        threshold: parseInt(evalNodes[i].getAttribute('threshold') || '999'),
-        message: evalNodes[i].textContent || '',
-      });
-    }
-    return {
-      story: { title, plot, language: scenarioLang, logo },
-      evaluations,
-      items,
-    };
-  };
 
   /**
    * UNIVERSAL DATA FILTERING LOGIC
@@ -1080,7 +910,7 @@ export default function MarsSurvivalGame() {
             </select>
           </div>
 
-          <button onClick={handleStart} className={BUTTON_STYLES.primary}>
+          <button onClick={handleStart} className={BUTTON_STYLES}>
             {loc.btn_start_main}
           </button>
         </div>
@@ -1091,7 +921,7 @@ export default function MarsSurvivalGame() {
       <>
         <Header title={story.title} />
         <div className="my-6 px-4 md:px-10">
-          <MissionImageBlock src={story.logo} isFullWidth={true} />
+          <MissionImageBlock src={story.photo} isFullWidth={true} />
         </div>
         <div className="space-y-6 text-lg  leading-relaxed">
           <p className="bg-[#003300] p-4 border-l-8 border-[#00ff41]">{story.plot}</p>
@@ -1273,7 +1103,7 @@ export default function MarsSurvivalGame() {
                   triggerModal('alert', ModalMode.IDLE, loc.msg_modal_missioncomlite);
                 }
               }}
-              className={BUTTON_STYLES.primary}>
+              className={BUTTON_STYLES}>
               {loc.btn_unblock}
             </button>
           ) : (
