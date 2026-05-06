@@ -1,14 +1,9 @@
-"use client";
-import React, { useState, useEffect, useRef } from "react";
+'use client';
+import React, { useState, useEffect, useRef } from 'react';
 
-import { QRCodeCanvas } from "qrcode.react";
+import { QRCodeCanvas } from 'qrcode.react';
 
-import {
-  Reorder,
-  AnimatePresence,
-  motion,
-  useDragControls,
-} from "framer-motion";
+import { Reorder, AnimatePresence, motion, useDragControls } from 'framer-motion';
 
 import {
   Save,
@@ -30,7 +25,7 @@ import {
   UserCheck,
   UserPlus,
   FileDown,
-} from "lucide-react";
+} from 'lucide-react';
 
 /**
  * SERVER ACTIONS IMPORT
@@ -52,9 +47,9 @@ import {
   updatePlayerResultAction,
   addSinglePlayerAction,
   wipeEntireDatabaseAction,
-} from "./actions";
+} from './actions';
 
-import { Team, GameResult } from "../../lib/db";
+import { Team, GameResult } from '../../lib/db';
 
 // --- INTERFACES & TYPES ---
 interface SurvivalItem {
@@ -89,22 +84,19 @@ interface Localization {
 }
 
 // --- CONSTANTS FOR ADMIN MODE ---
-const ADMIN_PASSWORD = "adm"; // Password to prevent players from seeing game results
-const ADMIN_USER = "admin";
+const ADMIN_PASSWORD = 'adm'; // Password to prevent players from seeing game results
+const ADMIN_USER = 'admin';
 
 // --- CONSTANTS FOR primary Language ---
-const PRIMARY_LANG = "it";
+const PRIMARY_LANG = 'it';
 
 // --- STYLES ---
 const BUTTON_STYLES = {
-  primary:
-    "w-full bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,255,65,0.5)]",
-  secondary:
-    "border-2 border-[#00ff41] py-3 hover:bg-[#00ff41] hover:text-black uppercase font-bold transition-all",
+  primary: 'w-full bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,255,65,0.5)]',
+  secondary: 'border-2 border-[#00ff41] py-3 hover:bg-[#00ff41] hover:text-black uppercase font-bold transition-all',
 };
 
 // --- UI COMPONENTS ---
-
 /**
  * Visual wrapper simulating a retro CRT monitor.
  * Includes scanlines and glowing border.
@@ -112,29 +104,19 @@ const BUTTON_STYLES = {
 const CRTWrapper = ({ children }: { children: React.ReactNode }) => (
   <div className="min-h-screen bg-[#0a0a0a] text-[#00ff41] font-mono p-4 md:p-8 relative overflow-hidden selection:bg-[#00ff41] selection:text-black">
     <div className="pointer-events-none fixed inset-0 z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-size-[100%_2px,3px_100%] opacity-30"></div>
-    <div className="max-w-4xl mx-auto border-4 border-[#00ff41] p-6 shadow-[0_0_25px_rgba(0,255,65,0.2)] bg-[#0d0d0d] relative z-10">
-      {children}
-    </div>
+    <div className="max-w-4xl mx-auto border-4 border-[#00ff41] p-6 shadow-[0_0_25px_rgba(0,255,65,0.2)] bg-[#0d0d0d] relative z-10">{children}</div>
   </div>
 );
 
 const Header = ({ title }: { title: string }) => (
-  <h1 className="text-2xl md:text-4xl font-black text-center mb-8 uppercase tracking-tighter italic border-b-2 border-[#00ff41] pb-4">
-    {title}
-  </h1>
+  <h1 className="text-2xl md:text-4xl font-black text-center mb-8 uppercase tracking-tighter italic border-b-2 border-[#00ff41] pb-4">{title}</h1>
 );
 
 /**
  * Item component for the Drag & Drop list.
  * Restricted to drag only via the GripVertical handle for better mobile UX.
  */
-const DraggableItem = ({
-  item,
-  index,
-}: {
-  item: SurvivalItem;
-  index: number;
-}) => {
+const DraggableItem = ({ item, index }: { item: SurvivalItem; index: number }) => {
   const controls = useDragControls();
 
   return (
@@ -144,35 +126,24 @@ const DraggableItem = ({
       dragListener={false}
       dragControls={controls}
       className="group bg-[#111] border-2 border-[#00ff41]/30 p-3 flex items-center gap-4 hover:border-[#00ff41]/60 transition-colors"
-      style={{ touchAction: "pan-y" }}
-    >
+      style={{ touchAction: 'pan-y' }}>
       {/* 1. THE DRAG HANDLE */}
       <div
         className="cursor-grab active:cursor-grabbing p-2 text-[#00ff41]/30 hover:text-[#00ff41] transition-colors"
         // Start dragging only when touching this handle ---
-        onPointerDown={(e) => controls.start(e)}
-        style={{ touchAction: "none" }}
-      >
+        onPointerDown={e => controls.start(e)}
+        style={{ touchAction: 'none' }}>
         <GripVertical size={20} />
       </div>
       {/* 2. INDEX NUMBER */}
-      <span className="text-xl font-black w-8 text-[#00ff41]/40 group-hover:text-[#00ff41]">
-        {index + 1}
-      </span>
+      <span className="text-xl font-black w-8 text-[#00ff41]/40 group-hover:text-[#00ff41]">{index + 1}</span>
       {/* 3. ITEM PHOTO */}
       <div className="w-20 h-20 border border-[#00ff41]/20 overflow-hidden bg-black shrink-0">
-        <img
-          src={`/img/${item.photo}`}
-          alt={item.name}
-          draggable="false"
-          className="w-full h-full object-cover opacity-80"
-        />
+        <img src={`/img/${item.photo}`} alt={item.name} draggable="false" className="w-full h-full object-cover opacity-80" />
       </div>
       {/* 4. ITEM NAME */}
       <div className="flex-1">
-        <div className="uppercase font-bold text-xs leading-tight">
-          {item.name}
-        </div>
+        <div className="uppercase font-bold text-xs leading-tight">{item.name}</div>
       </div>
     </Reorder.Item>
   );
@@ -186,27 +157,23 @@ const AnalysisSequence = ({ onComplete }: { onComplete: () => void }) => {
   const [progress, setProgress] = useState(0);
 
   const phrases = [
-    "> INIZIALIZZAZIONE ANALISI...",
-    "> CONNESSIONE SATELLITE ARES-1",
-    "> SCANSIONE INVENTARIO...",
-    "> VALUTAZIONE O2: CRITICO",
-    "> CALCOLO TRAIETTORIA...",
-    "> ANALISI PRIORITÀ NASA...",
-    "> SINCRONIZZAZIONE DATABASE...",
-    "> CALCOLO PROBABILITÀ...",
-    "> GENERAZIONE RAPPORTO...",
+    '> INIZIALIZZAZIONE ANALISI...',
+    '> CONNESSIONE SATELLITE ARES-1',
+    '> SCANSIONE INVENTARIO...',
+    '> VALUTAZIONE O2: CRITICO',
+    '> CALCOLO TRAIETTORIA...',
+    '> ANALISI PRIORITÀ NASA...',
+    '> SINCRONIZZAZIONE DATABASE...',
+    '> CALCOLO PROBABILITÀ...',
+    '> GENERAZIONE RAPPORTO...',
   ];
 
   useEffect(() => {
     // 1. Progress bar simulation
-    const interval = setInterval(() => {
-      setProgress((prev) => (prev < 100 ? prev + 1 : 100));
-    }, 40);
+    const interval = setInterval(() => setProgress(prev => (prev < 100 ? prev + 1 : 100)), 40);
     // 2. Typing logs simulation
     phrases.forEach((phrase, index) => {
-      setTimeout(() => {
-        setLogs((prev) => [...prev, phrase]);
-      }, index * 300);
+      setTimeout(() => setLogs(prev => [...prev, phrase]), index * 300);
     });
     // 3. Complete after some time
     const timeout = setTimeout(onComplete, 3000);
@@ -227,12 +194,8 @@ const AnalysisSequence = ({ onComplete }: { onComplete: () => void }) => {
                   key={i}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="text-[10px] md:text-xs leading-tight mb-2 flex gap-2"
-                >
-                  <span className="opacity-40 shrink-0 hidden xs:inline">
-                    [ {new Date().toLocaleTimeString([], { second: "2-digit" })}{" "}
-                    s]
-                  </span>
+                  className="text-[10px] md:text-xs leading-tight mb-2 flex gap-2">
+                  <span className="opacity-40 shrink-0 hidden xs:inline">[ {new Date().toLocaleTimeString([], { second: '2-digit' })} s]</span>
                   <span>{log}</span>
                 </motion.div>
               ))}
@@ -283,7 +246,7 @@ const RetroModal = ({
   loc,
 }: {
   isOpen: boolean;
-  type: "alert" | "confirm" | "prompt" | "prompt-area";
+  type: 'alert' | 'confirm' | 'prompt' | 'prompt-area';
   message: string;
   value?: string;
   onClose: () => void;
@@ -298,56 +261,47 @@ const RetroModal = ({
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="w-full max-w-md border-4 border-[#00ff41] bg-black p-6 shadow-[0_0_50px_rgba(0,255,65,0.3)] relative"
-      >
+        className="w-full max-w-md border-4 border-[#00ff41] bg-black p-6 shadow-[0_0_50px_rgba(0,255,65,0.3)] relative">
         {/* Scanline overlay for modal */}
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-size-[100%_2px,3px_100%] opacity-20"></div>
         <h3 className="text-[#00ff41] font-black uppercase tracking-tighter mb-4 text-xl italic border-b border-[#00ff41]/30 pb-2">
-          {type === "confirm"
-            ? `> ${loc.modal_title_confirm || "Richiesta Conferma"}`
-            : type === "prompt" || type === "prompt-area"
-              ? `> ${loc.modal_title_input || "Input Richiesto"}`
-              : `> ${loc.modal_title_system || "Messaggio Sistema"}`}
+          {type === 'confirm'
+            ? `> ${loc.modal_title_confirm || 'Richiesta Conferma'}`
+            : type === 'prompt' || type === 'prompt-area'
+              ? `> ${loc.modal_title_input || 'Input Richiesto'}`
+              : `> ${loc.modal_title_system || 'Messaggio Sistema'}`}
         </h3>
 
-        <p className="text-[#00ff41] mb-6 uppercase text-sm leading-relaxed tracking-wide">
-          {message}
-        </p>
+        <p className="text-[#00ff41] mb-6 uppercase text-sm leading-relaxed tracking-wide">{message}</p>
 
-        {type === "prompt-area" ? (
+        {type === 'prompt-area' ? (
           <textarea
             autoFocus
             className="w-full h-40 bg-[#001100] border-2 border-[#00ff41] p-2 text-[#00ff41] outline-none mb-6 focus:bg-[#003300] uppercase font-mono text-xs"
             placeholder="Inserire un nome per riga..."
             value={value}
-            onChange={(e) => onChange?.(e.target.value)}
+            onChange={e => onChange?.(e.target.value)}
           />
-        ) : type === "prompt" ? (
+        ) : type === 'prompt' ? (
           <input
             autoFocus
             className="w-full bg-[#001100] border-2 border-[#00ff41] p-2 text-[#00ff41] outline-none mb-6 focus:bg-[#003300] uppercase font-mono"
             value={value}
-            onChange={(e) => onChange?.(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && onConfirm()}
+            onChange={e => onChange?.(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && onConfirm()}
           />
         ) : null}
 
         <div className="flex justify-end gap-4">
-          {type !== "alert" && (
+          {type !== 'alert' && (
             <button
               onClick={onClose}
-              className="px-4 py-2 border border-[#00ff41]/50 text-[#00ff41]/50 hover:text-[#00ff41] uppercase text-xs font-bold"
-            >
-              {loc.msg_modal_cancel || "Annulla"}
+              className="px-4 py-2 border border-[#00ff41]/50 text-[#00ff41]/50 hover:text-[#00ff41] uppercase text-xs font-bold">
+              {loc.msg_modal_cancel || 'Annulla'}
             </button>
           )}
-          <button
-            onClick={onConfirm}
-            className="px-6 py-2 bg-[#00ff41] text-black font-black uppercase text-xs hover:bg-white transition-colors"
-          >
-            {type === "confirm"
-              ? loc.msg_modal_confirm || "Conferma"
-              : loc.msg_modal_exit || "Esegui"}
+          <button onClick={onConfirm} className="px-6 py-2 bg-[#00ff41] text-black font-black uppercase text-xs hover:bg-white transition-colors">
+            {type === 'confirm' ? loc.msg_modal_confirm || 'Conferma' : loc.msg_modal_exit || 'Esegui'}
           </button>
         </div>
       </motion.div>
@@ -360,53 +314,38 @@ export default function MarsSurvivalGame() {
   /**
    * STATE MANAGEMENT
    */
-  const [view, setView] = useState<
-    | "login"
-    | "story"
-    | "game"
-    | "results"
-    | "admin"
-    | "leaderboard"
-    | "user-detail"
-    | "discussion-list"
-  >("login");
+  const [view, setView] = useState<'login' | 'story' | 'game' | 'results' | 'admin' | 'leaderboard' | 'user-detail' | 'discussion-list'>('login');
 
   // Remember where to go back from 'user-detail' view
-  const [prevView, setPrevView] = useState<
-    "leaderboard" | "admin" | "results" | "discussion-list"
-  >("leaderboard");
+  const [prevView, setPrevView] = useState<'leaderboard' | 'admin' | 'results' | 'discussion-list'>('leaderboard');
 
   // Game Content from XML and scenarios
   const [story, setStory] = useState({
-    title: "Loading...",
-    plot: "",
-    logo: "login_page.png",
+    title: 'Loading...',
+    plot: '',
+    logo: 'login_page.png',
   });
   const [items, setItems] = useState<SurvivalItem[]>([]);
   const [staticItems, setStaticItems] = useState<SurvivalItem[]>([]);
   const [evaluations, setEvaluations] = useState<ScoreEvaluation[]>([]);
   //List of all available scripts from JSON
-  const [scenarios, setScenarios] = useState<
-    { id: string; file: string; name: string; language: string }[]
-  >([]);
+  const [scenarios, setScenarios] = useState<{ id: string; file: string; name: string; language: string }[]>([]);
   //A new state for storing the selected script in the admin panel
-  const [selectedScenarioForNewTeam, setSelectedScenarioForNewTeam] =
-    useState("mars_it");
+  const [selectedScenarioForNewTeam, setSelectedScenarioForNewTeam] = useState('mars_it');
 
   // Database Data
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState('');
   const [allResults, setAllResults] = useState<GameResult[]>([]);
   const [teamsList, setTeamsList] = useState<Team[]>([]);
   const [teamId, setTeamId] = useState<number>(0);
 
   // Scoring & UI Toggles
-  const [selectedUserDetail, setSelectedUserDetail] =
-    useState<GameResult | null>(null);
+  const [selectedUserDetail, setSelectedUserDetail] = useState<GameResult | null>(null);
   const [currentScore, setCurrentScore] = useState<number>(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showDeltas, setShowDeltas] = useState<boolean>(true);
-  const [adminTeamFilter, setAdminTeamFilter] = useState<string>("all");
-  const [newTeamName, setNewTeamName] = useState("");
+  const [adminTeamFilter, setAdminTeamFilter] = useState<string>('all');
+  const [newTeamName, setNewTeamName] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   //QrCode
@@ -421,20 +360,19 @@ export default function MarsSurvivalGame() {
   const [loc, setLoc] = useState<Localization>({}); // The current dictionary
 
   // Computed helper
-  const currentTeamName =
-    teamsList.find((t) => t.id === teamId)?.name || "NASA";
+  const currentTeamName = teamsList.find(t => t.id === teamId)?.name || 'NASA';
 
   // Auto Refresh timer component:
   const [isAutoRefresh, setIsAutoRefresh] = useState(false);
   const resultsSnapshotRef = useRef<GameResult[]>([]);
 
   // Global Modal System
-  type ModalType = "alert" | "confirm" | "prompt" | "prompt-area";
+  type ModalType = 'alert' | 'confirm' | 'prompt' | 'prompt-area';
   enum ModalMode {
-    IDLE = "IDLE",
-    ADMIN_AUTH = "ADMIN_AUTH",
-    ADD_TEAM = "ADD_TEAM",
-    ADD_PLAYER = "ADD_PLAYER",
+    IDLE = 'IDLE',
+    ADMIN_AUTH = 'ADMIN_AUTH',
+    ADD_TEAM = 'ADD_TEAM',
+    ADD_PLAYER = 'ADD_PLAYER',
   }
 
   const [modal, setModal] = useState<{
@@ -446,27 +384,21 @@ export default function MarsSurvivalGame() {
     action: () => void;
   }>({
     isOpen: false,
-    type: "alert",
+    type: 'alert',
     mode: ModalMode.IDLE,
-    message: "",
-    value: "",
+    message: '',
+    value: '',
     action: () => {},
   });
 
-  const triggerModal = (
-    type: ModalType,
-    mode: ModalMode,
-    message: string,
-    action?: () => void,
-  ) => {
+  const triggerModal = (type: ModalType, mode: ModalMode, message: string, action?: () => void) => {
     setModal({
       isOpen: true,
       type,
       mode,
       message,
-      value: "",
-      action:
-        action || (() => setModal((prev) => ({ ...prev, isOpen: false }))),
+      value: '',
+      action: action || (() => setModal(prev => ({ ...prev, isOpen: false }))),
     });
   };
 
@@ -477,12 +409,12 @@ export default function MarsSurvivalGame() {
    */
   useEffect(() => {
     async function initializeSystem() {
-      console.log("SYSTEM: Initializing...");
+      console.log('SYSTEM: Initializing...');
       try {
         // 1. We load everything we need from the files and the database at the same time
         const [resScen, resLang, teams, results] = await Promise.all([
-          fetch("/data/scenarios.json").then((r) => r.json()),
-          fetch("/languages/localization.json").then((r) => r.json()),
+          fetch('/data/scenarios.json').then(r => r.json()),
+          fetch('/languages/localization.json').then(r => r.json()),
           getTeamsAction(),
           getResultsAction(),
         ]);
@@ -494,13 +426,13 @@ export default function MarsSurvivalGame() {
 
         // 2. Processing URL parameters
         const params = new URLSearchParams(window.location.search);
-        const teamFromUrl = params.get("team");
-        const userFromUrl = params.get("user");
-        const langFromUrl = params.get("lang");
+        const teamFromUrl = params.get('team');
+        const userFromUrl = params.get('user');
+        const langFromUrl = params.get('lang');
 
         // Language set
         if (langFromUrl) {
-          console.log("SYSTEM: Setting language from URL:", langFromUrl);
+          console.log('SYSTEM: Setting language from URL:', langFromUrl);
         }
 
         //  Let's set the command
@@ -511,16 +443,14 @@ export default function MarsSurvivalGame() {
         if (userFromUrl) {
           setUsername(userFromUrl);
           // Processing URL parameters
-          const player = results.find(
-            (r) => r.username === userFromUrl && r.score === -1,
-          );
+          const player = results.find(r => r.username === userFromUrl && r.score === -1);
           if (player) setTeamId(player.team_id);
         }
 
-        console.log("SYSTEM: Ready.");
+        console.log('SYSTEM: Ready.');
       } catch (error) {
-        console.error("CRITICAL ERROR:", error);
-        triggerModal("alert", ModalMode.IDLE, loc.msg_modal_sinx);
+        console.error('CRITICAL ERROR:', error);
+        triggerModal('alert', ModalMode.IDLE, loc.msg_modal_sinx);
       }
     }
     initializeSystem();
@@ -531,11 +461,7 @@ export default function MarsSurvivalGame() {
    * Refreshes results whenever the user enters the Leaderboard or Admin panel.
    */
   useEffect(() => {
-    if (
-      view === "leaderboard" ||
-      view === "admin" ||
-      view === "discussion-list"
-    ) {
+    if (view === 'leaderboard' || view === 'admin' || view === 'discussion-list') {
       async function syncData() {
         try {
           console.log(`SYSTEM: Auto-syncing data for view [${view}]...`);
@@ -543,12 +469,12 @@ export default function MarsSurvivalGame() {
           setAllResults(freshResults);
 
           // If we are on the leaderboard, also refresh teams to catch status changes (is_unlocked)
-          if (view === "leaderboard") {
+          if (view === 'leaderboard') {
             const freshTeams = await getTeamsAction();
             setTeamsList(freshTeams);
           }
         } catch (error) {
-          console.error("SYSTEM ERROR: Auto-sync failed", error);
+          console.error('SYSTEM ERROR: Auto-sync failed', error);
         }
       }
       syncData();
@@ -562,19 +488,13 @@ export default function MarsSurvivalGame() {
   useEffect(() => {
     // 1. DETERMINE THE TARGET COMMAND ID
     // If we're viewing a player's details, we use their team. If not, we use the player's current team.
-    const targetTeamId =
-      selectedUserDetail &&
-      (view === "user-detail" || view === "discussion-list")
-        ? selectedUserDetail.team_id
-        : teamId;
+    const targetTeamId = selectedUserDetail && (view === 'user-detail' || view === 'discussion-list') ? selectedUserDetail.team_id : teamId;
 
     // 2. Search for a team in the list
-    const targetTeam = teamsList.find((t) => t.id === targetTeamId);
+    const targetTeam = teamsList.find(t => t.id === targetTeamId);
 
     // 3. We're looking for a script configuration for this command
-    const foundConfig = scenarios.find(
-      (s) => s.id === targetTeam?.current_scenario,
-    );
+    const foundConfig = scenarios.find(s => s.id === targetTeam?.current_scenario);
 
     if (targetTeamId !== 0 && foundConfig) {
       const scenarioFile = foundConfig.file;
@@ -584,7 +504,7 @@ export default function MarsSurvivalGame() {
         try {
           console.log(`SYSTEM: Syncing mission data for [${scenarioName}]...`);
           const response = await fetch(`/data/${scenarioFile}`);
-          if (!response.ok) throw new Error("Scenario XML not found");
+          if (!response.ok) throw new Error('Scenario XML not found');
 
           const xmlString = await response.text();
           const parsedData = parseStoryXml(xmlString);
@@ -596,11 +516,11 @@ export default function MarsSurvivalGame() {
           setEvaluations(parsedData.evaluations);
 
           // only if we're in game mode
-          if (view === "game" || view === "login") {
+          if (view === 'game' || view === 'login') {
             setItems([...parsedData.items].sort(() => Math.random() - 0.5));
           }
         } catch (err) {
-          console.error("Failed to load scenario XML:", err);
+          console.error('Failed to load scenario XML:', err);
         }
       };
 
@@ -612,21 +532,18 @@ export default function MarsSurvivalGame() {
   useEffect(() => {
     async function init() {
       // Load scenario manifest
-      const res = await fetch("/data/scenarios.json");
-      if (!res.ok) throw new Error("Manifest not found");
+      const res = await fetch('/data/scenarios.json');
+      if (!res.ok) throw new Error('Manifest not found');
       const manifest = await res.json();
       setScenarios(manifest);
 
       // LOADING THE LIST OF LANGUAGES
-      const resLang = await fetch("/languages/localization.json");
+      const resLang = await fetch('/languages/localization.json');
       const langManifest = await resLang.json();
       setAvailableLangs(langManifest);
 
       // Load DB records
-      const [teams, results] = await Promise.all([
-        getTeamsAction(),
-        getResultsAction(),
-      ]);
+      const [teams, results] = await Promise.all([getTeamsAction(), getResultsAction()]);
       setTeamsList(teams);
       setAllResults(results);
     }
@@ -642,7 +559,7 @@ export default function MarsSurvivalGame() {
         const data = await response.json();
         setLoc(data); // We are updating all the text in the interface
       } catch (e) {
-        console.error("Lang Load Error", e);
+        console.error('Lang Load Error', e);
       }
     }
     loadDictionary();
@@ -654,37 +571,32 @@ export default function MarsSurvivalGame() {
    */
   const parseStoryXml = (xmlString: string) => {
     const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(xmlString, "text/xml");
-    const title = xmlDoc.getElementsByTagName("Title")[0]?.textContent || "";
-    const plot = xmlDoc.getElementsByTagName("Plot")[0]?.textContent || "";
-    const logo =
-      xmlDoc.getElementsByTagName("Logo")[0]?.textContent || "login_page.png";
-    const scenarioLang =
-      xmlDoc.getElementsByTagName("Language")[0]?.textContent || PRIMARY_LANG;
-    const itemNodes = xmlDoc.getElementsByTagName("Item");
+    const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+    const title = xmlDoc.getElementsByTagName('Title')[0]?.textContent || '';
+    const plot = xmlDoc.getElementsByTagName('Plot')[0]?.textContent || '';
+    const logo = xmlDoc.getElementsByTagName('Logo')[0]?.textContent || 'login_page.png';
+    const scenarioLang = xmlDoc.getElementsByTagName('Language')[0]?.textContent || PRIMARY_LANG;
+    const itemNodes = xmlDoc.getElementsByTagName('Item');
     const items: SurvivalItem[] = [];
 
     for (let i = 0; i < itemNodes.length; i++) {
       const node = itemNodes[i];
       items.push({
-        id: node.getAttribute("id") || "",
-        name: node.getElementsByTagName("Name")[0]?.textContent || "",
-        photo: node.getElementsByTagName("Photo")[0]?.textContent || "",
-        idealPosition: parseInt(
-          node.getElementsByTagName("Position")[0]?.textContent || "15",
-        ),
-        description:
-          node.getElementsByTagName("Description")[0]?.textContent || "",
+        id: node.getAttribute('id') || '',
+        name: node.getElementsByTagName('Name')[0]?.textContent || '',
+        photo: node.getElementsByTagName('Photo')[0]?.textContent || '',
+        idealPosition: parseInt(node.getElementsByTagName('Position')[0]?.textContent || '15'),
+        description: node.getElementsByTagName('Description')[0]?.textContent || '',
       });
     }
 
     // Parsing ranks
-    const evalNodes = xmlDoc.getElementsByTagName("Rank");
+    const evalNodes = xmlDoc.getElementsByTagName('Rank');
     const evaluations: ScoreEvaluation[] = [];
     for (let i = 0; i < evalNodes.length; i++) {
       evaluations.push({
-        threshold: parseInt(evalNodes[i].getAttribute("threshold") || "999"),
-        message: evalNodes[i].textContent || "",
+        threshold: parseInt(evalNodes[i].getAttribute('threshold') || '999'),
+        message: evalNodes[i].textContent || '',
       });
     }
     return {
@@ -698,28 +610,28 @@ export default function MarsSurvivalGame() {
    * UNIVERSAL DATA FILTERING LOGIC
    * Filters results based on "all", "scen:id", or "team:id"
    */
-  const isAdmin = username.toLowerCase() === "admin";
+  const isAdmin = username.toLowerCase() === 'admin';
 
   const getEffectiveResults = () => {
     // 1. If it's a regular PLAYER, we always show only their team
     if (!isAdmin) {
-      return allResults.filter((r) => r.team_id === teamId);
+      return allResults.filter(r => r.team_id === teamId);
     }
 
     // 2. If this is ADMIN, we'll follow your algorithm for strings
-    if (adminTeamFilter === "all") return allResults;
+    if (adminTeamFilter === 'all') return allResults;
 
-    if (adminTeamFilter.startsWith("scen:")) {
-      const targetScenId = adminTeamFilter.split(":")[1];
-      return allResults.filter((r) => {
-        const team = teamsList.find((t) => t.id === r.team_id);
+    if (adminTeamFilter.startsWith('scen:')) {
+      const targetScenId = adminTeamFilter.split(':')[1];
+      return allResults.filter(r => {
+        const team = teamsList.find(t => t.id === r.team_id);
         return team?.current_scenario === targetScenId;
       });
     }
 
-    if (adminTeamFilter.startsWith("team:")) {
-      const targetTeamId = parseInt(adminTeamFilter.split(":")[1]);
-      return allResults.filter((r) => r.team_id === targetTeamId);
+    if (adminTeamFilter.startsWith('team:')) {
+      const targetTeamId = parseInt(adminTeamFilter.split(':')[1]);
+      return allResults.filter(r => r.team_id === targetTeamId);
     }
 
     return allResults;
@@ -735,8 +647,8 @@ export default function MarsSurvivalGame() {
 
   // For the discussion list (sorted by Commander -> Name)
   const discussionResults = getEffectiveResults().sort((a, b) => {
-    if (a.username === "Commander") return -1;
-    if (b.username === "Commander") return 1;
+    if (a.username === 'Commander') return -1;
+    if (b.username === 'Commander') return 1;
     return a.username.localeCompare(b.username);
   });
 
@@ -751,23 +663,17 @@ export default function MarsSurvivalGame() {
 
   // Audio playback function
   const playBeep = () => {
-    const audio = new Audio("/sounds/soft_beep.wav");
+    const audio = new Audio('/sounds/soft_beep.wav');
     audio.volume = 0.4; // Не слишком громко
-    audio
-      .play()
-      .catch((e) => console.log("Audio play blocked by browser policy"));
+    audio.play().catch(e => console.log('Audio play blocked by browser policy'));
   };
 
   // Saving QrCode
   const downloadQRCode = () => {
-    const canvas = document.getElementById(
-      "qr-code-canvas",
-    ) as HTMLCanvasElement;
+    const canvas = document.getElementById('qr-code-canvas') as HTMLCanvasElement;
     if (canvas) {
-      const pngUrl = canvas
-        .toDataURL("image/png")
-        .replace("image/png", "image/octet-stream");
-      let downloadLink = document.createElement("a");
+      const pngUrl = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+      let downloadLink = document.createElement('a');
       downloadLink.href = pngUrl;
       downloadLink.download = `ARES_ACCESS_${shareData?.name.toUpperCase()}.png`;
       document.body.appendChild(downloadLink);
@@ -782,11 +688,10 @@ export default function MarsSurvivalGame() {
    */
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    const isAdmin = username.toLowerCase() === "admin";
+    const isAdmin = username.toLowerCase() === 'admin';
 
     // Condition: Only for admins on authorized screens
-    const isAllowedView =
-      view === "admin" || view === "leaderboard" || view === "discussion-list";
+    const isAllowedView = view === 'admin' || view === 'leaderboard' || view === 'discussion-list';
 
     if (isAdmin && isAllowedView && isAutoRefresh) {
       interval = setInterval(async () => {
@@ -795,10 +700,7 @@ export default function MarsSurvivalGame() {
         try {
           console.log(`SYSTEM: Auto-sync active for [${view}]...`);
 
-          const [freshResults, freshTeams] = await Promise.all([
-            getResultsAction(),
-            getTeamsAction(),
-          ]);
+          const [freshResults, freshTeams] = await Promise.all([getResultsAction(), getTeamsAction()]);
 
           // --- LOGIC OF THE AUDIO SIGNAL (Using Snapshot Ref)
           const prevResults = resultsSnapshotRef.current;
@@ -807,16 +709,12 @@ export default function MarsSurvivalGame() {
           const hasNewEntries = freshResults.length > prevResults.length;
 
           // 2. Check for completed games
-          const prevPendingCount = prevResults.filter(
-            (r) => r.score === -1,
-          ).length;
-          const newPendingCount = freshResults.filter(
-            (r) => r.score === -1,
-          ).length;
+          const prevPendingCount = prevResults.filter(r => r.score === -1).length;
+          const newPendingCount = freshResults.filter(r => r.score === -1).length;
           const hasNewFinishes = newPendingCount < prevPendingCount;
 
           if (hasNewEntries || hasNewFinishes) {
-            console.log("SYSTEM: New telemetry received!");
+            console.log('SYSTEM: New telemetry received!');
             playBeep();
           }
 
@@ -824,7 +722,7 @@ export default function MarsSurvivalGame() {
           setAllResults(freshResults);
           setTeamsList(freshTeams);
         } catch (error) {
-          console.error("Auto-sync error:", error);
+          console.error('Auto-sync error:', error);
         }
       }, 15000); // 15 sec. refresh time
     }
@@ -844,30 +742,30 @@ export default function MarsSurvivalGame() {
    */
   const handleStart = () => {
     if (!username) {
-      return triggerModal("alert", ModalMode.IDLE, loc.msg_modal_name);
+      return triggerModal('alert', ModalMode.IDLE, loc.msg_modal_name);
     }
     // ADMIN CHECK
     if (username.toLowerCase() === ADMIN_USER) {
       setModal({
         isOpen: true,
-        type: "prompt",
+        type: 'prompt',
         mode: ModalMode.ADMIN_AUTH,
         message: loc.msg_modal_admincode,
-        value: "",
+        value: '',
         action: () => {},
       });
       return;
     }
     if (teamId === 0) {
-      return triggerModal("alert", ModalMode.IDLE, loc.msg_modal_team);
+      return triggerModal('alert', ModalMode.IDLE, loc.msg_modal_team);
     }
-    setView("story");
+    setView('story');
   };
 
   const finishGame = async () => {
     let totalScore = 0;
     items.forEach((item, index) => {
-      const ideal = staticItems.find((si) => si.id === item.id);
+      const ideal = staticItems.find(si => si.id === item.id);
       if (ideal) {
         totalScore += Math.abs(index + 1 - ideal.idealPosition);
       }
@@ -881,11 +779,11 @@ export default function MarsSurvivalGame() {
       username,
       team_id: teamId,
       score: totalScore,
-      selections: items.map((i) => i.id),
+      selections: items.map(i => i.id),
     };
     //Save rusult to DB
     try {
-      if (username === "Commander") {
+      if (username === 'Commander') {
         // Create a new record (INSERT) for the commander
         await saveResultAction(resultData);
       } else {
@@ -896,24 +794,20 @@ export default function MarsSurvivalGame() {
       const updatedResults = await getResultsAction();
       setAllResults(updatedResults);
     } catch (error) {
-      console.error("Failed to save result:", error);
-      triggerModal("alert", ModalMode.IDLE, loc.msg_modal_saveerror);
+      console.error('Failed to save result:', error);
+      triggerModal('alert', ModalMode.IDLE, loc.msg_modal_saveerror);
     }
   };
 
   const getScoreMessage = (s: number) => {
     // If the data hasn't loaded yet
-    if (evaluations.length === 0) return "Analisi in corso...";
+    if (evaluations.length === 0) return 'Analisi in corso...';
     // Sort the scores in ascending order by threshold
-    const sortedEvals = [...evaluations].sort(
-      (a, b) => a.threshold - b.threshold,
-    );
+    const sortedEvals = [...evaluations].sort((a, b) => a.threshold - b.threshold);
     // Find the first grade whose threshold is greater than or equal to the score obtained
-    const result = sortedEvals.find((e) => s <= e.threshold);
+    const result = sortedEvals.find(e => s <= e.threshold);
     // If nothing is found (although 999 should cover everything), return the last message
-    return result
-      ? result.message
-      : evaluations[evaluations.length - 1].message;
+    return result ? result.message : evaluations[evaluations.length - 1].message;
   };
 
   /**
@@ -923,16 +817,16 @@ export default function MarsSurvivalGame() {
   const handleDeleteTeam = (id: number) => {
     setModal({
       isOpen: true,
-      type: "confirm",
+      type: 'confirm',
       mode: ModalMode.IDLE,
       message: loc.msg_modal_teamdelete,
-      value: "",
+      value: '',
       action: async () => {
         await deleteTeamAction(id);
         setTeamsList(await getTeamsAction());
         setAllResults(await getResultsAction());
-        setAdminTeamFilter("all");
-        setModal((prev) => ({ ...prev, isOpen: false }));
+        setAdminTeamFilter('all');
+        setModal(prev => ({ ...prev, isOpen: false }));
       },
     });
   };
@@ -940,14 +834,14 @@ export default function MarsSurvivalGame() {
   // Logic for adding a team
   const handleAddTeam = () => {
     if (!newTeamName.trim()) {
-      return triggerModal("alert", ModalMode.IDLE, loc.msg_modal_teamname);
+      return triggerModal('alert', ModalMode.IDLE, loc.msg_modal_teamname);
     }
     setModal({
       isOpen: true,
-      type: "prompt-area",
+      type: 'prompt-area',
       mode: ModalMode.ADD_TEAM,
       message: `${loc.msg_modal_new} [${newTeamName.toUpperCase()}]`,
-      value: "",
+      value: '',
       action: () => {},
     });
   };
@@ -955,43 +849,39 @@ export default function MarsSurvivalGame() {
   const executeAddTeam = async () => {
     // Parsing player names from a TextArea
     const playerNames = modal.value
-      .split("\n")
-      .map((l) => l.trim())
-      .filter((l) => l !== "");
+      .split('\n')
+      .map(l => l.trim())
+      .filter(l => l !== '');
 
     if (playerNames.length === 0) {
-      return triggerModal("alert", ModalMode.IDLE, loc.msg_modal_teamcrea);
+      return triggerModal('alert', ModalMode.IDLE, loc.msg_modal_teamcrea);
     }
 
     try {
       //  We use `newTeamName` and `selectedScenarioForNewTeam` from  states
-      await addTeamWithPlayersAction(
-        newTeamName.trim(),
-        selectedScenarioForNewTeam,
-        playerNames,
-      );
+      await addTeamWithPlayersAction(newTeamName.trim(), selectedScenarioForNewTeam, playerNames);
 
       // Updating data
       setTeamsList(await getTeamsAction());
       setAllResults(await getResultsAction());
 
       // Clean the form and close the modal window
-      setNewTeamName("");
-      setModal((prev) => ({ ...prev, isOpen: false, value: "" }));
+      setNewTeamName('');
+      setModal(prev => ({ ...prev, isOpen: false, value: '' }));
     } catch (error) {
       console.error(error);
-      triggerModal("alert", ModalMode.IDLE, loc.msg_modal_saveerror);
+      triggerModal('alert', ModalMode.IDLE, loc.msg_modal_saveerror);
     }
   };
 
   const executeAdminAuth = () => {
     if (modal.value.toLowerCase() === ADMIN_PASSWORD) {
       // Pass
-      setModal((prev) => ({ ...prev, isOpen: false, value: "" }));
-      setView("admin");
+      setModal(prev => ({ ...prev, isOpen: false, value: '' }));
+      setView('admin');
     } else {
       // Wrong password
-      triggerModal("alert", ModalMode.IDLE, loc.msg_modal_wrongpass);
+      triggerModal('alert', ModalMode.IDLE, loc.msg_modal_wrongpass);
     }
   };
 
@@ -999,10 +889,10 @@ export default function MarsSurvivalGame() {
   const handleDeleteResult = (id: number) => {
     setModal({
       isOpen: true,
-      type: "confirm",
+      type: 'confirm',
       mode: ModalMode.IDLE,
       message: loc.msg_modal_recorddel,
-      value: "",
+      value: '',
       action: async () => {
         try {
           // 1. Call the server action to delete from DB
@@ -1011,12 +901,12 @@ export default function MarsSurvivalGame() {
           const updatedResults = await getResultsAction();
           setAllResults(updatedResults);
           // 3. Close the modal
-          setModal((prev) => ({ ...prev, isOpen: false }));
+          setModal(prev => ({ ...prev, isOpen: false }));
         } catch (error) {
-          console.error("Failed to delete result:", error);
-          setModal((prev) => ({
+          console.error('Failed to delete result:', error);
+          setModal(prev => ({
             ...prev,
-            type: "alert",
+            type: 'alert',
             message: loc.msg_modal_delerror,
           }));
         }
@@ -1028,96 +918,84 @@ export default function MarsSurvivalGame() {
   const handleDeleteAllResults = () => {
     setModal({
       isOpen: true,
-      type: "confirm",
+      type: 'confirm',
       mode: ModalMode.IDLE,
       message: loc.msg_modal_cleardb,
-      value: "",
+      value: '',
       action: async () => {
         await deleteAllResultsAction();
         setAllResults(await getResultsAction());
-        setModal((prev) => ({ ...prev, isOpen: false }));
+        setModal(prev => ({ ...prev, isOpen: false }));
       },
     });
   };
 
   // Delete all results for one team
   const handleDeleteTeamResults = (teamId: number) => {
-    const teamName = teamsList.find((t) => t.id === teamId)?.name;
-    triggerModal(
-      "confirm",
-      ModalMode.IDLE,
-      `${loc.msg_confirm_clear_team || "Cancellare tutti i record di"} [${teamName}]?`,
-      async () => {
-        try {
-          await deleteResultsByTeamAction(teamId); // Экшен тоже ждет число
-          setAllResults(await getResultsAction());
-          setModal((prev) => ({ ...prev, isOpen: false }));
-        } catch (error) {
-          console.error(error);
-        }
-      },
-    );
+    const teamName = teamsList.find(t => t.id === teamId)?.name;
+    triggerModal('confirm', ModalMode.IDLE, `${loc.msg_confirm_clear_team || 'Cancellare tutti i record di'} [${teamName}]?`, async () => {
+      try {
+        await deleteResultsByTeamAction(teamId); // Экшен тоже ждет число
+        setAllResults(await getResultsAction());
+        setModal(prev => ({ ...prev, isOpen: false }));
+      } catch (error) {
+        console.error(error);
+      }
+    });
   };
 
   // Action for team member becoming Commander
   const handleBecomeCommander = async () => {
     // 1. CHECK: Have all the players on the team finished the test?
     // We're looking for players on your team with a score of -1 in the overall results list
-    const missingPlayers = allResults.filter(
-      (r) => r.team_id === teamId && r.score === -1,
-    );
+    const missingPlayers = allResults.filter(r => r.team_id === teamId && r.score === -1);
 
     if (missingPlayers.length > 0) {
       // If there is even one person who hasn't finished, we stop the process
-      const names = missingPlayers.map((p) => p.username).join(", ");
+      const names = missingPlayers.map(p => p.username).join(', ');
 
       return triggerModal(
-        "alert",
+        'alert',
         ModalMode.IDLE,
         `${loc.msg_team_not_ready}: 
-       ${loc.msg_waiting_for}: ${names}`,
+       ${loc.msg_waiting_for}: ${names}`
       );
     }
     // 2. If everyone is ready, let's show the standard confirmation procedure
-    triggerModal(
-      "confirm",
-      ModalMode.IDLE,
-      loc.msg_modal_commander,
-      async () => {
-        //  Check the database to see if the slot is available
-        const alreadyHas = await checkCommanderStatusAction(teamId);
-        if (alreadyHas) {
-          setModal((prev) => ({ ...prev, isOpen: false }));
-          triggerModal("alert", ModalMode.IDLE, loc.msg_modal_commError);
-          return;
-        }
+    triggerModal('confirm', ModalMode.IDLE, loc.msg_modal_commander, async () => {
+      //  Check the database to see if the slot is available
+      const alreadyHas = await checkCommanderStatusAction(teamId);
+      if (alreadyHas) {
+        setModal(prev => ({ ...prev, isOpen: false }));
+        triggerModal('alert', ModalMode.IDLE, loc.msg_modal_commError);
+        return;
+      }
 
-        await updateCommanderStatusAction(teamId, true);
-        setUsername("Commander");
+      await updateCommanderStatusAction(teamId, true);
+      setUsername('Commander');
 
-        // We're shuffling the items for the final team score
-        setItems([...staticItems].sort(() => Math.random() - 0.5));
-        setView("game");
-        setModal((prev) => ({ ...prev, isOpen: false }));
-      },
-    );
+      // We're shuffling the items for the final team score
+      setItems([...staticItems].sort(() => Math.random() - 0.5));
+      setView('game');
+      setModal(prev => ({ ...prev, isOpen: false }));
+    });
   };
 
   // Action for adding new member  to existing team
   const handleAddSinglePlayer = () => {
-    if (!adminTeamFilter.startsWith("team:")) {
-      return triggerModal("alert", ModalMode.IDLE, loc.msg_err_select_team);
+    if (!adminTeamFilter.startsWith('team:')) {
+      return triggerModal('alert', ModalMode.IDLE, loc.msg_err_select_team);
     }
 
-    const targetTeamId = parseInt(adminTeamFilter.split(":")[1]);
-    const teamName = teamsList.find((t) => t.id === targetTeamId)?.name || "";
+    const targetTeamId = parseInt(adminTeamFilter.split(':')[1]);
+    const teamName = teamsList.find(t => t.id === targetTeamId)?.name || '';
 
     setModal({
       isOpen: true,
-      type: "prompt",
+      type: 'prompt',
       mode: ModalMode.ADD_PLAYER,
       message: `${loc.msg_modal_newinit} [${teamName.toUpperCase()}]:`,
-      value: "",
+      value: '',
       action: () => {},
     });
   };
@@ -1126,10 +1004,10 @@ export default function MarsSurvivalGame() {
   const handleWipeEverything = () => {
     setModal({
       isOpen: true,
-      type: "confirm",
+      type: 'confirm',
       mode: ModalMode.IDLE,
       message: loc.msg_confirm_wipe_system,
-      value: "",
+      value: '',
       action: async () => {
         try {
           // 1. Initiate a full deletion
@@ -1138,11 +1016,11 @@ export default function MarsSurvivalGame() {
           setTeamsList([]);
           setAllResults([]);
           // 3. Set the filter to “all”
-          setAdminTeamFilter("all");
+          setAdminTeamFilter('all');
           // 4. Closing the modal window
-          setModal((prev) => ({ ...prev, isOpen: false }));
+          setModal(prev => ({ ...prev, isOpen: false }));
 
-          console.log("SYSTEM: Full database wipe complete.");
+          console.log('SYSTEM: Full database wipe complete.');
         } catch (error) {
           console.error(error);
         }
@@ -1152,33 +1030,26 @@ export default function MarsSurvivalGame() {
 
   // Function used for save (called from a modal window)
   const executeAddSinglePlayer = async () => {
-    if (modal.value.trim() && adminTeamFilter.startsWith("team:")) {
-      const targetTeamId = parseInt(adminTeamFilter.split(":")[1]);
+    if (modal.value.trim() && adminTeamFilter.startsWith('team:')) {
+      const targetTeamId = parseInt(adminTeamFilter.split(':')[1]);
 
       try {
         await addSinglePlayerAction(targetTeamId, modal.value);
         setAllResults(await getResultsAction());
-        setModal((prev) => ({ ...prev, isOpen: false, value: "" }));
+        setModal(prev => ({ ...prev, isOpen: false, value: '' }));
       } catch (error) {
-        console.error("Error adding player:", error);
-        triggerModal("alert", ModalMode.IDLE, loc.msg_saveplayer);
+        console.error('Error adding player:', error);
+        triggerModal('alert', ModalMode.IDLE, loc.msg_saveplayer);
       }
     } else {
-      triggerModal("alert", ModalMode.IDLE, loc.msg_selectteam);
+      triggerModal('alert', ModalMode.IDLE, loc.msg_selectteam);
     }
   };
 
   // Image block
-  const MissionImageBlock = ({
-    src,
-    isFullWidth,
-  }: {
-    src: string;
-    isFullWidth: boolean;
-  }) => (
+  const MissionImageBlock = ({ src, isFullWidth }: { src: string; isFullWidth: boolean }) => (
     <div
-      className={`${isFullWidth ? "w-full" : "max-w-md mx-auto"} border border-[#00ff41]/30 bg-black relative overflow-hidden group shadow-[0_0_15px_rgba(0,255,65,0.1)] transition-all duration-700`}
-    >
+      className={`${isFullWidth ? 'w-full' : 'max-w-md mx-auto'} border border-[#00ff41]/30 bg-black relative overflow-hidden group shadow-[0_0_15px_rgba(0,255,65,0.1)] transition-all duration-700`}>
       {/* Corner decorative elements */}
       <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#00ff41]"></div>
       <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-[#00ff41]"></div>
@@ -1186,15 +1057,13 @@ export default function MarsSurvivalGame() {
       <img
         src={`/img/${src}`}
         alt="Mission Visual"
-        className={`w-full ${isFullWidth ? "h-64 md:h-80" : "h-48"} object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-1000  hover:grayscale-0`}
+        className={`w-full ${isFullWidth ? 'h-64 md:h-80' : 'h-48'} object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-1000  hover:grayscale-0`}
       />
 
       {/* Text caption */}
       <div className="absolute bottom-2 left-3 flex items-center gap-2">
         <div className="w-1.5 h-1.5 bg-red-600 animate-pulse rounded-full"></div>
-        <span className="text-[8px] uppercase tracking-[0.3em] text-[#00ff41]/70 font-black">
-          Ares-1 Live Stream
-        </span>
+        <span className="text-[8px] uppercase tracking-[0.3em] text-[#00ff41]/70 font-black">Ares-1 Live Stream</span>
       </div>
 
       {/* Gradient overlay */}
@@ -1205,48 +1074,46 @@ export default function MarsSurvivalGame() {
   const exportToCSV = () => {
     // 1. Column headers
     const headers = [
-      loc.csv_h_operator || "Operatore",
-      loc.csv_h_team || "Unità",
-      loc.csv_h_score || "Score",
-      loc.csv_h_date || "Data",
-      loc.csv_h_time || "Ora",
+      loc.csv_h_operator || 'Operatore',
+      loc.csv_h_team || 'Unità',
+      loc.csv_h_score || 'Score',
+      loc.csv_h_date || 'Data',
+      loc.csv_h_time || 'Ora',
     ];
 
     // 2. Converting results into text strings
-    const rows = leaderboardResults.map((res) => [
+    const rows = leaderboardResults.map(res => [
       `"${res.username}"`, // Quotation are needed so that commas in names don't mess up the table
       `"${res.team_name}"`,
-      res.score === -1 ? loc.csv_status_waiting || "WAIT" : res.score,
-      res.created_at ? new Date(res.created_at).toLocaleDateString() : "N/A",
-      res.created_at ? new Date(res.created_at).toLocaleTimeString() : "N/A",
+      res.score === -1 ? loc.csv_status_waiting || 'WAIT' : res.score,
+      res.created_at ? new Date(res.created_at).toLocaleDateString() : 'N/A',
+      res.created_at ? new Date(res.created_at).toLocaleTimeString() : 'N/A',
     ]);
 
     // 3. Combine everything into one long string
     const csvContent = [
-      "sep=;", // tell Excel to use semicolons
-      headers.join(";"),
-      ...rows.map((e) => e.join(";")),
-    ].join("\n");
+      'sep=;', // tell Excel to use semicolons
+      headers.join(';'),
+      ...rows.map(e => e.join(';')),
+    ].join('\n');
 
     // 4. Create a file in the browser's memory (Blob)
     // Add a BOM (Byte Order Mark) so that Excel can correctly display special characters
-    const blob = new Blob(["\ufeff" + csvContent], {
-      type: "text/csv;charset=utf-8;",
+    const blob = new Blob(['\ufeff' + csvContent], {
+      type: 'text/csv;charset=utf-8;',
     });
     const url = URL.createObjectURL(blob);
 
     //File name with current data
     const now = new Date();
-    const dateStr = now.toISOString().split("T")[0];
-    const timeStr =
-      now.getHours().toString().padStart(2, "0") +
-      now.getMinutes().toString().padStart(2, "0");
+    const dateStr = now.toISOString().split('T')[0];
+    const timeStr = now.getHours().toString().padStart(2, '0') + now.getMinutes().toString().padStart(2, '0');
     const fileName = `MISSION_REPORT_${dateStr}_${timeStr}.csv`;
 
     // 5. Click here to download
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", fileName);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', fileName);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -1257,46 +1124,35 @@ export default function MarsSurvivalGame() {
    * Determines which screen to render into the CRTWrapper.
    */
   let content;
-  if (view === "login") {
+  if (view === 'login') {
     // 1. Filter the commands that haven't finished yet (is_unlocked === false)
-    const activeTeams = teamsList.filter((t) => !t.is_unlocked);
+    const activeTeams = teamsList.filter(t => !t.is_unlocked);
     // 2. Filter players for the SELECTED team who have not yet played (score === -1)
-    const availablePlayers = allResults
-      .filter((r) => r.team_id === teamId && r.score === -1)
-      .sort((a, b) => a.username.localeCompare(b.username));
+    const availablePlayers = allResults.filter(r => r.team_id === teamId && r.score === -1).sort((a, b) => a.username.localeCompare(b.username));
     content = (
       <>
-        <Header title={loc.login_header || "Mission Login"} />
+        <Header title={loc.login_header || 'Mission Login'} />
         {/* --- Image block --- */}
-        <MissionImageBlock src={"login_page.png"} isFullWidth={false} />
+        <MissionImageBlock src={'login_page.png'} isFullWidth={false} />
         {/* --- LOGIN FORM--- */}
         <div className="flex flex-col gap-3 max-w-sm mx-auto py-4 ">
           {/* SELECTOR 1: TEAM SELECTION (Grouped by scenarios) */}
           <div className="space-y-1">
-            <label className="text-[10px] uppercase opacity-50 font-bold tracking-widest">
-              {loc.login_team_label || "Seleziona Unità:"}
-            </label>
+            <label className="text-[10px] uppercase opacity-50 font-bold tracking-widest">{loc.login_team_label || 'Seleziona Unità:'}</label>
             <select
               className="w-full bg-black border-2 border-[#00ff41] p-3 outline-none cursor-pointer text-sm font-bold uppercase"
               value={teamId}
-              onChange={(e) => {
+              onChange={e => {
                 setTeamId(Number(e.target.value));
-                setUsername(""); // Reset the name when changing teams
-              }}
-            >
+                setUsername(''); // Reset the name when changing teams
+              }}>
               <option value={0}>{loc.login_select_team}</option>
-              {scenarios.map((scen) => {
-                const teamsInScen = activeTeams.filter(
-                  (t) => t.current_scenario === scen.id,
-                );
+              {scenarios.map(scen => {
+                const teamsInScen = activeTeams.filter(t => t.current_scenario === scen.id);
                 if (teamsInScen.length === 0) return null;
                 return (
-                  <optgroup
-                    key={scen.id}
-                    label={scen.name.toUpperCase()}
-                    className="bg-[#002200] text-[#00ff41]"
-                  >
-                    {teamsInScen.map((t) => (
+                  <optgroup key={scen.id} label={scen.name.toUpperCase()} className="bg-[#002200] text-[#00ff41]">
+                    {teamsInScen.map(t => (
                       <option key={t.id} value={t.id}>
                         {t.name}
                       </option>
@@ -1310,17 +1166,14 @@ export default function MarsSurvivalGame() {
           {/* SELECTOR 2: PLAYER SELECTION */}
           <div className="space-y-1">
             <label className="text-[10px] uppercase opacity-50 font-bold tracking-widest">
-              {loc.login_operator_label || "Identificativo Operatore:"}
+              {loc.login_operator_label || 'Identificativo Operatore:'}
             </label>
             <select
               className={`w-full bg-black border-2 p-3 outline-none cursor-pointer text-sm font-bold uppercase transition-all ${
-                teamId === 0 && username !== "admin"
-                  ? "border-[#00ff41]/20 opacity-50"
-                  : "border-[#00ff41]"
+                teamId === 0 && username !== 'admin' ? 'border-[#00ff41]/20 opacity-50' : 'border-[#00ff41]'
               }`}
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            >
+              onChange={e => setUsername(e.target.value)}>
               <option value="">{loc.login_select_prompt}</option>
               {/* ADMIN IS ALWAYS AVAILABLE */}
               <option value="admin" className="text-amber-500 font-black">
@@ -1329,7 +1182,7 @@ export default function MarsSurvivalGame() {
               {/* PLAYERS APPEAR ONLY AFTER A TEAM IS SELECTED */}
               {teamId !== 0 && (
                 <optgroup label={`${loc.login_select_group}`}>
-                  {availablePlayers.map((p) => (
+                  {availablePlayers.map(p => (
                     <option key={p.id} value={p.username}>
                       {p.username}
                     </option>
@@ -1345,7 +1198,7 @@ export default function MarsSurvivalGame() {
         </div>
       </>
     );
-  } else if (view === "story") {
+  } else if (view === 'story') {
     content = (
       <>
         <Header title={story.title} />
@@ -1353,9 +1206,7 @@ export default function MarsSurvivalGame() {
           <MissionImageBlock src={story.logo} isFullWidth={true} />
         </div>
         <div className="space-y-6 text-lg  leading-relaxed">
-          <p className="bg-[#003300] p-4 border-l-8 border-[#00ff41]">
-            {story.plot}
-          </p>
+          <p className="bg-[#003300] p-4 border-l-8 border-[#00ff41]">{story.plot}</p>
           <div className="p-4 border border-[#00ff41] border-dashed">
             <h3 className="font-bold mb-2">{loc.lb_protocol}:</h3>
             <ul className="list-disc list-inside text-sm space-y-1 opacity-80">
@@ -1364,15 +1215,14 @@ export default function MarsSurvivalGame() {
             </ul>
           </div>
           <button
-            onClick={() => setView("game")}
-            className="w-full flex items-center justify-center gap-4 border-2 border-[#00ff41] py-4 hover:bg-[#00ff41] hover:text-black font-bold uppercase"
-          >
+            onClick={() => setView('game')}
+            className="w-full flex items-center justify-center gap-4 border-2 border-[#00ff41] py-4 hover:bg-[#00ff41] hover:text-black font-bold uppercase">
             {loc.btn_start_game} <ChevronRight />
           </button>
         </div>
       </>
     );
-  } else if (view === "game") {
+  } else if (view === 'game') {
     content = (
       <>
         <div className="flex justify-between items-end mb-6">
@@ -1381,9 +1231,7 @@ export default function MarsSurvivalGame() {
             <br />
             {loc.lb_team} {currentTeamName}
           </div>
-          <h2 className="text-xl font-bold uppercase tracking-widest">
-            {loc.lb_configuration}
-          </h2>
+          <h2 className="text-xl font-bold uppercase tracking-widest">{loc.lb_configuration}</h2>
         </div>
 
         <Reorder.Group
@@ -1399,46 +1247,37 @@ export default function MarsSurvivalGame() {
 
         <button
           onClick={finishGame}
-          className="w-full mt-8 bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,255,65,0.5)]"
-        >
+          className="w-full mt-8 bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,255,65,0.5)]">
           {loc.btn_sendreport}
         </button>
       </>
     );
-  } else if (view === "discussion-list") {
-    const isAdmin = username.toLowerCase() === "admin";
-    const isCommander = username === "Commander";
-    const currentTeam = teamsList.find(
-      (t) => t.id === (isAdmin ? adminTeamFilter : teamId),
-    );
+  } else if (view === 'discussion-list') {
+    const isAdmin = username.toLowerCase() === 'admin';
+    const isCommander = username === 'Commander';
+    const currentTeam = teamsList.find(t => t.id === (isAdmin ? adminTeamFilter : teamId));
 
     // Get the IDs of all unique commands in the current list of results
-    const uniqueTeamIds: number[] = Array.from(
-      new Set(discussionResults.map((r) => r.team_id)),
-    ).sort((a, b) => a - b);
+    const uniqueTeamIds: number[] = Array.from(new Set(discussionResults.map(r => r.team_id))).sort((a, b) => a - b);
 
     content = (
       <>
         <div className="flex justify-between items-center mb-6 border-b-2 border-[#00ff41] pb-2 text-[#00ff41]">
           {isAdmin && (
-            <button
-              onClick={() => setView("admin")}
-              className="text-xs flex items-center gap-1 hover:underline"
-            >
+            <button onClick={() => setView('admin')} className="text-xs flex items-center gap-1 hover:underline">
               <ArrowLeft size={14} /> {loc.btn_admin}
             </button>
           )}
 
           <h2 className="text-lg font-bold uppercase italic tracking-tighter">
-            {loc.btn_report} {currentTeam?.name}
+            {loc.btn_report}
           </h2>
 
           <motion.div
             // Rotation animation: if isRefreshing = true, rotate 360 degrees
             animate={{ rotate: isRefreshing ? 360 : 0 }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
-            className="flex items-center justify-center"
-          >
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
+            className="flex items-center justify-center">
             <RefreshCcw
               size={18}
               className="cursor-pointer text-[#00ff41]/60 hover:text-[#00ff41] transition-colors duration-300"
@@ -1457,76 +1296,52 @@ export default function MarsSurvivalGame() {
 
         <div className="space-y-8 mb-8">
           {/* 2. OUTER LOOP: Iterate through each command */}
-          {uniqueTeamIds.map((tId) => {
-            const teamName =
-              teamsList.find((t) => t.id === tId)?.name || "Unità Sconosciuta";
-            const teamMembers = discussionResults.filter(
-              (r) => r.team_id === tId,
-            );
+          {uniqueTeamIds.map(tId => {
+            const teamName = teamsList.find(t => t.id === tId)?.name || 'Unità Sconosciuta';
+            const teamMembers = discussionResults.filter(r => r.team_id === tId);
 
             return (
               <div key={tId} className="space-y-2">
                 {/* TEAM HEADING */}
                 <div className="flex items-center gap-2 mb-3">
                   <div className="h-0.5 flex-1 bg-[#00ff41]"></div>
-                  <h3 className="text-xs font-black uppercase text-[#00ff41] tracking-[0.2em] px-2">
-                    - {teamName} -
-                  </h3>
+                  <h3 className="text-xs font-black uppercase text-[#00ff41] tracking-[0.2em] px-2">- {teamName} -</h3>
                   <div className="h-0.5 flex-1 bg-[#00ff41]"></div>
                 </div>
 
                 {/* 3. INER LOOP: Players on this team */}
                 <div className="space-y-2">
-                  {teamMembers.map((res) => {
-                    const isCommander = res.username === "Commander";
+                  {teamMembers.map(res => {
+                    const isCommander = res.username === 'Commander';
                     const hasResult = res.score !== -1;
-                    const btnColorClass = isCommander
-                      ? "bg-amber-500"
-                      : hasResult
-                        ? "bg-[#00ff41]"
-                        : "bg-red-600 animate-pulse";
+                    const btnColorClass = isCommander ? 'bg-amber-500' : hasResult ? 'bg-[#00ff41]' : 'bg-red-600 animate-pulse';
 
                     return (
                       <div
                         key={res.id}
                         className={`flex justify-between items-center p-3 border ${
                           isCommander
-                            ? "bg-[#38180670] border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
-                            : "bg-[#00ff41]/5 border-[#00ff41]/20"
-                        }`}
-                      >
+                            ? 'bg-[#38180670] border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.2)]'
+                            : 'bg-[#00ff41]/5 border-[#00ff41]/20'
+                        }`}>
                         <div className="flex items-center gap-3">
-                          {isCommander && (
-                            <div className="bg-amber-500 text-black text-[8px] px-1 font-black uppercase">
-                              Final Order
-                            </div>
-                          )}
-                          <span
-                            className={`font-bold uppercase text-xs ${isCommander ? "text-amber-500" : "text-[#00ff41]"}`}
-                          >
-                            {res.username}
-                          </span>
+                          {isCommander && <div className="bg-amber-500 text-black text-[8px] px-1 font-black uppercase">Final Order</div>}
+                          <span className={`font-bold uppercase text-xs ${isCommander ? 'text-amber-500' : 'text-[#00ff41]'}`}>{res.username}</span>
                         </div>
 
                         <button
                           onClick={() => {
                             if (!hasResult) {
-                              triggerModal(
-                                "alert",
-                                ModalMode.IDLE,
-                                loc.msg_no_results ||
-                                  "Rapporto non disponibile.",
-                              );
+                              triggerModal('alert', ModalMode.IDLE, loc.msg_no_results || 'Rapporto non disponibile.');
                               return;
                             }
                             setSelectedUserDetail(res);
                             setShowDeltas(false);
-                            setPrevView("discussion-list");
-                            setView("user-detail");
+                            setPrevView('discussion-list');
+                            setView('user-detail');
                           }}
-                          className={`${btnColorClass} text-black px-4 py-1 text-[10px] font-black uppercase`}
-                        >
-                          {loc.btn_analise || "Analizza"}
+                          className={`${btnColorClass} text-black px-4 py-1 text-[10px] font-black uppercase`}>
+                          {loc.btn_analise || 'Analizza'}
                         </button>
                       </div>
                     );
@@ -1545,30 +1360,21 @@ export default function MarsSurvivalGame() {
               onClick={async () => {
                 // If it's an admin, we try to extract the ID from the string “team:123”
                 // If it's a player, we use their numeric teamId
-                const isAdmin = username.toLowerCase() === "admin";
+                const isAdmin = username.toLowerCase() === 'admin';
                 let teamIdToUnlock: number = 0;
 
                 if (isAdmin) {
-                  if (adminTeamFilter.startsWith("team:")) {
-                    teamIdToUnlock = parseInt(adminTeamFilter.split(":")[1]);
-                  } else if (adminTeamFilter.startsWith("scen:")) {
+                  if (adminTeamFilter.startsWith('team:')) {
+                    teamIdToUnlock = parseInt(adminTeamFilter.split(':')[1]);
+                  } else if (adminTeamFilter.startsWith('scen:')) {
                     // Optional: if you want to unlock the entire script
-                    return triggerModal(
-                      "alert",
-                      ModalMode.IDLE,
-                      "Seleziona una squadra specifica per sbloccare i risultati.",
-                    );
+                    return triggerModal('alert', ModalMode.IDLE, 'Seleziona una squadra specifica per sbloccare i risultati.');
                   }
                 } else {
                   teamIdToUnlock = teamId;
                 }
                 // Security check
-                if (teamIdToUnlock === 0)
-                  return triggerModal(
-                    "alert",
-                    ModalMode.IDLE,
-                    "Seleziona un team.",
-                  );
+                if (teamIdToUnlock === 0) return triggerModal('alert', ModalMode.IDLE, 'Seleziona un team.');
 
                 // CALL ACTION (Now pass a number)
                 await updateTeamStatusAction(teamIdToUnlock, true);
@@ -1576,18 +1382,13 @@ export default function MarsSurvivalGame() {
                 // Refresh data
                 setTeamsList(await getTeamsAction());
 
-                if (username === "Commander") {
-                  setView("results");
+                if (username === 'Commander') {
+                  setView('results');
                 } else {
-                  triggerModal(
-                    "alert",
-                    ModalMode.IDLE,
-                    loc.msg_modal_missioncomlite,
-                  );
+                  triggerModal('alert', ModalMode.IDLE, loc.msg_modal_missioncomlite);
                 }
               }}
-              className={BUTTON_STYLES.primary}
-            >
+              className={BUTTON_STYLES.primary}>
               {loc.btn_unblock}
             </button>
           ) : (
@@ -1596,16 +1397,10 @@ export default function MarsSurvivalGame() {
               <button
                 onClick={async () => {
                   const unlocked = await checkTeamStatusAction(teamId);
-                  if (unlocked) setView("results");
-                  else
-                    triggerModal(
-                      "alert",
-                      ModalMode.IDLE,
-                      loc.msg_modal_nocommandr,
-                    );
+                  if (unlocked) setView('results');
+                  else triggerModal('alert', ModalMode.IDLE, loc.msg_modal_nocommandr);
                 }}
-                className="border-2 border-[#00ff41] text-[#00ff41] py-4 font-black uppercase text-sm hover:bg-[#00ff41] hover:text-black transition-all"
-              >
+                className="border-2 border-[#00ff41] text-[#00ff41] py-4 font-black uppercase text-sm hover:bg-[#00ff41] hover:text-black transition-all">
                 {loc.btn_request}
               </button>
 
@@ -1613,8 +1408,7 @@ export default function MarsSurvivalGame() {
               {!currentTeam?.has_commander && (
                 <button
                   onClick={handleBecomeCommander}
-                  className="border-2 border-amber-500 text-amber-500 py-4 font-black uppercase text-sm hover:bg-amber-500 hover:text-black transition-all"
-                >
+                  className="border-2 border-amber-500 text-amber-500 py-4 font-black uppercase text-sm hover:bg-amber-500 hover:text-black transition-all">
                   {loc.btn_commander}
                 </button>
               )}
@@ -1623,54 +1417,38 @@ export default function MarsSurvivalGame() {
         </div>
       </>
     );
-  } else if (view === "results") {
+  } else if (view === 'results') {
     content = (
       <>
         <Header title={loc.result_lb_analis} />
         {/* PLAYER INFO BAR */}
         <div className="text-center mb-4">
           <div className="inline-block border border-[#00ff41] px-4 py-1 text-[14px] uppercase tracking-[0.2em] bg-[#00ff41]/10">
-            {loc.lb_operator} <span className="text-white">{username}</span> |{" "}
-            {loc.lb_team} <span className="text-white">{currentTeamName}</span>
+            {loc.lb_operator} <span className="text-white">{username}</span> | {loc.lb_team} <span className="text-white">{currentTeamName}</span>
           </div>
         </div>
 
         <div className="text-center mb-4">
           <div className="text-4xl font-black mb-2">{currentScore} (110) </div>
-          <div className="text-sm uppercase tracking-[0.3em] mb-0 opacity-70">
-            {loc.lb_points}
-          </div>
-          <div className="text-xs text-white/80 italic mb-4">
-            ({loc.lb_explane})
-          </div>
-          <p className="text-xl italic bg-[#00ff41] text-black p-3 font-bold uppercase">
-            {getScoreMessage(currentScore)}
-          </p>
+          <div className="text-sm uppercase tracking-[0.3em] mb-0 opacity-70">{loc.lb_points}</div>
+          <div className="text-xs text-white/80 italic mb-4">({loc.lb_explane})</div>
+          <p className="text-xl italic bg-[#00ff41] text-black p-3 font-bold uppercase">{getScoreMessage(currentScore)}</p>
         </div>
 
         <div className="grid gap-4 mb-8 border border-[#00ff41]/30 p-4 bg-black/50">
           {[...staticItems] // Create a copy to avoid mutating state
             .sort((a, b) => a.idealPosition - b.idealPosition)
-            .map((item) => (
-              <div
-                key={item.id}
-                className="text-xs border-b border-[#00ff41]/20 pb-4 last:border-0"
-              >
+            .map(item => (
+              <div key={item.id} className="text-xs border-b border-[#00ff41]/20 pb-4 last:border-0">
                 <div className="flex gap-4 items-start">
                   <div className="w-10 h-10 border border-[#00ff41]/30 shrink-0">
-                    <img
-                      src={`/img/${item.photo}`}
-                      alt={item.name}
-                      className="w-full h-full object-cover opacity-50"
-                    />
+                    <img src={`/img/${item.photo}`} alt={item.name} className="w-full h-full object-cover opacity-50" />
                   </div>
                   <div className="flex-1">
                     <span className="text-[#00ff41] font-bold uppercase block mb-1">
                       {item.idealPosition}. {item.name}
                     </span>
-                    <p className="opacity-70 italic leading-relaxed">
-                      {item.description}
-                    </p>
+                    <p className="opacity-70 italic leading-relaxed">{item.description}</p>
                   </div>
                 </div>
               </div>
@@ -1679,24 +1457,20 @@ export default function MarsSurvivalGame() {
 
         <div className="flex flex-col md:flex-row gap-4">
           <button
-            onClick={() => setView("leaderboard")}
-            className="flex-1 border-2 border-[#00ff41] py-3 hover:bg-[#00ff41] hover:text-black uppercase font-bold"
-          >
+            onClick={() => setView('leaderboard')}
+            className="flex-1 border-2 border-[#00ff41] py-3 hover:bg-[#00ff41] hover:text-black uppercase font-bold">
             {loc.lb_classific}
           </button>
         </div>
       </>
     );
-  } else if (view === "leaderboard") {
-    const isAdmin = username.toLowerCase() === "admin";
+  } else if (view === 'leaderboard') {
+    const isAdmin = username.toLowerCase() === 'admin';
     // If an admin logs in and has a filter selected in the admin panel, we display only that filter.
     // If there is no filter (0) or the user is not an admin, the standard logic applies.
     const effectiveTeamId = isAdmin ? adminTeamFilter : teamId;
 
-    const filteredResults =
-      isAdmin && effectiveTeamId === 0
-        ? allResults
-        : allResults.filter((res) => res.team_id === effectiveTeamId);
+    const filteredResults = isAdmin && effectiveTeamId === 0 ? allResults : allResults.filter(res => res.team_id === effectiveTeamId);
 
     content = (
       <>
@@ -1704,24 +1478,22 @@ export default function MarsSurvivalGame() {
           <button
             onClick={() => {
               if (isAdmin) {
-                setView("admin");
+                setView('admin');
               } else {
-                setView("results");
+                setView('results');
               }
             }}
-            className="text-xs flex items-center gap-1 hover:underline text-[#00ff41]"
-          >
+            className="text-xs flex items-center gap-1 hover:underline text-[#00ff41]">
             <ArrowLeft size={14} />
-            {isAdmin ? "Admin" : loc.result_lb_res}
+            {isAdmin ? 'Admin' : loc.result_lb_res}
           </button>
           <h2 className="text-xl font-bold uppercase">{loc.lb_statuscol}</h2>
 
           <motion.div
             // Rotation animation: if isRefreshing = true, rotate 360 degrees
             animate={{ rotate: isRefreshing ? 360 : 0 }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
-            className="flex items-center justify-center"
-          >
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
+            className="flex items-center justify-center">
             <RefreshCcw
               size={18}
               className="cursor-pointer text-[#00ff41]/60 hover:text-[#00ff41] transition-colors duration-300"
@@ -1746,8 +1518,8 @@ export default function MarsSurvivalGame() {
             <span className="text-right md:pr-2">Info</span>
           </div>
 
-          {leaderboardResults.map((res) => {
-            const isCommEntry = res.username === "Commander";
+          {leaderboardResults.map(res => {
+            const isCommEntry = res.username === 'Commander';
             // Проверка наличия результата
             const hasResult = res.score !== -1 || isCommEntry;
 
@@ -1758,40 +1530,24 @@ export default function MarsSurvivalGame() {
                 // Amber color for Commander
                 className={`grid grid-cols-[1.5fr_1fr_45px_35px] md:grid-cols-4 items-center p-3 md:p-4 border transition-colors gap-2 ${
                   isCommEntry
-                    ? "bg-amber-500/10 border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)]"
-                    : "bg-[#111] border-[#00ff41]/20 hover:border-[#00ff41]"
-                }`}
-              >
+                    ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)]'
+                    : 'bg-[#111] border-[#00ff41]/20 hover:border-[#00ff41]'
+                }`}>
                 {/* NAME: Allow wrapping and multi-line for long names. Amber color for Commander */}
-                <span
-                  className={`font-bold text-xs md:text-sm leading-tight wrap-break-word pr-2 ${
-                    isCommEntry ? "text-amber-500" : ""
-                  }`}
-                >
+                <span className={`font-bold text-xs md:text-sm leading-tight wrap-break-word pr-2 ${isCommEntry ? 'text-amber-500' : ''}`}>
                   {res.username}
                 </span>
 
                 {/* TEAM: Small and truncated to save space. Amber color for Commander */}
-                <span
-                  className={`text-[10px] md:text-xs truncate uppercase ${
-                    isCommEntry ? "text-amber-500 opacity-100" : "opacity-70"
-                  }`}
-                >
+                <span className={`text-[10px] md:text-xs truncate uppercase ${isCommEntry ? 'text-amber-500 opacity-100' : 'opacity-70'}`}>
                   {res.team_name}
                 </span>
 
                 {/* SCORE: The commander can also be highlighted in orange */}
-                <span
-                  className={`text-right font-black text-xs md:text-base ${
-                    isCommEntry ? "text-amber-500" : "text-[#00ff41]"
-                  }`}
-                >
+                <span className={`text-right font-black text-xs md:text-base ${isCommEntry ? 'text-amber-500' : 'text-[#00ff41]'}`}>
                   {res.score === -1 ? (
                     // Показываем иконку вместо -1
-                    <div
-                      className="flex justify-end"
-                      title={loc.msg_waiting || "In attesa..."}
-                    >
+                    <div className="flex justify-end" title={loc.msg_waiting || 'In attesa...'}>
                       <CircleSlash size={16} strokeWidth={3} />
                     </div>
                   ) : (
@@ -1805,20 +1561,15 @@ export default function MarsSurvivalGame() {
                   <button
                     onClick={() => {
                       if (!hasResult) {
-                        triggerModal(
-                          "alert",
-                          ModalMode.IDLE,
-                          loc.msg_no_results || "Rapporto non disponibile.",
-                        );
+                        triggerModal('alert', ModalMode.IDLE, loc.msg_no_results || 'Rapporto non disponibile.');
                         return;
                       }
                       setSelectedUserDetail(res);
                       setShowDeltas(true);
-                      setPrevView("leaderboard");
-                      setView("user-detail");
+                      setPrevView('leaderboard');
+                      setView('user-detail');
                     }}
-                    className={`p-1 ${isCommEntry ? "text-amber-500" : hasResult ? "text-[#00ff41]" : "text-red-600"}`}
-                  >
+                    className={`p-1 ${isCommEntry ? 'text-amber-500' : hasResult ? 'text-[#00ff41]' : 'text-red-600'}`}>
                     <ChevronRight size={18} />
                   </button>
                 </div>
@@ -1833,8 +1584,7 @@ export default function MarsSurvivalGame() {
             /* 1. ADMIN OPTION: EXPORT button */
             <button
               onClick={exportToCSV}
-              className="w-full bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(0,255,65,0.3)] active:scale-[0.98]"
-            >
+              className="w-full bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(0,255,65,0.3)] active:scale-[0.98]">
               <FileDown size={24} />
               {loc.csv_btn_export}
             </button>
@@ -1843,42 +1593,32 @@ export default function MarsSurvivalGame() {
             <>
               <button
                 onClick={() => window.location.reload()}
-                className="w-full bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors flex items-center justify-center gap-3 active:scale-[0.98]"
-              >
+                className="w-full bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors flex items-center justify-center gap-3 active:scale-[0.98]">
                 <RefreshCcw size={24} />
                 {loc.result_lb_newmiss}
               </button>
-              <p className="text-[10px] text-center mt-4 opacity-50 uppercase tracking-widest">
-                {loc.result_lb_atten}
-              </p>
+              <p className="text-[10px] text-center mt-4 opacity-50 uppercase tracking-widest">{loc.result_lb_atten}</p>
             </>
           )}
         </div>
       </>
     );
-  } else if (view === "user-detail" && selectedUserDetail) {
+  } else if (view === 'user-detail' && selectedUserDetail) {
     content = (
       <>
         <div className="mb-6">
           <button
             // We use prevView state to decide where to go back
             onClick={() => setView(prevView)}
-            className="text-xs flex items-center gap-1 hover:underline mb-4"
-          >
-            <ArrowLeft size={14} />{" "}
+            className="text-xs flex items-center gap-1 hover:underline mb-4">
+            <ArrowLeft size={14} />{' '}
           </button>
 
           <div className="mb-8">
             <div className="text-center mb-4">
               <div className="inline-block border border-[#00ff41] px-4 py-1 text-[14px] uppercase tracking-[0.2em] bg-[#00ff41]/10">
-                {loc.lb_operator}{" "}
-                <span className="text-white">
-                  {selectedUserDetail.username}
-                </span>{" "}
-                | {loc.lb_team}{" "}
-                <span className="text-white">
-                  {selectedUserDetail.team_name}
-                </span>
+                {loc.lb_operator} <span className="text-white">{selectedUserDetail.username}</span> | {loc.lb_team}{' '}
+                <span className="text-white">{selectedUserDetail.team_name}</span>
               </div>
             </div>
 
@@ -1886,9 +1626,7 @@ export default function MarsSurvivalGame() {
               {showDeltas ? (
                 <div className="text-sm font-black uppercase tracking-tight text-[#00ff41] flex items-baseline gap-2">
                   <span>{loc.lb_nasapoints}</span>
-                  <span className="text-2xl underline decoration-double">
-                    {selectedUserDetail.score}
-                  </span>
+                  <span className="text-2xl underline decoration-double">{selectedUserDetail.score}</span>
                 </div>
               ) : (
                 <div className="inline-block text-[10px] text-amber-500 font-bold bg-amber-500/10 px-2 py-1 border border-amber-500/30 uppercase tracking-widest animate-pulse">
@@ -1901,7 +1639,7 @@ export default function MarsSurvivalGame() {
 
         <div className="space-y-1">
           {selectedUserDetail.selections.map((itemId: string, idx: number) => {
-            const item = staticItems.find((i) => i.id === itemId);
+            const item = staticItems.find(i => i.id === itemId);
             const diff = Math.abs(idx + 1 - (item?.idealPosition || 0));
 
             return (
@@ -1909,16 +1647,11 @@ export default function MarsSurvivalGame() {
                 key={itemId}
                 // flex justify-between pushes children to opposite ends
                 // items-start ensures alignment even if name wraps to 2 lines
-                className="flex justify-between items-start gap-3 p-3 border-b border-[#00ff41]/10 bg-black/20"
-              >
+                className="flex justify-between items-start gap-3 p-3 border-b border-[#00ff41]/10 bg-black/20">
                 {/* LEFT SIDE: Index and Name (Flexible) */}
                 <div className="flex-1 min-w-0">
-                  <span className="text-[10px] opacity-40 font-mono mr-2">
-                    {String(idx + 1).padStart(2, "0")}.
-                  </span>
-                  <span className="uppercase font-bold text-[11px] leading-tight wrap-break-word">
-                    {item?.name}
-                  </span>
+                  <span className="text-[10px] opacity-40 font-mono mr-2">{String(idx + 1).padStart(2, '0')}.</span>
+                  <span className="uppercase font-bold text-[11px] leading-tight wrap-break-word">{item?.name}</span>
                 </div>
 
                 {/* RIGHT SIDE: NASA Info and Delta (Fixed width, pinned to right) */}
@@ -1926,24 +1659,13 @@ export default function MarsSurvivalGame() {
                   {/* Condition: display deltas only if showDeltas === true */}
                   {showDeltas ? (
                     <>
-                      <div className="text-[9px] opacity-50 uppercase italic leading-none mb-1">
-                        NASA: {item?.idealPosition}
-                      </div>
-                      <div
-                        className={`text-sm font-black leading-none ${diff === 0 ? "text-green-400" : "text-amber-500"}`}
-                      >
-                        Δ {diff}
-                      </div>
+                      <div className="text-[9px] opacity-50 uppercase italic leading-none mb-1">NASA: {item?.idealPosition}</div>
+                      <div className={`text-sm font-black leading-none ${diff === 0 ? 'text-green-400' : 'text-amber-500'}`}>Δ {diff}</div>
                     </>
                   ) : (
-                    <div
-                      className="flex flex-col items-center gap-1 text-amber-500 opacity-80"
-                      title="In fase di discussione - Punteggio nascosto"
-                    >
+                    <div className="flex flex-col items-center gap-1 text-amber-500 opacity-80" title="In fase di discussione - Punteggio nascosto">
                       <MessageSquare size={22} className="animate-pulse" />
-                      <span className="text-[7px] uppercase font-black tracking-tighter">
-                        {loc.lb_discussione}
-                      </span>
+                      <span className="text-[7px] uppercase font-black tracking-tighter">{loc.lb_discussione}</span>
                     </div>
                   )}
                 </div>
@@ -1953,23 +1675,23 @@ export default function MarsSurvivalGame() {
         </div>
       </>
     );
-  } else if (view === "admin") {
+  } else if (view === 'admin') {
     // ---  UNIVERSAL FILTERING LOGIC ---
-    const resultsFilteredByMenu = allResults.filter((r) => {
+    const resultsFilteredByMenu = allResults.filter(r => {
       // If “All Teams” is selected
-      if (adminTeamFilter === "all") return true;
+      if (adminTeamFilter === 'all') return true;
 
       // If a specific scenario (scen:id) is selected
-      if (adminTeamFilter.startsWith("scen:")) {
-        const targetScenId = adminTeamFilter.split(":")[1];
+      if (adminTeamFilter.startsWith('scen:')) {
+        const targetScenId = adminTeamFilter.split(':')[1];
         // Let's check what scenario this player's team is facing
-        const teamOfPlayer = teamsList.find((t) => t.id === r.team_id);
+        const teamOfPlayer = teamsList.find(t => t.id === r.team_id);
         return teamOfPlayer?.current_scenario === targetScenId;
       }
 
       // If a specific team (team:id) is selected
-      if (adminTeamFilter.startsWith("team:")) {
-        const targetTeamId = parseInt(adminTeamFilter.split(":")[1]);
+      if (adminTeamFilter.startsWith('team:')) {
+        const targetTeamId = parseInt(adminTeamFilter.split(':')[1]);
         return r.team_id === targetTeamId;
       }
       return true;
@@ -1983,20 +1705,13 @@ export default function MarsSurvivalGame() {
     });
 
     // --- PREPARING THE DISCUSSION LIST (Sort by name) ---
-    const discussionResults = [...resultsFilteredByMenu].sort((a, b) =>
-      a.username.localeCompare(b.username),
-    );
+    const discussionResults = [...resultsFilteredByMenu].sort((a, b) => a.username.localeCompare(b.username));
 
     content = (
       <>
         <div className="flex justify-between items-center mb-8 border-b-4 border-[#00ff41] pb-2 ">
-          <h2 className="text-2xl font-black italic uppercase bg-[#00ff41] text-black px-2 ">
-            {loc.admin_lb_terminal}
-          </h2>
-          <button
-            onClick={() => setView("login")}
-            className="text-xs underline pl-3"
-          >
+          <h2 className="text-2xl font-black italic uppercase bg-[#00ff41] text-black px-2 ">{loc.admin_lb_terminal}</h2>
+          <button onClick={() => setView('login')} className="text-xs underline pl-3">
             {loc.admin_lb_LOGOUT}
           </button>
         </div>
@@ -2008,19 +1723,16 @@ export default function MarsSurvivalGame() {
           </h3>
 
           <div className="flex flex-col gap-2">
-            <label className="text-[9px] uppercase opacity-50">
-              {loc.admin_lb_lang}
-            </label>
+            <label className="text-[9px] uppercase opacity-50">{loc.admin_lb_lang}</label>
             <select
               className="w-full bg-black text-[#00ff41] text-xs border border-[#00ff41]/40 p-2 outline-none appearance-none cursor-pointer"
               value={currentLangId}
-              onChange={(e) => setCurrentLangId(e.target.value)}
-            >
+              onChange={e => setCurrentLangId(e.target.value)}>
               {/* CHECK: If the array is empty, display a placeholder */}
               {availableLangs.length === 0 ? (
                 <option>{loc.admin_lb_langload}</option>
               ) : (
-                availableLangs.map((l) => (
+                availableLangs.map(l => (
                   <option key={l.id} value={l.id} className="bg-black">
                     {l.name}
                   </option>
@@ -2045,58 +1757,38 @@ export default function MarsSurvivalGame() {
                 <thead className="sticky top-0 z-30 bg-[#00ff41] text-black uppercase text-[10px] font-black">
                   <tr>
                     {/* Header 1: Unlock Results  */}
-                    <th
-                      className="p-2 border border-black w-9 text-center cursor-help"
-                      title={loc.admin_msg_chkresults}
-                    >
+                    <th className="p-2 border border-black w-9 text-center cursor-help" title={loc.admin_msg_chkresults}>
                       <LockOpen size={14} className="mx-auto" />
                     </th>
 
                     {/* Header 2: Commander Status  */}
-                    <th
-                      className="p-2 border border-black w-9 text-center cursor-help"
-                      title={loc.admin_msg_chkcomander}
-                    >
+                    <th className="p-2 border border-black w-9 text-center cursor-help" title={loc.admin_msg_chkcomander}>
                       <UserCheck size={14} className="mx-auto" />
                     </th>
 
-                    <th className="p-2 border border-black overflow-hidden">
-                      {loc.admin_lb_teamname}
-                    </th>
+                    <th className="p-2 border border-black overflow-hidden">{loc.admin_lb_teamname}</th>
 
                     {/* Header 3: Scenario  */}
-                    <th className="p-2 border border-black w-15 md:w-60">
-                      {loc.admin_lb_scename}
-                    </th>
+                    <th className="p-2 border border-black w-15 md:w-60">{loc.admin_lb_scename}</th>
 
-                    <th className="p-2 border border-black w-12 text-center">
-                      CMD
-                    </th>
+                    <th className="p-2 border border-black w-12 text-center">CMD</th>
                   </tr>
                 </thead>
                 <tbody className="text-[10px] uppercase">
                   {teamsList
                     .sort((a, b) => a.id - b.id)
-                    .map((t) => {
-                      const scenarioName =
-                        scenarios.find((s) => s.id === t.current_scenario)
-                          ?.name || "Default";
+                    .map(t => {
+                      const scenarioName = scenarios.find(s => s.id === t.current_scenario)?.name || 'Default';
 
                       return (
-                        <tr
-                          key={t.id}
-                          className="border-b border-[#00ff41]/10 hover:bg-[#00ff41]/5 transition-colors"
-                        >
+                        <tr key={t.id} className="border-b border-[#00ff41]/10 hover:bg-[#00ff41]/5 transition-colors">
                           {/* Checkbox 1: Unlock */}
                           <td className="p-2 text-center">
                             <input
                               type="checkbox"
                               checked={t.is_unlocked}
                               onChange={async () => {
-                                await updateTeamStatusAction(
-                                  t.id,
-                                  !t.is_unlocked,
-                                );
+                                await updateTeamStatusAction(t.id, !t.is_unlocked);
                                 setTeamsList(await getTeamsAction());
                               }}
                               className="appearance-none w-4 h-4 border border-[#00ff41]/40 bg-black checked:bg-[#00ff41] cursor-pointer relative"
@@ -2109,10 +1801,7 @@ export default function MarsSurvivalGame() {
                               type="checkbox"
                               checked={t.has_commander}
                               onChange={async () => {
-                                await updateCommanderStatusAction(
-                                  t.id,
-                                  !t.has_commander,
-                                );
+                                await updateCommanderStatusAction(t.id, !t.has_commander);
                                 setTeamsList(await getTeamsAction());
                               }}
                               className="appearance-none w-4 h-4 border border-amber-500/40 bg-black checked:bg-amber-500 cursor-pointer relative"
@@ -2124,9 +1813,7 @@ export default function MarsSurvivalGame() {
 
                           {/* SCENARIO: Desktop Text, Mobile Left-side Tooltip */}
                           <td className="p-2 opacity-70">
-                            <span className="hidden md:block truncate">
-                              {scenarioName}
-                            </span>
+                            <span className="hidden md:block truncate">{scenarioName}</span>
                             <div className="md:hidden relative group/scen flex items-center justify-center">
                               <Info size={14} className="text-[#00ff41]/50" />
                               <div className="absolute right-full top-0 mr-2 hidden group-active/scen:block z-50">
@@ -2143,26 +1830,20 @@ export default function MarsSurvivalGame() {
                               {/* QR code for the whole team */}
                               <button
                                 onClick={() => {
-                                  const scenario = scenarios.find(
-                                    (s) => s.id === t.current_scenario,
-                                  );
-                                  const url = `${window.location.origin}?team=${t.id}&lang=${scenario?.language || "en"}`;
+                                  const scenario = scenarios.find(s => s.id === t.current_scenario);
+                                  const url = `${window.location.origin}?team=${t.id}&lang=${scenario?.language || 'en'}`;
                                   setShareData({
                                     name: `${t.name}`,
                                     url,
                                   });
                                 }}
                                 className="text-[#00ff41] hover:text-white transition-colors p-1"
-                                title={loc.admin_msg_teamQr}
-                              >
+                                title={loc.admin_msg_teamQr}>
                                 <QrCode size={14} />
                               </button>
 
                               {/* Delete Action */}
-                              <button
-                                onClick={() => handleDeleteTeam(t.id!)}
-                                className="text-red-500 hover:text-white transition-colors p-1"
-                              >
+                              <button onClick={() => handleDeleteTeam(t.id!)} className="text-red-500 hover:text-white transition-colors p-1">
                                 <Trash2 size={14} className="mx-auto" />
                               </button>
                             </div>
@@ -2179,9 +1860,8 @@ export default function MarsSurvivalGame() {
               <select
                 className="flex-1 bg-black text-[#00ff41] text-sm border border-[#00ff41]/40 p-2 outline-none cursor-pointer min-h-9.5"
                 value={selectedScenarioForNewTeam}
-                onChange={(e) => setSelectedScenarioForNewTeam(e.target.value)}
-              >
-                {scenarios.map((s) => (
+                onChange={e => setSelectedScenarioForNewTeam(e.target.value)}>
+                {scenarios.map(s => (
                   <option key={s.id} value={s.id} className="bg-black">
                     {s.name}
                   </option>
@@ -2194,14 +1874,13 @@ export default function MarsSurvivalGame() {
                 placeholder={loc.admin_lb_teamname}
                 className="flex-1 bg-black text-[#00ff41] text-sm border border-c/40 p-2 outline-none focus:border-[#00ff41] transition-colors uppercase font-mono"
                 value={newTeamName}
-                onChange={(e) => setNewTeamName(e.target.value)}
+                onChange={e => setNewTeamName(e.target.value)}
               />
 
               {/* 3. Create button  */}
               <button
                 onClick={handleAddTeam}
-                className="whitespace-nowrap border-2 border-dashed border-[#00ff41]/30 px-4 py-2 text-[12px] uppercase font-bold hover:bg-[#00ff41]/10 transition-colors sm:w-auto w-full"
-              >
+                className="whitespace-nowrap border-2 border-dashed border-[#00ff41]/30 px-4 py-2 text-[12px] uppercase font-bold hover:bg-[#00ff41]/10 transition-colors sm:w-auto w-full">
                 {loc.admin_lb_newteam}
               </button>
             </div>
@@ -2219,42 +1898,26 @@ export default function MarsSurvivalGame() {
                 <button
                   onClick={() => setIsAutoRefresh(!isAutoRefresh)}
                   className={`px-3 py-1 border transition-all duration-300 flex items-center gap-2 ${
-                    isAutoRefresh
-                      ? "border-[#00ff41] bg-[#00ff41]/10 text-[#00ff41]"
-                      : "border-[#00ff41]/30 text-[#00ff41]/40"
-                  }`}
-                >
+                    isAutoRefresh ? 'border-[#00ff41] bg-[#00ff41]/10 text-[#00ff41]' : 'border-[#00ff41]/30 text-[#00ff41]/40'
+                  }`}>
                   <div
-                    className={`w-1.5 h-1.5 ${isAutoRefresh ? "bg-[#00ff41] animate-pulse shadow-[0_0_8px_#00ff41]" : "bg-black border border-[#00ff41]/30"}`}
-                  ></div>
-                  <span className="text-[9px] font-black uppercase tracking-widest whitespace-nowrap">
-                    Auto-Sync: {isAutoRefresh ? "ON" : "OFF"}
-                  </span>
+                    className={`w-1.5 h-1.5 ${isAutoRefresh ? 'bg-[#00ff41] animate-pulse shadow-[0_0_8px_#00ff41]' : 'bg-black border border-[#00ff41]/30'}`}></div>
+                  <span className="text-[9px] font-black uppercase tracking-widest whitespace-nowrap">Auto-Sync: {isAutoRefresh ? 'ON' : 'OFF'}</span>
                 </button>
 
                 <button
                   onClick={async () => {
                     setIsRefreshing(true);
-                    const [freshResults, freshTeams] = await Promise.all([
-                      getResultsAction(),
-                      getTeamsAction(),
-                    ]);
+                    const [freshResults, freshTeams] = await Promise.all([getResultsAction(), getTeamsAction()]);
                     setAllResults(freshResults);
                     setTeamsList(freshTeams);
                     setTimeout(() => setIsRefreshing(false), 500);
                   }}
-                  className="px-3 py-1 border border-[#00ff41]/30 text-[#00ff41]/60 hover:border-[#00ff41] transition-all flex items-center gap-2 group text-[9px] font-black uppercase tracking-widest"
-                >
-                  <motion.div
-                    animate={{ rotate: isRefreshing ? 360 : 0 }}
-                    transition={{ duration: 0.5, ease: "linear" }}
-                    className="flex"
-                  >
+                  className="px-3 py-1 border border-[#00ff41]/30 text-[#00ff41]/60 hover:border-[#00ff41] transition-all flex items-center gap-2 group text-[9px] font-black uppercase tracking-widest">
+                  <motion.div animate={{ rotate: isRefreshing ? 360 : 0 }} transition={{ duration: 0.5, ease: 'linear' }} className="flex">
                     <RefreshCcw size={12} />
                   </motion.div>
-                  <span className="whitespace-nowrap">
-                    {loc.admin_lb_refresh}
-                  </span>
+                  <span className="whitespace-nowrap">{loc.admin_lb_refresh}</span>
                 </button>
 
                 <div className="h-6 w-px bg-[#00ff41]/20 mx-1 hidden lg:block"></div>
@@ -2266,8 +1929,7 @@ export default function MarsSurvivalGame() {
                 <button
                   onClick={handleWipeEverything}
                   className="px-3 py-1.5 border border-red-600 text-red-500 hover:bg-red-600 hover:text-white text-[9px] font-black uppercase transition-all shadow-[0_0_10px_rgba(220,38,38,0.2)] shrink-0"
-                  title={loc.tooltip_wipe_all}
-                >
+                  title={loc.tooltip_wipe_all}>
                   {loc.admin_lb_clearall}
                 </button>
 
@@ -2281,38 +1943,28 @@ export default function MarsSurvivalGame() {
                   <select
                     className="bg-transparent text-[#00ff41] text-[10px] outline-none cursor-pointer uppercase font-bold flex-1 min-w-0 max-w-full truncate"
                     value={adminTeamFilter}
-                    onChange={(e) => setAdminTeamFilter(e.target.value)}
-                  >
+                    onChange={e => setAdminTeamFilter(e.target.value)}>
                     {/* 1. General filter */}
                     <option value="all" className="bg-black text-[#00ff41]">
-                      -- {loc.filter_all || "TUTTI I RISULTATI"} --
+                      -- {loc.filter_all || 'TUTTI I RISULTATI'} --
                     </option>
 
                     {/* 2. We only consider scenarios that contain at least one command */}
                     {scenarios
-                      .filter((scen) =>
-                        teamsList.some((t) => t.current_scenario === scen.id),
-                      )
-                      .map((scen) => (
+                      .filter(scen => teamsList.some(t => t.current_scenario === scen.id))
+                      .map(scen => (
                         <React.Fragment key={scen.id}>
                           {/* SELECTED SCENARIO (marked with an asterisk) */}
-                          <option
-                            value={`scen:${scen.id}`}
-                            className="bg-[#002200] text-amber-500 font-black italic"
-                          >
+                          <option value={`scen:${scen.id}`} className="bg-[#002200] text-amber-500 font-black italic">
                             * {scen.name.toUpperCase()}
                           </option>
 
                           {/* COMMANDS IN THIS SCRIPT */}
                           {teamsList
-                            .filter((t) => t.current_scenario === scen.id)
+                            .filter(t => t.current_scenario === scen.id)
                             .sort((a, b) => a.id - b.id)
-                            .map((t) => (
-                              <option
-                                key={t.id}
-                                value={`team:${t.id}`}
-                                className="bg-black text-[#00ff41]"
-                              >
+                            .map(t => (
+                              <option key={t.id} value={`team:${t.id}`} className="bg-black text-[#00ff41]">
                                 &nbsp;&nbsp;&nbsp;{t.name}
                               </option>
                             ))}
@@ -2324,8 +1976,7 @@ export default function MarsSurvivalGame() {
                   <button
                     onClick={handleAddSinglePlayer}
                     className="ml-2 px-3 py-1 border border-[#00ff41] text-[#00ff41] text-[9px] font-black uppercase hover:bg-[#00ff41] hover:text-black transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0"
-                    title={loc.admin_msg_addteam}
-                  >
+                    title={loc.admin_msg_addteam}>
                     <UserPlus size={12} strokeWidth={2.5} />
                     <span className="hidden xs:inline">{loc.admin_lb_add}</span>
                   </button>
@@ -2338,80 +1989,51 @@ export default function MarsSurvivalGame() {
             <table className="w-full text-left border-collapse min-w-300px">
               <thead>
                 <tr className="bg-[#00ff41] text-black uppercase text-[9px] md:text-[10px] font-black">
-                  <th className="p-2 border border-black w-50px md:w-auto">
-                    Data
-                  </th>
+                  <th className="p-2 border border-black w-50px md:w-auto">Data</th>
                   <th className="p-2 border border-black">User</th>
-                  <th className="p-2 border border-black hidden sm:table-cell">
-                    Team
-                  </th>
-                  <th className="p-2 border border-black text-right w-40px">
-                    Pts
-                  </th>
-                  <th className="p-2 border border-black text-center w-80px">
-                    Cmd
-                  </th>
+                  <th className="p-2 border border-black hidden sm:table-cell">Team</th>
+                  <th className="p-2 border border-black text-right w-40px">Pts</th>
+                  <th className="p-2 border border-black text-center w-80px">Cmd</th>
                 </tr>
               </thead>
               <tbody className="text-[10px] md:text-[11px] uppercase">
                 {filteredAdminResults.length > 0 ? (
-                  filteredAdminResults.map((r) => {
+                  filteredAdminResults.map(r => {
                     const isPending = r.score === -1;
                     return (
                       <tr
                         key={r.id}
                         // Add a very light orange background to the entire line if the player is “waiting”
                         className={`border-b border-[#00ff41]/10 transition-colors ${
-                          isPending
-                            ? "bg-amber-500/5 hover:bg-amber-500/10"
-                            : "hover:bg-[#00ff41]/5"
-                        }`}
-                      >
+                          isPending ? 'bg-amber-500/5 hover:bg-amber-500/10' : 'hover:bg-[#00ff41]/5'
+                        }`}>
                         {/* DATE: Short format for mobile */}
-                        <td
-                          className={`p-2 whitespace-nowrap ${isPending ? "text-amber-500/50" : "opacity-60"}`}
-                        >
+                        <td className={`p-2 whitespace-nowrap ${isPending ? 'text-amber-500/50' : 'opacity-60'}`}>
                           {r.created_at
                             ? new Date(r.created_at).toLocaleDateString([], {
-                                day: "2-digit",
-                                month: "2-digit",
+                                day: '2-digit',
+                                month: '2-digit',
                               })
-                            : "N/A"}
-                          <span className="hidden md:inline">
-                            {r.created_at &&
-                              `/${new Date(r.created_at).getFullYear().toString().slice(-2)}`}
-                          </span>
+                            : 'N/A'}
+                          <span className="hidden md:inline">{r.created_at && `/${new Date(r.created_at).getFullYear().toString().slice(-2)}`}</span>
                         </td>
 
                         {/* USERNAME: Wraps if long */}
-                        <td
-                          className={`p-2 font-bold wrap-break-word max-w-80px md:max-w-none ${
-                            isPending ? "text-amber-500" : ""
-                          }`}
-                        >
+                        <td className={`p-2 font-bold wrap-break-word max-w-80px md:max-w-none ${isPending ? 'text-amber-500' : ''}`}>
                           {r.username}
-                          {isPending && (
-                            <span className="ml-2 text-[8px] animate-pulse">
-                              [LOAD...]
-                            </span>
-                          )}
+                          {isPending && <span className="ml-2 text-[8px] animate-pulse">[LOAD...]</span>}
                         </td>
 
                         {/* TEAM: Hidden on very small screens, visible on tablets/desktop */}
                         <td
                           className={`p-2 italic truncate hidden sm:table-cell ${
-                            isPending
-                              ? "text-amber-500 opacity-100"
-                              : "text-[#00ff41] opacity-60"
-                          }`}
-                        >
+                            isPending ? 'text-amber-500 opacity-100' : 'text-[#00ff41] opacity-60'
+                          }`}>
                           {r.team_name}
                         </td>
 
                         {/* SCORE */}
-                        <td
-                          className={`p-2 font-black text-right ${isPending ? "text-amber-500" : "text-[#00ff41]"}`}
-                        >
+                        <td className={`p-2 font-black text-right ${isPending ? 'text-amber-500' : 'text-[#00ff41]'}`}>
                           {isPending ? (
                             <div className="flex justify-end opacity-50">
                               <CircleSlash size={14} strokeWidth={3} />
@@ -2427,26 +2049,18 @@ export default function MarsSurvivalGame() {
                             <button
                               onClick={() => {
                                 // Select the language from the script (or [it] by default)
-                                const team = teamsList.find(
-                                  (t) => t.id === r.team_id,
-                                );
-                                const scenario = scenarios.find(
-                                  (s) => s.id === team?.current_scenario,
-                                );
+                                const team = teamsList.find(t => t.id === r.team_id);
+                                const scenario = scenarios.find(s => s.id === team?.current_scenario);
                                 const lang = scenario?.language || PRIMARY_LANG;
                                 // To create the link: your current address + player name
                                 const url = `${window.location.origin}?user=${encodeURIComponent(r.username)}&lang=${lang}`;
                                 setShareData({ name: r.username, url });
                               }}
-                              className={`${isPending ? "text-amber-500" : "text-[#00ff41]"} hover:text-white transition-colors p-1`}
-                              title={loc.admin_msg_qr}
-                            >
-                              <QrCode size={18} />{" "}
+                              className={`${isPending ? 'text-amber-500' : 'text-[#00ff41]'} hover:text-white transition-colors p-1`}
+                              title={loc.admin_msg_qr}>
+                              <QrCode size={18} />{' '}
                             </button>
-                            <button
-                              onClick={() => handleDeleteResult(r.id!)}
-                              className="text-red-500 hover:text-white transition-colors p-1"
-                            >
+                            <button onClick={() => handleDeleteResult(r.id!)} className="text-red-500 hover:text-white transition-colors p-1">
                               <Trash2 size={16} />
                             </button>
                           </div>
@@ -2456,10 +2070,7 @@ export default function MarsSurvivalGame() {
                   })
                 ) : (
                   <tr>
-                    <td
-                      colSpan={5}
-                      className="p-4 text-center opacity-50 italic"
-                    >
+                    <td colSpan={5} className="p-4 text-center opacity-50 italic">
                       {loc.admin_lb_nodata}
                     </td>
                   </tr>
@@ -2472,25 +2083,23 @@ export default function MarsSurvivalGame() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
           <button
             onClick={() => {
-              setPrevView("admin");
-              setView("leaderboard");
+              setPrevView('admin');
+              setView('leaderboard');
             }}
-            className="border-2 border-[#00ff41] py-3 hover:bg-[#00ff41] hover:text-black uppercase font-bold text-xs"
-          >
+            className="border-2 border-[#00ff41] py-3 hover:bg-[#00ff41] hover:text-black uppercase font-bold text-xs">
             {loc.admin_btn_results}
           </button>
 
           <button
             onClick={() => {
-              if (adminTeamFilter === "all") {
-                triggerModal("alert", ModalMode.IDLE, loc.msg_err_select_team);
+              if (adminTeamFilter === 'all') {
+                triggerModal('alert', ModalMode.IDLE, loc.msg_err_select_team);
               } else {
-                setPrevView("admin");
-                setView("discussion-list");
+                setPrevView('admin');
+                setView('discussion-list');
               }
             }}
-            className="border-2 border-amber-500 py-3 text-amber-500 hover:bg-amber-500 hover:text-black uppercase font-black text-xs shadow-[0_0_15px_rgba(245,158,11,0.3)]"
-          >
+            className="border-2 border-amber-500 py-3 text-amber-500 hover:bg-amber-500 hover:text-black uppercase font-black text-xs shadow-[0_0_15px_rgba(245,158,11,0.3)]">
             {loc.admin_btn_dicusion}
           </button>
         </div>
@@ -2505,7 +2114,7 @@ export default function MarsSurvivalGame() {
         <AnalysisSequence
           onComplete={() => {
             setIsAnalyzing(false); // Hide animation
-            setView("discussion-list"); // Show results
+            setView('discussion-list'); // Show results
           }}
         />
       )}
@@ -2516,9 +2125,7 @@ export default function MarsSurvivalGame() {
         type={modal.type}
         message={modal.message}
         value={modal.value}
-        onClose={() =>
-          setModal((prev) => ({ ...prev, isOpen: false, mode: ModalMode.IDLE }))
-        }
+        onClose={() => setModal(prev => ({ ...prev, isOpen: false, mode: ModalMode.IDLE }))}
         onConfirm={() => {
           switch (modal.mode) {
             case ModalMode.ADMIN_AUTH:
@@ -2536,7 +2143,7 @@ export default function MarsSurvivalGame() {
               break;
           }
         }}
-        onChange={(val) => setModal((prev) => ({ ...prev, value: val }))}
+        onChange={val => setModal(prev => ({ ...prev, value: val }))}
         loc={loc}
       />
 
@@ -2546,12 +2153,8 @@ export default function MarsSurvivalGame() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="w-full max-w-sm border-4 border-[#00ff41] bg-black p-6 shadow-[0_0_50px_rgba(0,255,65,0.4)] text-center relative"
-          >
-            <button
-              onClick={() => setShareData(null)}
-              className="absolute top-2 right-2 text-[#00ff41]/50 hover:text-[#00ff41]"
-            >
+            className="w-full max-w-sm border-4 border-[#00ff41] bg-black p-6 shadow-[0_0_50px_rgba(0,255,65,0.4)] text-center relative">
+            <button onClick={() => setShareData(null)} className="absolute top-2 right-2 text-[#00ff41]/50 hover:text-[#00ff41]">
               <X size={20} />
             </button>
 
@@ -2566,32 +2169,28 @@ export default function MarsSurvivalGame() {
                 id="qr-code-canvas"
                 value={shareData.url}
                 size={200}
-                level={"H"}
-                bgColor={"#00ff41"}
-                fgColor={"#000000"}
+                level={'H'}
+                bgColor={'#00ff41'}
+                fgColor={'#000000'}
                 includeMargin={false}
               />
             </div>
 
             <div className="space-y-4">
               <div className="flex items-center gap-2 bg-[#001100] border border-[#00ff41]/30 p-2 overflow-hidden">
-                <span className="text-[9px] text-[#00ff41] truncate flex-1 font-mono opacity-70">
-                  {shareData.url}
-                </span>
+                <span className="text-[9px] text-[#00ff41] truncate flex-1 font-mono opacity-70">{shareData.url}</span>
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(shareData.url);
                   }}
-                  className="text-[#00ff41] hover:text-white"
-                >
+                  className="text-[#00ff41] hover:text-white">
                   <Copy size={16} />
                 </button>
               </div>
 
               <button
                 onClick={downloadQRCode}
-                className="w-full bg-[#00ff41] text-black py-3 font-black uppercase text-xs hover:bg-white transition-colors flex items-center justify-center gap-2"
-              >
+                className="w-full bg-[#00ff41] text-black py-3 font-black uppercase text-xs hover:bg-white transition-colors flex items-center justify-center gap-2">
                 <Download size={16} /> {loc.admin_msg_qrsave} (PNG)
               </button>
             </div>
