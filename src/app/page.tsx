@@ -668,18 +668,57 @@ export default function MarsSurvivalGame() {
     audio.play().catch(e => console.log('Audio play blocked by browser policy'));
   };
 
-  // Saving QrCode
   const downloadQRCode = () => {
-    const canvas = document.getElementById('qr-code-canvas') as HTMLCanvasElement;
-    if (canvas) {
-      const pngUrl = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
-      let downloadLink = document.createElement('a');
-      downloadLink.href = pngUrl;
-      downloadLink.download = `ARES_ACCESS_${shareData?.name.toUpperCase()}.png`;
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-    }
+    const qrCanvas = document.getElementById('qr-code-canvas') as HTMLCanvasElement;
+    if (!qrCanvas || !shareData) return;
+
+    // 1. Dimensions
+    const qrSize = 1250;
+    const padding = 100; // Indents on the sides
+    const headerSpace = 250; // Space for text at the top
+    // Creating the final canvas
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    // Final Dimensions
+    canvas.width = qrSize + padding * 2;
+    canvas.height = qrSize + headerSpace + padding;
+
+    // 2. Draw the background (black, like in the game)
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 3. Drawing a Frame (Retro Style)
+    ctx.strokeStyle = '#00ff41';
+    ctx.lineWidth = 20;
+    ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+
+    // 4. Text formatting (large and bold)
+    ctx.fillStyle = '#00ff41';
+    ctx.font = '900 80px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const titlePart1 = loc.modal_msg_qr;
+    const titlePart2 = shareData.name.toUpperCase();
+    ctx.fillText(titlePart1, canvas.width / 2, 80);
+
+    ctx.fillStyle = '#8cff9e'; // Имя игрока выделим белым
+    ctx.font = '900 100px monospace';
+    ctx.fillText(titlePart2, canvas.width / 2, 180);
+
+    // 5. Drow the QR code
+    ctx.fillStyle = '#00ff41';
+    ctx.fillRect(padding - 10, headerSpace - 10, qrSize + 20, qrSize + 20);
+    ctx.drawImage(qrCanvas, padding, headerSpace);
+
+    // 7. Saving
+    const pngUrl = canvas.toDataURL('image/png');
+    const downloadLink = document.createElement('a');
+    downloadLink.href = pngUrl;
+    downloadLink.download = `QR_ID_${shareData.name.replace(/\s+/g, '_').toUpperCase()}.png`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
   };
 
   /**
@@ -1256,7 +1295,6 @@ export default function MarsSurvivalGame() {
     const isAdmin = username.toLowerCase() === 'admin';
     const isCommander = username === 'Commander';
     const currentTeam = teamsList.find(t => t.id === (isAdmin ? adminTeamFilter : teamId));
-
     // Get the IDs of all unique commands in the current list of results
     const uniqueTeamIds: number[] = Array.from(new Set(discussionResults.map(r => r.team_id))).sort((a, b) => a - b);
 
@@ -1269,9 +1307,7 @@ export default function MarsSurvivalGame() {
             </button>
           )}
 
-          <h2 className="text-lg font-bold uppercase italic tracking-tighter">
-            {loc.btn_report}
-          </h2>
+          <h2 className="text-lg font-bold uppercase italic tracking-tighter">{loc.btn_report}</h2>
 
           <motion.div
             // Rotation animation: if isRefreshing = true, rotate 360 degrees
@@ -2164,15 +2200,16 @@ export default function MarsSurvivalGame() {
             </h3>
 
             {/* QR CODE CANVAS */}
-            <div className="bg-[#00ff41] p-3 inline-block mb-6 shadow-[0_0_20px_rgba(0,255,65,0.3)]">
+            <div className="bg-[#00ff41] p-3 inline-block mb-6 shadow-[0_0_20px_rgba(0,255,65,0.3)] overflow-hidden">
               <QRCodeCanvas
                 id="qr-code-canvas"
                 value={shareData.url}
-                size={200}
+                size={1000} // Big size for saving as image
                 level={'H'}
                 bgColor={'#00ff41'}
                 fgColor={'#000000'}
                 includeMargin={false}
+                style={{ width: '200px', height: '200px' }} // And we'll show 200px on the screen
               />
             </div>
 
