@@ -1,4 +1,5 @@
 import { neon } from '@neondatabase/serverless';
+import { Team, GameResult } from '../types'; 
 /**
  * DATABASE CONFIGURATION
  * The 'neon' function automatically looks for the POSTGRES_URL 
@@ -6,26 +7,7 @@ import { neon } from '@neondatabase/serverless';
  */
 const sql = neon(process.env.POSTGRES_URL!);
 
- //   DATA TYPES (INTERFACES)
-export interface Team {
-  id: number;
-  name: string;
-  is_unlocked: boolean; // Lock result from player
-  has_commander: boolean; 
-  current_scenario: string; 
-}
-
-export interface GameResult {
-  id?: number;
-  username: string;
-  team_id: number;     // Updated: using ID instead of name
-  team_name?: string;  // Added: for displaying name after JOIN
-  score: number;
-  selections: string[]; // Array of item IDs
-  created_at?: Date;
-}
-
-///   DATABASE FUNCTIONS
+/// DATABASE FUNCTIONS
 /**
  * Fetches all results and joins with teams to get the team names
  */

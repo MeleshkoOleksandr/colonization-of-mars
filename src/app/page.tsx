@@ -1,11 +1,15 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
-
 import { QRCodeCanvas } from 'qrcode.react';
-
 import { Reorder, AnimatePresence, motion, useDragControls } from 'framer-motion';
 
+import { CRTWrapper } from '../components/CRTWrapper';
+import { Header } from '../components/Header';
+import { RetroModal } from '../components/RetroModal';
+import { MissionImageBlock } from '../components/MissionImageBlock';
+
 import {
+  X,
   Save,
   ChevronRight,
   Users,
@@ -20,7 +24,6 @@ import {
   QrCode,
   Copy,
   Download,
-  X,
   LockOpen,
   UserCheck,
   UserPlus,
@@ -49,39 +52,8 @@ import {
   wipeEntireDatabaseAction,
 } from './actions';
 
-import { Team, GameResult } from '../../lib/db';
-
-// --- INTERFACES & TYPES ---
-interface SurvivalItem {
-  id: string;
-  name: string;
-  photo: string;
-  idealPosition: number;
-  description: string;
-}
-
-interface ScoreEvaluation {
-  threshold: number;
-  message: string;
-}
-
-interface UserResult {
-  username: string;
-  team: string;
-  score: number;
-  selections: string[];
-}
-
-// UI Localization
-interface Language {
-  id: string;
-  name: string;
-  file: string;
-}
-
-interface Localization {
-  [key: string]: string; // Allows loc.any_key_name
-}
+// Import all INTERFACES & TYPES
+import { SurvivalItem, GameResult, Team, ModalMode, ModalType, ScoreEvaluation, Language, Localization } from '../types';
 
 // --- CONSTANTS FOR ADMIN MODE ---
 const ADMIN_PASSWORD = 'adm'; // Password to prevent players from seeing game results
@@ -95,22 +67,6 @@ const BUTTON_STYLES = {
   primary: 'w-full bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,255,65,0.5)]',
   secondary: 'border-2 border-[#00ff41] py-3 hover:bg-[#00ff41] hover:text-black uppercase font-bold transition-all',
 };
-
-// --- UI COMPONENTS ---
-/**
- * Visual wrapper simulating a retro CRT monitor.
- * Includes scanlines and glowing border.
- */
-const CRTWrapper = ({ children }: { children: React.ReactNode }) => (
-  <div className="min-h-screen bg-[#0a0a0a] text-[#00ff41] font-mono p-4 md:p-8 relative overflow-hidden selection:bg-[#00ff41] selection:text-black">
-    <div className="pointer-events-none fixed inset-0 z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-size-[100%_2px,3px_100%] opacity-30"></div>
-    <div className="max-w-4xl mx-auto border-4 border-[#00ff41] p-6 shadow-[0_0_25px_rgba(0,255,65,0.2)] bg-[#0d0d0d] relative z-10">{children}</div>
-  </div>
-);
-
-const Header = ({ title }: { title: string }) => (
-  <h1 className="text-2xl md:text-4xl font-black text-center mb-8 uppercase tracking-tighter italic border-b-2 border-[#00ff41] pb-4">{title}</h1>
-);
 
 /**
  * Item component for the Drag & Drop list.
@@ -235,79 +191,6 @@ const AnalysisSequence = ({ onComplete }: { onComplete: () => void }) => {
  * Universal Modal UI used for Alerts, Confirms, and Admin Prompts.
  * Supports Enter and Escape keys for fast interaction.
  */
-const RetroModal = ({
-  isOpen,
-  type,
-  message,
-  value,
-  onClose,
-  onConfirm,
-  onChange,
-  loc,
-}: {
-  isOpen: boolean;
-  type: 'alert' | 'confirm' | 'prompt' | 'prompt-area';
-  message: string;
-  value?: string;
-  onClose: () => void;
-  onConfirm: () => void;
-  onChange?: (val: string) => void;
-  loc: any; // for localization
-}) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="w-full max-w-md border-4 border-[#00ff41] bg-black p-6 shadow-[0_0_50px_rgba(0,255,65,0.3)] relative">
-        {/* Scanline overlay for modal */}
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-size-[100%_2px,3px_100%] opacity-20"></div>
-        <h3 className="text-[#00ff41] font-black uppercase tracking-tighter mb-4 text-xl italic border-b border-[#00ff41]/30 pb-2">
-          {type === 'confirm'
-            ? `> ${loc.modal_title_confirm || 'Richiesta Conferma'}`
-            : type === 'prompt' || type === 'prompt-area'
-              ? `> ${loc.modal_title_input || 'Input Richiesto'}`
-              : `> ${loc.modal_title_system || 'Messaggio Sistema'}`}
-        </h3>
-
-        <p className="text-[#00ff41] mb-6 uppercase text-sm leading-relaxed tracking-wide">{message}</p>
-
-        {type === 'prompt-area' ? (
-          <textarea
-            autoFocus
-            className="w-full h-40 bg-[#001100] border-2 border-[#00ff41] p-2 text-[#00ff41] outline-none mb-6 focus:bg-[#003300] uppercase font-mono text-xs"
-            placeholder="Inserire un nome per riga..."
-            value={value}
-            onChange={e => onChange?.(e.target.value)}
-          />
-        ) : type === 'prompt' ? (
-          <input
-            autoFocus
-            className="w-full bg-[#001100] border-2 border-[#00ff41] p-2 text-[#00ff41] outline-none mb-6 focus:bg-[#003300] uppercase font-mono"
-            value={value}
-            onChange={e => onChange?.(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && onConfirm()}
-          />
-        ) : null}
-
-        <div className="flex justify-end gap-4">
-          {type !== 'alert' && (
-            <button
-              onClick={onClose}
-              className="px-4 py-2 border border-[#00ff41]/50 text-[#00ff41]/50 hover:text-[#00ff41] uppercase text-xs font-bold">
-              {loc.msg_modal_cancel || 'Annulla'}
-            </button>
-          )}
-          <button onClick={onConfirm} className="px-6 py-2 bg-[#00ff41] text-black font-black uppercase text-xs hover:bg-white transition-colors">
-            {type === 'confirm' ? loc.msg_modal_confirm || 'Conferma' : loc.msg_modal_exit || 'Esegui'}
-          </button>
-        </div>
-      </motion.div>
-    </div>
-  );
-};
 
 // --- MAIN APPLICATION LOGIC ---
 export default function MarsSurvivalGame() {
@@ -365,15 +248,6 @@ export default function MarsSurvivalGame() {
   // Auto Refresh timer component:
   const [isAutoRefresh, setIsAutoRefresh] = useState(false);
   const resultsSnapshotRef = useRef<GameResult[]>([]);
-
-  // Global Modal System
-  type ModalType = 'alert' | 'confirm' | 'prompt' | 'prompt-area';
-  enum ModalMode {
-    IDLE = 'IDLE',
-    ADMIN_AUTH = 'ADMIN_AUTH',
-    ADD_TEAM = 'ADD_TEAM',
-    ADD_PLAYER = 'ADD_PLAYER',
-  }
 
   const [modal, setModal] = useState<{
     isOpen: boolean;
@@ -711,7 +585,7 @@ export default function MarsSurvivalGame() {
     ctx.fillRect(padding - 10, headerSpace - 10, qrSize + 20, qrSize + 20);
     ctx.drawImage(qrCanvas, padding, headerSpace);
 
-    // 7. Saving
+    // 6. Saving
     const pngUrl = canvas.toDataURL('image/png');
     const downloadLink = document.createElement('a');
     downloadLink.href = pngUrl;
@@ -1084,31 +958,6 @@ export default function MarsSurvivalGame() {
       triggerModal('alert', ModalMode.IDLE, loc.msg_selectteam);
     }
   };
-
-  // Image block
-  const MissionImageBlock = ({ src, isFullWidth }: { src: string; isFullWidth: boolean }) => (
-    <div
-      className={`${isFullWidth ? 'w-full' : 'max-w-md mx-auto'} border border-[#00ff41]/30 bg-black relative overflow-hidden group shadow-[0_0_15px_rgba(0,255,65,0.1)] transition-all duration-700`}>
-      {/* Corner decorative elements */}
-      <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#00ff41]"></div>
-      <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-[#00ff41]"></div>
-
-      <img
-        src={`/img/${src}`}
-        alt="Mission Visual"
-        className={`w-full ${isFullWidth ? 'h-64 md:h-80' : 'h-48'} object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-1000  hover:grayscale-0`}
-      />
-
-      {/* Text caption */}
-      <div className="absolute bottom-2 left-3 flex items-center gap-2">
-        <div className="w-1.5 h-1.5 bg-red-600 animate-pulse rounded-full"></div>
-        <span className="text-[8px] uppercase tracking-[0.3em] text-[#00ff41]/70 font-black">Ares-1 Live Stream</span>
-      </div>
-
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent"></div>
-    </div>
-  );
 
   const exportToCSV = () => {
     // 1. Column headers

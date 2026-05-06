@@ -1,6 +1,6 @@
 "use server";
 
-import * as db from "../../lib/db";
+import * as db from "../lib/db";
 import { revalidatePath } from "next/cache";
 
 /**
