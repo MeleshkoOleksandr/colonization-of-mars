@@ -1,37 +1,22 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
-import { Reorder, AnimatePresence, motion, useDragControls } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { X, Copy, Download } from 'lucide-react';
 
 import { CRTWrapper } from '../components/CRTWrapper';
-import { Header } from '../components/Header';
 import { RetroModal } from '../components/RetroModal';
-import { MissionImageBlock } from '../components/MissionImageBlock';
-import { DraggableItem } from '../components/DraggableItem';
 import { AnalysisSequence } from '../components/AnalysisSequence';
-
 import { parseStoryXml } from '../utils/xmlParser';
 
-import {
-  X,
-  Save,
-  ChevronRight,
-  Users,
-  Trash2,
-  RefreshCcw,
-  ArrowLeft,
-  Info,
-  CircleSlash,
-  MessageSquare,
-  Globe,
-  QrCode,
-  Copy,
-  Download,
-  LockOpen,
-  UserCheck,
-  UserPlus,
-  FileDown,
-} from 'lucide-react';
+import { LoginView } from '../views/LoginView';
+import { GameView } from '../views/GameView';
+import { StoryView } from '../views/StoryView';
+import { ResultsView } from '../views/ResultsView';
+import { UserDetailView } from '../views/UserDetailView';
+import { LeaderboardView } from '../views/LeaderboardView';
+import { DiscussionListView } from '../views/DiscussionListView';
+import { AdminView } from '../views/AdminView';
 
 /**
  * SERVER ACTIONS IMPORT
@@ -45,7 +30,6 @@ import {
   deleteResultAction,
   deleteAllResultsAction,
   updateTeamStatusAction,
-  checkTeamStatusAction,
   deleteResultsByTeamAction,
   updateCommanderStatusAction,
   checkCommanderStatusAction,
@@ -53,22 +37,11 @@ import {
   updatePlayerResultAction,
   addSinglePlayerAction,
   wipeEntireDatabaseAction,
+  checkTeamStatusAction,
 } from './actions';
 
 // Import all INTERFACES & TYPES
-import {
-  SurvivalItem,
-  GameResult,
-  Team,
-  ModalMode,
-  ModalType,
-  ScoreEvaluation,
-  Language,
-  Localization,
-  Story,
-  PRIMARY_LANG,
-  BUTTON_STYLES,
-} from '../types';
+import { SurvivalItem, GameResult, Team, ModalMode, ModalType, ScoreEvaluation, Language, Localization, PRIMARY_LANG, BUTTON_STYLES } from '../types';
 
 // --- CONSTANTS FOR ADMIN MODE ---
 const ADMIN_PASSWORD = 'adm'; // Password to prevent players from seeing game results
@@ -105,10 +78,10 @@ export default function MarsSurvivalGame() {
   const [newTeamName, setNewTeamName] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  //QrCode
+  // QR Code
   const [shareData, setShareData] = useState<{ name: string; url: string } | null>(null);
 
-  // --- LOCALIZATION STATES ---
+  // LOCALIZATION STATES
   const [availableLangs, setAvailableLangs] = useState<Language[]>([]);
   const [currentLangId, setCurrentLangId] = useState<string>(PRIMARY_LANG); // Default
   const [loc, setLoc] = useState<Localization>({}); // The current dictionary
@@ -843,983 +816,136 @@ export default function MarsSurvivalGame() {
    */
   let content;
   if (view === 'login') {
-    // 1. Filter the commands that haven't finished yet (is_unlocked === false)
-    const activeTeams = teamsList.filter(t => !t.is_unlocked);
-    // 2. Filter players for the SELECTED team who have not yet played (score === -1)
-    const availablePlayers = allResults.filter(r => r.team_id === teamId && r.score === -1).sort((a, b) => a.username.localeCompare(b.username));
     content = (
-      <>
-        <Header title={loc.login_header || 'Mission Login'} />
-        {/* --- Image block --- */}
-        <MissionImageBlock src={'login_page.png'} isFullWidth={false} />
-        {/* --- LOGIN FORM--- */}
-        <div className="flex flex-col gap-3 max-w-sm mx-auto py-4 ">
-          {/* SELECTOR 1: TEAM SELECTION (Grouped by scenarios) */}
-          <div className="space-y-1">
-            <label className="text-[10px] uppercase opacity-50 font-bold tracking-widest">{loc.login_team_label || 'Seleziona Unità:'}</label>
-            <select
-              className="w-full bg-black border-2 border-[#00ff41] p-3 outline-none cursor-pointer text-sm font-bold uppercase"
-              value={teamId}
-              onChange={e => {
-                setTeamId(Number(e.target.value));
-                setUsername(''); // Reset the name when changing teams
-              }}>
-              <option value={0}>{loc.login_select_team}</option>
-              {scenarios.map(scen => {
-                const teamsInScen = activeTeams.filter(t => t.current_scenario === scen.id);
-                if (teamsInScen.length === 0) return null;
-                return (
-                  <optgroup key={scen.id} label={scen.name.toUpperCase()} className="bg-[#002200] text-[#00ff41]">
-                    {teamsInScen.map(t => (
-                      <option key={t.id} value={t.id}>
-                        {t.name}
-                      </option>
-                    ))}
-                  </optgroup>
-                );
-              })}
-            </select>
-          </div>
-
-          {/* SELECTOR 2: PLAYER SELECTION */}
-          <div className="space-y-1">
-            <label className="text-[10px] uppercase opacity-50 font-bold tracking-widest">
-              {loc.login_operator_label || 'Identificativo Operatore:'}
-            </label>
-            <select
-              className={`w-full bg-black border-2 p-3 outline-none cursor-pointer text-sm font-bold uppercase transition-all ${
-                teamId === 0 && username !== 'admin' ? 'border-[#00ff41]/20 opacity-50' : 'border-[#00ff41]'
-              }`}
-              value={username}
-              onChange={e => setUsername(e.target.value)}>
-              <option value="">{loc.login_select_prompt}</option>
-              {/* ADMIN IS ALWAYS AVAILABLE */}
-              <option value="admin" className="text-amber-500 font-black">
-                {loc.login_select_admin}
-              </option>
-              {/* PLAYERS APPEAR ONLY AFTER A TEAM IS SELECTED */}
-              {teamId !== 0 && (
-                <optgroup label={`${loc.login_select_group}`}>
-                  {availablePlayers.map(p => (
-                    <option key={p.id} value={p.username}>
-                      {p.username}
-                    </option>
-                  ))}
-                </optgroup>
-              )}
-            </select>
-          </div>
-
-          <button onClick={handleStart} className={BUTTON_STYLES}>
-            {loc.btn_start_main}
-          </button>
-        </div>
-      </>
+      <LoginView
+        loc={loc}
+        story={story}
+        allResults={allResults}
+        teamsList={teamsList}
+        scenarios={scenarios}
+        teamId={teamId}
+        setTeamId={setTeamId}
+        username={username}
+        setUsername={setUsername}
+        handleStart={handleStart}
+      />
     );
   } else if (view === 'story') {
-    content = (
-      <>
-        <Header title={story.title} />
-        <div className="my-6 px-4 md:px-10">
-          <MissionImageBlock src={story.photo} isFullWidth={true} />
-        </div>
-        <div className="space-y-6 text-lg  leading-relaxed">
-          <p className="bg-[#003300] p-4 border-l-8 border-[#00ff41]">{story.plot}</p>
-          <div className="p-4 border border-[#00ff41] border-dashed">
-            <h3 className="font-bold mb-2">{loc.lb_protocol}:</h3>
-            <ul className="list-disc list-inside text-sm space-y-1 opacity-80">
-              <li>{loc.lb_instruct_1}</li>
-              <li>{loc.lb_instruct_2}</li>
-            </ul>
-          </div>
-          <button
-            onClick={() => setView('game')}
-            className="w-full flex items-center justify-center gap-4 border-2 border-[#00ff41] py-4 hover:bg-[#00ff41] hover:text-black font-bold uppercase">
-            {loc.btn_start_game} <ChevronRight />
-          </button>
-        </div>
-      </>
-    );
+    content = <StoryView story={story} loc={loc} setView={setView} />;
   } else if (view === 'game') {
-    content = (
-      <>
-        <div className="flex justify-between items-end mb-6">
-          <div className="text-xs">
-            {loc.lb_operator} {username}
-            <br />
-            {loc.lb_team} {currentTeamName}
-          </div>
-          <h2 className="text-xl font-bold uppercase tracking-widest">{loc.lb_configuration}</h2>
-        </div>
-
-        <Reorder.Group
-          axis="y"
-          values={items}
-          onReorder={setItems}
-          className="space-y-2 select-none" // select-none prevents text selection during drag
-        >
-          {items.map((item, index) => (
-            <DraggableItem key={item.id} item={item} index={index} />
-          ))}
-        </Reorder.Group>
-
-        <button
-          onClick={finishGame}
-          className="w-full mt-8 bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,255,65,0.5)]">
-          {loc.btn_sendreport}
-        </button>
-      </>
-    );
+    content = <GameView username={username} currentTeamName={currentTeamName} items={items} setItems={setItems} finishGame={finishGame} loc={loc} />;
   } else if (view === 'discussion-list') {
-    const isAdmin = username.toLowerCase() === 'admin';
-    const isCommander = username === 'Commander';
-    const currentTeam = teamsList.find(t => t.id === (isAdmin ? adminTeamFilter : teamId));
-    // Get the IDs of all unique commands in the current list of results
-    const uniqueTeamIds: number[] = Array.from(new Set(discussionResults.map(r => r.team_id))).sort((a, b) => a - b);
-
     content = (
-      <>
-        <div className="flex justify-between items-center mb-6 border-b-2 border-[#00ff41] pb-2 text-[#00ff41]">
-          {isAdmin && (
-            <button onClick={() => setView('admin')} className="text-xs flex items-center gap-1 hover:underline">
-              <ArrowLeft size={14} /> {loc.btn_admin}
-            </button>
-          )}
-
-          <h2 className="text-lg font-bold uppercase italic tracking-tighter">{loc.btn_report}</h2>
-
-          <motion.div
-            // Rotation animation: if isRefreshing = true, rotate 360 degrees
-            animate={{ rotate: isRefreshing ? 360 : 0 }}
-            transition={{ duration: 0.5, ease: 'easeInOut' }}
-            className="flex items-center justify-center">
-            <RefreshCcw
-              size={18}
-              className="cursor-pointer text-[#00ff41]/60 hover:text-[#00ff41] transition-colors duration-300"
-              onClick={async () => {
-                // 1. Play the animation
-                setIsRefreshing(true);
-                // 2. We are loading the data
-                const freshData = await getResultsAction();
-                setAllResults(freshData);
-                // 3. We pause the animation briefly to allow the rotation to finish
-                setTimeout(() => setIsRefreshing(false), 500);
-              }}
-            />
-          </motion.div>
-        </div>
-
-        <div className="space-y-8 mb-8">
-          {/* 2. OUTER LOOP: Iterate through each command */}
-          {uniqueTeamIds.map(tId => {
-            const teamName = teamsList.find(t => t.id === tId)?.name || 'Unità Sconosciuta';
-            const teamMembers = discussionResults.filter(r => r.team_id === tId);
-
-            return (
-              <div key={tId} className="space-y-2">
-                {/* TEAM HEADING */}
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="h-0.5 flex-1 bg-[#00ff41]"></div>
-                  <h3 className="text-xs font-black uppercase text-[#00ff41] tracking-[0.2em] px-2">- {teamName} -</h3>
-                  <div className="h-0.5 flex-1 bg-[#00ff41]"></div>
-                </div>
-
-                {/* 3. INER LOOP: Players on this team */}
-                <div className="space-y-2">
-                  {teamMembers.map(res => {
-                    const isCommander = res.username === 'Commander';
-                    const hasResult = res.score !== -1;
-                    const btnColorClass = isCommander ? 'bg-amber-500' : hasResult ? 'bg-[#00ff41]' : 'bg-red-600 animate-pulse';
-
-                    return (
-                      <div
-                        key={res.id}
-                        className={`flex justify-between items-center p-3 border ${
-                          isCommander
-                            ? 'bg-[#38180670] border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.2)]'
-                            : 'bg-[#00ff41]/5 border-[#00ff41]/20'
-                        }`}>
-                        <div className="flex items-center gap-3">
-                          {isCommander && <div className="bg-amber-500 text-black text-[8px] px-1 font-black uppercase">Final Order</div>}
-                          <span className={`font-bold uppercase text-xs ${isCommander ? 'text-amber-500' : 'text-[#00ff41]'}`}>{res.username}</span>
-                        </div>
-
-                        <button
-                          onClick={() => {
-                            if (!hasResult) {
-                              triggerModal('alert', ModalMode.IDLE, loc.msg_no_results || 'Rapporto non disponibile.');
-                              return;
-                            }
-                            setSelectedUserDetail(res);
-                            setShowDeltas(false);
-                            setPrevView('discussion-list');
-                            setView('user-detail');
-                          }}
-                          className={`${btnColorClass} text-black px-4 py-1 text-[10px] font-black uppercase`}>
-                          {loc.btn_analise || 'Analizza'}
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* --- BOTTOM BUTTON PANEL  --- */}
-        <div className="space-y-4">
-          {/* If it's an admin or a commander — the unlock button */}
-          {isAdmin || isCommander ? (
-            <button
-              onClick={async () => {
-                // If it's an admin, we try to extract the ID from the string “team:123”
-                // If it's a player, we use their numeric teamId
-                const isAdmin = username.toLowerCase() === 'admin';
-                let teamIdToUnlock: number = 0;
-
-                if (isAdmin) {
-                  if (adminTeamFilter.startsWith('team:')) {
-                    teamIdToUnlock = parseInt(adminTeamFilter.split(':')[1]);
-                  } else if (adminTeamFilter.startsWith('scen:')) {
-                    // Optional: if you want to unlock the entire script
-                    return triggerModal('alert', ModalMode.IDLE, 'Seleziona una squadra specifica per sbloccare i risultati.');
-                  }
-                } else {
-                  teamIdToUnlock = teamId;
-                }
-                // Security check
-                if (teamIdToUnlock === 0) return triggerModal('alert', ModalMode.IDLE, 'Seleziona un team.');
-
-                // CALL ACTION (Now pass a number)
-                await updateTeamStatusAction(teamIdToUnlock, true);
-
-                // Refresh data
-                setTeamsList(await getTeamsAction());
-
-                if (username === 'Commander') {
-                  setView('results');
-                } else {
-                  triggerModal('alert', ModalMode.IDLE, loc.msg_modal_missioncomlite);
-                }
-              }}
-              className={BUTTON_STYLES}>
-              {loc.btn_unblock}
-            </button>
-          ) : (
-            /* For a regular player, there are two buttons: “Request Results” and “Become Commander” */
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <button
-                onClick={async () => {
-                  const unlocked = await checkTeamStatusAction(teamId);
-                  if (unlocked) setView('results');
-                  else triggerModal('alert', ModalMode.IDLE, loc.msg_modal_nocommandr);
-                }}
-                className="border-2 border-[#00ff41] text-[#00ff41] py-4 font-black uppercase text-sm hover:bg-[#00ff41] hover:text-black transition-all">
-                {loc.btn_request}
-              </button>
-
-              {/* We display the “Become Commander” button only if it isn't already there */}
-              {!currentTeam?.has_commander && (
-                <button
-                  onClick={handleBecomeCommander}
-                  className="border-2 border-amber-500 text-amber-500 py-4 font-black uppercase text-sm hover:bg-amber-500 hover:text-black transition-all">
-                  {loc.btn_commander}
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-      </>
+      <DiscussionListView
+        loc={loc}
+        isAdmin={isAdmin}
+        username={username}
+        teamId={teamId}
+        adminTeamFilter={adminTeamFilter}
+        teamsList={teamsList}
+        discussionResults={discussionResults}
+        setIsRefreshing={setIsRefreshing}
+        isRefreshing={isRefreshing}
+        getResultsAction={getResultsAction}
+        setAllResults={setAllResults}
+        setSelectedUserDetail={setSelectedUserDetail}
+        setShowDeltas={setShowDeltas}
+        setPrevView={setPrevView}
+        setView={setView}
+        updateTeamStatusAction={updateTeamStatusAction}
+        getTeamsAction={getTeamsAction}
+        setTeamsList={setTeamsList}
+        triggerModal={triggerModal}
+        checkTeamStatusAction={checkTeamStatusAction}
+        handleBecomeCommander={handleBecomeCommander}
+        BUTTON_STYLES={BUTTON_STYLES}
+      />
     );
   } else if (view === 'results') {
     content = (
-      <>
-        <Header title={loc.result_lb_analis} />
-        {/* PLAYER INFO BAR */}
-        <div className="text-center mb-4">
-          <div className="inline-block border border-[#00ff41] px-4 py-1 text-[14px] uppercase tracking-[0.2em] bg-[#00ff41]/10">
-            {loc.lb_operator} <span className="text-white">{username}</span> | {loc.lb_team} <span className="text-white">{currentTeamName}</span>
-          </div>
-        </div>
-
-        <div className="text-center mb-4">
-          <div className="text-4xl font-black mb-2">{currentScore} (110) </div>
-          <div className="text-sm uppercase tracking-[0.3em] mb-0 opacity-70">{loc.lb_points}</div>
-          <div className="text-xs text-white/80 italic mb-4">({loc.lb_explane})</div>
-          <p className="text-xl italic bg-[#00ff41] text-black p-3 font-bold uppercase">{getScoreMessage(currentScore)}</p>
-        </div>
-
-        <div className="grid gap-4 mb-8 border border-[#00ff41]/30 p-4 bg-black/50">
-          {[...staticItems] // Create a copy to avoid mutating state
-            .sort((a, b) => a.idealPosition - b.idealPosition)
-            .map(item => (
-              <div key={item.id} className="text-xs border-b border-[#00ff41]/20 pb-4 last:border-0">
-                <div className="flex gap-4 items-start">
-                  <div className="w-10 h-10 border border-[#00ff41]/30 shrink-0">
-                    <img src={`/img/${item.photo}`} alt={item.name} className="w-full h-full object-cover opacity-50" />
-                  </div>
-                  <div className="flex-1">
-                    <span className="text-[#00ff41] font-bold uppercase block mb-1">
-                      {item.idealPosition}. {item.name}
-                    </span>
-                    <p className="opacity-70 italic leading-relaxed">{item.description}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-        </div>
-
-        <div className="flex flex-col md:flex-row gap-4">
-          <button
-            onClick={() => setView('leaderboard')}
-            className="flex-1 border-2 border-[#00ff41] py-3 hover:bg-[#00ff41] hover:text-black uppercase font-bold">
-            {loc.lb_classific}
-          </button>
-        </div>
-      </>
+      <ResultsView
+        loc={loc}
+        username={username}
+        currentTeamName={currentTeamName}
+        currentScore={currentScore}
+        getScoreMessage={getScoreMessage}
+        staticItems={staticItems}
+        setView={setView}
+      />
     );
   } else if (view === 'leaderboard') {
-    const isAdmin = username.toLowerCase() === 'admin';
-    // If an admin logs in and has a filter selected in the admin panel, we display only that filter.
-    // If there is no filter (0) or the user is not an admin, the standard logic applies.
-    const effectiveTeamId = isAdmin ? adminTeamFilter : teamId;
-
-    const filteredResults = isAdmin && effectiveTeamId === 0 ? allResults : allResults.filter(res => res.team_id === effectiveTeamId);
-
     content = (
-      <>
-        <div className="flex justify-between items-center mb-6 border-b-2 border-[#00ff41] pb-2">
-          <button
-            onClick={() => {
-              if (isAdmin) {
-                setView('admin');
-              } else {
-                setView('results');
-              }
-            }}
-            className="text-xs flex items-center gap-1 hover:underline text-[#00ff41]">
-            <ArrowLeft size={14} />
-            {isAdmin ? 'Admin' : loc.result_lb_res}
-          </button>
-          <h2 className="text-xl font-bold uppercase">{loc.lb_statuscol}</h2>
-
-          <motion.div
-            // Rotation animation: if isRefreshing = true, rotate 360 degrees
-            animate={{ rotate: isRefreshing ? 360 : 0 }}
-            transition={{ duration: 0.5, ease: 'easeInOut' }}
-            className="flex items-center justify-center">
-            <RefreshCcw
-              size={18}
-              className="cursor-pointer text-[#00ff41]/60 hover:text-[#00ff41] transition-colors duration-300"
-              onClick={async () => {
-                // 1. Play the animation
-                setIsRefreshing(true);
-                // 2. We are loading the data
-                const freshData = await getResultsAction();
-                setAllResults(freshData);
-                // 3. We pause the animation briefly to allow the rotation to finish
-                setTimeout(() => setIsRefreshing(false), 500);
-              }}
-            />
-          </motion.div>
-        </div>
-        <div className="space-y-2">
-          {/* TABLE HEADERS - Adjusted for mobile grid */}
-          <div className="grid grid-cols-[1.5fr_1fr_45px_35px] md:grid-cols-4 text-[10px] uppercase opacity-50 px-4 mb-2">
-            <span>Name</span>
-            <span>Team</span>
-            <span className="text-right">Pts</span>
-            <span className="text-right md:pr-2">Info</span>
-          </div>
-
-          {leaderboardResults.map(res => {
-            const isCommEntry = res.username === 'Commander';
-            // Проверка наличия результата
-            const hasResult = res.score !== -1 || isCommEntry;
-
-            return (
-              <div
-                key={res.id}
-                // Responsive grid: wider for name, narrow for score/action
-                // Amber color for Commander
-                className={`grid grid-cols-[1.5fr_1fr_45px_35px] md:grid-cols-4 items-center p-3 md:p-4 border transition-colors gap-2 ${
-                  isCommEntry
-                    ? 'bg-amber-500/10 border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)]'
-                    : 'bg-[#111] border-[#00ff41]/20 hover:border-[#00ff41]'
-                }`}>
-                {/* NAME: Allow wrapping and multi-line for long names. Amber color for Commander */}
-                <span className={`font-bold text-xs md:text-sm leading-tight wrap-break-word pr-2 ${isCommEntry ? 'text-amber-500' : ''}`}>
-                  {res.username}
-                </span>
-
-                {/* TEAM: Small and truncated to save space. Amber color for Commander */}
-                <span className={`text-[10px] md:text-xs truncate uppercase ${isCommEntry ? 'text-amber-500 opacity-100' : 'opacity-70'}`}>
-                  {res.team_name}
-                </span>
-
-                {/* SCORE: The commander can also be highlighted in orange */}
-                <span className={`text-right font-black text-xs md:text-base ${isCommEntry ? 'text-amber-500' : 'text-[#00ff41]'}`}>
-                  {res.score === -1 ? (
-                    // Показываем иконку вместо -1
-                    <div className="flex justify-end" title={loc.msg_waiting || 'In attesa...'}>
-                      <CircleSlash size={16} strokeWidth={3} />
-                    </div>
-                  ) : (
-                    // Показываем реальный балл
-                    res.score
-                  )}
-                </span>
-
-                {/* ACTION: Icon instead of text on mobile */}
-                <div className="flex justify-end">
-                  <button
-                    onClick={() => {
-                      if (!hasResult) {
-                        triggerModal('alert', ModalMode.IDLE, loc.msg_no_results || 'Rapporto non disponibile.');
-                        return;
-                      }
-                      setSelectedUserDetail(res);
-                      setShowDeltas(true);
-                      setPrevView('leaderboard');
-                      setView('user-detail');
-                    }}
-                    className={`p-1 ${isCommEntry ? 'text-amber-500' : hasResult ? 'text-[#00ff41]' : 'text-red-600'}`}>
-                    <ChevronRight size={18} />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* BOTTOM ACTION BAR */}
-        <div className="mt-8 pt-6 border-t-2 border-[#00ff41]/30">
-          {isAdmin ? (
-            /* 1. ADMIN OPTION: EXPORT button */
-            <button
-              onClick={exportToCSV}
-              className="w-full bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(0,255,65,0.3)] active:scale-[0.98]">
-              <FileDown size={24} />
-              {loc.csv_btn_export}
-            </button>
-          ) : (
-            /* 2. PLAYER OPTION: NEW MISSION button */
-            <>
-              <button
-                onClick={() => window.location.reload()}
-                className="w-full bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors flex items-center justify-center gap-3 active:scale-[0.98]">
-                <RefreshCcw size={24} />
-                {loc.result_lb_newmiss}
-              </button>
-              <p className="text-[10px] text-center mt-4 opacity-50 uppercase tracking-widest">{loc.result_lb_atten}</p>
-            </>
-          )}
-        </div>
-      </>
+      <LeaderboardView
+        loc={loc}
+        isAdmin={isAdmin}
+        title={
+          adminTeamFilter === 'all'
+            ? loc.filter_all
+            : (adminTeamFilter.startsWith('scen:')
+                ? scenarios.find(s => s.id === adminTeamFilter.split(':')[1])?.name
+                : teamsList.find(t => t.id === parseInt(adminTeamFilter.split(':')[1]))?.name) || ''
+        }
+        leaderboardResults={leaderboardResults}
+        exportToCSV={exportToCSV}
+        isRefreshing={isRefreshing}
+        setIsRefreshing={setIsRefreshing}
+        getResultsAction={getResultsAction}
+        setAllResults={setAllResults}
+        setSelectedUserDetail={setSelectedUserDetail}
+        setShowDeltas={setShowDeltas}
+        setPrevView={setPrevView}
+        setView={setView}
+        triggerModal={triggerModal}
+      />
     );
   } else if (view === 'user-detail' && selectedUserDetail) {
     content = (
-      <>
-        <div className="mb-6">
-          <button
-            // We use prevView state to decide where to go back
-            onClick={() => setView(prevView)}
-            className="text-xs flex items-center gap-1 hover:underline mb-4">
-            <ArrowLeft size={14} />{' '}
-          </button>
-
-          <div className="mb-8">
-            <div className="text-center mb-4">
-              <div className="inline-block border border-[#00ff41] px-4 py-1 text-[14px] uppercase tracking-[0.2em] bg-[#00ff41]/10">
-                {loc.lb_operator} <span className="text-white">{selectedUserDetail.username}</span> | {loc.lb_team}{' '}
-                <span className="text-white">{selectedUserDetail.team_name}</span>
-              </div>
-            </div>
-
-            <div className="mt-2 flex justify-center ">
-              {showDeltas ? (
-                <div className="text-sm font-black uppercase tracking-tight text-[#00ff41] flex items-baseline gap-2">
-                  <span>{loc.lb_nasapoints}</span>
-                  <span className="text-2xl underline decoration-double">{selectedUserDetail.score}</span>
-                </div>
-              ) : (
-                <div className="inline-block text-[10px] text-amber-500 font-bold bg-amber-500/10 px-2 py-1 border border-amber-500/30 uppercase tracking-widest animate-pulse">
-                  {loc.lb_status}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-1">
-          {selectedUserDetail.selections.map((itemId: string, idx: number) => {
-            const item = staticItems.find(i => i.id === itemId);
-            const diff = Math.abs(idx + 1 - (item?.idealPosition || 0));
-
-            return (
-              <div
-                key={itemId}
-                // flex justify-between pushes children to opposite ends
-                // items-start ensures alignment even if name wraps to 2 lines
-                className="flex justify-between items-start gap-3 p-3 border-b border-[#00ff41]/10 bg-black/20">
-                {/* LEFT SIDE: Index and Name (Flexible) */}
-                <div className="flex-1 min-w-0">
-                  <span className="text-[10px] opacity-40 font-mono mr-2">{String(idx + 1).padStart(2, '0')}.</span>
-                  <span className="uppercase font-bold text-[11px] leading-tight wrap-break-word">{item?.name}</span>
-                </div>
-
-                {/* RIGHT SIDE: NASA Info and Delta (Fixed width, pinned to right) */}
-                <div className="shrink-0 text-right font-mono flex flex-col items-end">
-                  {/* Condition: display deltas only if showDeltas === true */}
-                  {showDeltas ? (
-                    <>
-                      <div className="text-[9px] opacity-50 uppercase italic leading-none mb-1">NASA: {item?.idealPosition}</div>
-                      <div className={`text-sm font-black leading-none ${diff === 0 ? 'text-green-400' : 'text-amber-500'}`}>Δ {diff}</div>
-                    </>
-                  ) : (
-                    <div className="flex flex-col items-center gap-1 text-amber-500 opacity-80" title="In fase di discussione - Punteggio nascosto">
-                      <MessageSquare size={22} className="animate-pulse" />
-                      <span className="text-[7px] uppercase font-black tracking-tighter">{loc.lb_discussione}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </>
+      <UserDetailView
+        selectedUserDetail={selectedUserDetail}
+        staticItems={staticItems}
+        showDeltas={showDeltas}
+        prevView={prevView}
+        setView={setView}
+        loc={loc}
+      />
     );
   } else if (view === 'admin') {
-    // ---  UNIVERSAL FILTERING LOGIC ---
-    const resultsFilteredByMenu = allResults.filter(r => {
-      // If “All Teams” is selected
-      if (adminTeamFilter === 'all') return true;
-
-      // If a specific scenario (scen:id) is selected
-      if (adminTeamFilter.startsWith('scen:')) {
-        const targetScenId = adminTeamFilter.split(':')[1];
-        // Let's check what scenario this player's team is facing
-        const teamOfPlayer = teamsList.find(t => t.id === r.team_id);
-        return teamOfPlayer?.current_scenario === targetScenId;
-      }
-
-      // If a specific team (team:id) is selected
-      if (adminTeamFilter.startsWith('team:')) {
-        const targetTeamId = parseInt(adminTeamFilter.split(':')[1]);
-        return r.team_id === targetTeamId;
-      }
-      return true;
-    });
-
-    //  PREPARING THE LIST FOR THE REGISTRY (Sort by date) ---
-    const filteredAdminResults = [...resultsFilteredByMenu].sort((a, b) => {
-      const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
-      const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
-      return dateB - dateA; // Сначала новые
-    });
-
-    // --- PREPARING THE DISCUSSION LIST (Sort by name) ---
-    const discussionResults = [...resultsFilteredByMenu].sort((a, b) => a.username.localeCompare(b.username));
-
-    content = (
-      <>
-        <div className="flex justify-between items-center mb-8 border-b-4 border-[#00ff41] pb-2 ">
-          <h2 className="text-2xl font-black italic uppercase bg-[#00ff41] text-black px-2 ">{loc.admin_lb_terminal}</h2>
-          <button onClick={() => setView('login')} className="text-xs underline pl-3">
-            {loc.admin_lb_LOGOUT}
-          </button>
-        </div>
-
-        {/* Settings Section */}
-        <div className="border-2 border-[#00ff41]/30 p-4 bg-[#111]/30 mt-8">
-          <h3 className="font-bold uppercase flex items-center gap-2 mb-4 border-b border-[#00ff41]/10 pb-2 text-[#00ff41]">
-            <Globe size={18} /> {loc.admin_lb_localiz}
-          </h3>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-[9px] uppercase opacity-50">{loc.admin_lb_lang}</label>
-            <select
-              className="w-full bg-black text-[#00ff41] text-xs border border-[#00ff41]/40 p-2 outline-none appearance-none cursor-pointer"
-              value={currentLangId}
-              onChange={e => setCurrentLangId(e.target.value)}>
-              {/* CHECK: If the array is empty, display a placeholder */}
-              {availableLangs.length === 0 ? (
-                <option>{loc.admin_lb_langload}</option>
-              ) : (
-                availableLangs.map(l => (
-                  <option key={l.id} value={l.id} className="bg-black">
-                    {l.name}
-                  </option>
-                ))
-              )}
-            </select>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          {/* 1. TEAMS MANAGEMENT  */}
-          <div className="border-2 border-[#00ff41]/30 p-4 bg-[#111]/30">
-            <h3 className="font-bold uppercase flex items-center gap-2 mb-4 border-b border-[#00ff41]/10 pb-2">
-              <Users size={18} />
-              {loc.admin_lb_teamlist}
-            </h3>
-
-            {/* Scroll container */}
-            <div className="max-h-80 overflow-y-auto pr-2 custom-scrollbar relative">
-              <table className="w-full text-left border-collapse table-fixed">
-                {/*  table-fixed helps keep column widths consistent*/}
-                <thead className="sticky top-0 z-30 bg-[#00ff41] text-black uppercase text-[10px] font-black">
-                  <tr>
-                    {/* Header 1: Unlock Results  */}
-                    <th className="p-2 border border-black w-9 text-center cursor-help" title={loc.admin_msg_chkresults}>
-                      <LockOpen size={14} className="mx-auto" />
-                    </th>
-
-                    {/* Header 2: Commander Status  */}
-                    <th className="p-2 border border-black w-9 text-center cursor-help" title={loc.admin_msg_chkcomander}>
-                      <UserCheck size={14} className="mx-auto" />
-                    </th>
-
-                    <th className="p-2 border border-black overflow-hidden">{loc.admin_lb_teamname}</th>
-
-                    {/* Header 3: Scenario  */}
-                    <th className="p-2 border border-black w-15 md:w-60">{loc.admin_lb_scename}</th>
-
-                    <th className="p-2 border border-black w-12 text-center">CMD</th>
-                  </tr>
-                </thead>
-                <tbody className="text-[10px] uppercase">
-                  {teamsList
-                    .sort((a, b) => a.id - b.id)
-                    .map(t => {
-                      const scenarioName = scenarios.find(s => s.id === t.current_scenario)?.name || 'Default';
-
-                      return (
-                        <tr key={t.id} className="border-b border-[#00ff41]/10 hover:bg-[#00ff41]/5 transition-colors">
-                          {/* Checkbox 1: Unlock */}
-                          <td className="p-2 text-center">
-                            <input
-                              type="checkbox"
-                              checked={t.is_unlocked}
-                              onChange={async () => {
-                                await updateTeamStatusAction(t.id, !t.is_unlocked);
-                                setTeamsList(await getTeamsAction());
-                              }}
-                              className="appearance-none w-4 h-4 border border-[#00ff41]/40 bg-black checked:bg-[#00ff41] cursor-pointer relative"
-                            />
-                          </td>
-
-                          {/* Checkbox 2: Commander */}
-                          <td className="p-2 text-center">
-                            <input
-                              type="checkbox"
-                              checked={t.has_commander}
-                              onChange={async () => {
-                                await updateCommanderStatusAction(t.id, !t.has_commander);
-                                setTeamsList(await getTeamsAction());
-                              }}
-                              className="appearance-none w-4 h-4 border border-amber-500/40 bg-black checked:bg-amber-500 cursor-pointer relative"
-                            />
-                          </td>
-
-                          {/* Team Name */}
-                          <td className="p-2 font-bold truncate">{t.name}</td>
-
-                          {/* SCENARIO: Desktop Text, Mobile Left-side Tooltip */}
-                          <td className="p-2 opacity-70">
-                            <span className="hidden md:block truncate">{scenarioName}</span>
-                            <div className="md:hidden relative group/scen flex items-center justify-center">
-                              <Info size={14} className="text-[#00ff41]/50" />
-                              <div className="absolute right-full top-0 mr-2 hidden group-active/scen:block z-50">
-                                <div className="bg-[#00ff41] text-black text-[9px] font-black uppercase px-2 py-1 whitespace-nowrap shadow-[0_0_15px_#00ff41]">
-                                  {scenarioName}
-                                </div>
-                                <div className="w-0 h-0 border-t-4 border-t-transparent border-b-4 border-b-transparent border-l-4 border-l-[#00ff41] absolute top-2 -right-1"></div>
-                              </div>
-                            </div>
-                          </td>
-
-                          <td className="p-2 text-center">
-                            <div className="flex justify-center gap-2">
-                              {/* QR code for the whole team */}
-                              <button
-                                onClick={() => {
-                                  const scenario = scenarios.find(s => s.id === t.current_scenario);
-                                  const url = `${window.location.origin}?team=${t.id}&lang=${scenario?.language || 'en'}`;
-                                  setShareData({
-                                    name: `${t.name}`,
-                                    url,
-                                  });
-                                }}
-                                className="text-[#00ff41] hover:text-white transition-colors p-1"
-                                title={loc.admin_msg_teamQr}>
-                                <QrCode size={14} />
-                              </button>
-
-                              {/* Delete Action */}
-                              <button onClick={() => handleDeleteTeam(t.id!)} className="text-red-500 hover:text-white transition-colors p-1">
-                                <Trash2 size={14} className="mx-auto" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                </tbody>
-              </table>
-            </div>
-            {/*Add Team area */}
-            <div className="flex flex-col sm:flex-row gap-2 border-t border-[#00ff41]/20 pt-4">
-              {/* 1. Selecting a scenario */}
-              <select
-                className="flex-1 bg-black text-[#00ff41] text-sm border border-[#00ff41]/40 p-2 outline-none cursor-pointer min-h-9.5"
-                value={selectedScenarioForNewTeam}
-                onChange={e => setSelectedScenarioForNewTeam(e.target.value)}>
-                {scenarios.map(s => (
-                  <option key={s.id} value={s.id} className="bg-black">
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-
-              {/* 2. Entering a command name  */}
-              <input
-                type="text"
-                placeholder={loc.admin_lb_teamname}
-                className="flex-1 bg-black text-[#00ff41] text-sm border border-c/40 p-2 outline-none focus:border-[#00ff41] transition-colors uppercase font-mono"
-                value={newTeamName}
-                onChange={e => setNewTeamName(e.target.value)}
-              />
-
-              {/* 3. Create button  */}
-              <button
-                onClick={handleAddTeam}
-                className="whitespace-nowrap border-2 border-dashed border-[#00ff41]/30 px-4 py-2 text-[12px] uppercase font-bold hover:bg-[#00ff41]/10 transition-colors sm:w-auto w-full">
-                {loc.admin_lb_newteam}
-              </button>
-            </div>
-          </div>
-        </div>
-        <div className="space-y-4 border-2 border-[#00ff41]/30 p-6 bg-[#111]/50">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-[#00ff41]/30 pb-2 gap-4">
-            <h3 className="font-bold uppercase flex items-center gap-2 text-[#00ff41]">
-              <Save size={18} /> {loc.admin_lb_users}
-            </h3>
-            {/* RESULTS DASHBOARD */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 w-full overflow-hidden">
-              {/* GROUP 1: SYSTEM BUTTONS */}
-              <div className="flex items-center gap-3 shrink-0">
-                <button
-                  onClick={() => setIsAutoRefresh(!isAutoRefresh)}
-                  className={`px-3 py-1 border transition-all duration-300 flex items-center gap-2 ${
-                    isAutoRefresh ? 'border-[#00ff41] bg-[#00ff41]/10 text-[#00ff41]' : 'border-[#00ff41]/30 text-[#00ff41]/40'
-                  }`}>
-                  <div
-                    className={`w-1.5 h-1.5 ${isAutoRefresh ? 'bg-[#00ff41] animate-pulse shadow-[0_0_8px_#00ff41]' : 'bg-black border border-[#00ff41]/30'}`}></div>
-                  <span className="text-[9px] font-black uppercase tracking-widest whitespace-nowrap">Auto-Sync: {isAutoRefresh ? 'ON' : 'OFF'}</span>
-                </button>
-
-                <button
-                  onClick={async () => {
-                    setIsRefreshing(true);
-                    const [freshResults, freshTeams] = await Promise.all([getResultsAction(), getTeamsAction()]);
-                    setAllResults(freshResults);
-                    setTeamsList(freshTeams);
-                    setTimeout(() => setIsRefreshing(false), 500);
-                  }}
-                  className="px-3 py-1 border border-[#00ff41]/30 text-[#00ff41]/60 hover:border-[#00ff41] transition-all flex items-center gap-2 group text-[9px] font-black uppercase tracking-widest">
-                  <motion.div animate={{ rotate: isRefreshing ? 360 : 0 }} transition={{ duration: 0.5, ease: 'linear' }} className="flex">
-                    <RefreshCcw size={12} />
-                  </motion.div>
-                  <span className="whitespace-nowrap">{loc.admin_lb_refresh}</span>
-                </button>
-
-                <div className="h-6 w-px bg-[#00ff41]/20 mx-1 hidden lg:block"></div>
-              </div>
-
-              {/* GROUP 2: DATA OPERATIONS (Delete, Filter, Add) */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1 min-w-0 lg:justify-end">
-                {/* DELETE ALL BUTTON */}
-                <button
-                  onClick={handleWipeEverything}
-                  className="px-3 py-1.5 border border-red-600 text-red-500 hover:bg-red-600 hover:text-white text-[9px] font-black uppercase transition-all shadow-[0_0_10px_rgba(220,38,38,0.2)] shrink-0"
-                  title={loc.tooltip_wipe_all}>
-                  {loc.admin_lb_clearall}
-                </button>
-
-                {/* FILTER CONTAINER AND ADD BUTTONS */}
-                <div className="flex items-center bg-black border border-[#00ff41]/40 p-1 flex-1 min-w-0">
-                  <span className="text-[9px] px-2 opacity-50 uppercase italic font-bold whitespace-nowrap border-r border-[#00ff41]/20 mr-2 shrink-0">
-                    {loc.admin_lb_filter}
-                  </span>
-
-                  {/* COMMAND SELECTOR */}
-                  <select
-                    className="bg-transparent text-[#00ff41] text-[10px] outline-none cursor-pointer uppercase font-bold flex-1 min-w-0 max-w-full truncate"
-                    value={adminTeamFilter}
-                    onChange={e => setAdminTeamFilter(e.target.value)}>
-                    {/* 1. General filter */}
-                    <option value="all" className="bg-black text-[#00ff41]">
-                      -- {loc.filter_all || 'TUTTI I RISULTATI'} --
-                    </option>
-
-                    {/* 2. We only consider scenarios that contain at least one command */}
-                    {scenarios
-                      .filter(scen => teamsList.some(t => t.current_scenario === scen.id))
-                      .map(scen => (
-                        <React.Fragment key={scen.id}>
-                          {/* SELECTED SCENARIO (marked with an asterisk) */}
-                          <option value={`scen:${scen.id}`} className="bg-[#002200] text-amber-500 font-black italic">
-                            * {scen.name.toUpperCase()}
-                          </option>
-
-                          {/* COMMANDS IN THIS SCRIPT */}
-                          {teamsList
-                            .filter(t => t.current_scenario === scen.id)
-                            .sort((a, b) => a.id - b.id)
-                            .map(t => (
-                              <option key={t.id} value={`team:${t.id}`} className="bg-black text-[#00ff41]">
-                                &nbsp;&nbsp;&nbsp;{t.name}
-                              </option>
-                            ))}
-                        </React.Fragment>
-                      ))}
-                  </select>
-
-                  {/* ADD BUTTON */}
-                  <button
-                    onClick={handleAddSinglePlayer}
-                    className="ml-2 px-3 py-1 border border-[#00ff41] text-[#00ff41] text-[9px] font-black uppercase hover:bg-[#00ff41] hover:text-black transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0"
-                    title={loc.admin_msg_addteam}>
-                    <UserPlus size={12} strokeWidth={2.5} />
-                    <span className="hidden xs:inline">{loc.admin_lb_add}</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="overflow-x-auto -mx-2 md:mx-0">
-            <table className="w-full text-left border-collapse min-w-300px">
-              <thead>
-                <tr className="bg-[#00ff41] text-black uppercase text-[9px] md:text-[10px] font-black">
-                  <th className="p-2 border border-black w-50px md:w-auto">Data</th>
-                  <th className="p-2 border border-black">User</th>
-                  <th className="p-2 border border-black hidden sm:table-cell">Team</th>
-                  <th className="p-2 border border-black text-right w-40px">Pts</th>
-                  <th className="p-2 border border-black text-center w-80px">Cmd</th>
-                </tr>
-              </thead>
-              <tbody className="text-[10px] md:text-[11px] uppercase">
-                {filteredAdminResults.length > 0 ? (
-                  filteredAdminResults.map(r => {
-                    const isPending = r.score === -1;
-                    return (
-                      <tr
-                        key={r.id}
-                        // Add a very light orange background to the entire line if the player is “waiting”
-                        className={`border-b border-[#00ff41]/10 transition-colors ${
-                          isPending ? 'bg-amber-500/5 hover:bg-amber-500/10' : 'hover:bg-[#00ff41]/5'
-                        }`}>
-                        {/* DATE: Short format for mobile */}
-                        <td className={`p-2 whitespace-nowrap ${isPending ? 'text-amber-500/50' : 'opacity-60'}`}>
-                          {r.created_at
-                            ? new Date(r.created_at).toLocaleDateString([], {
-                                day: '2-digit',
-                                month: '2-digit',
-                              })
-                            : 'N/A'}
-                          <span className="hidden md:inline">{r.created_at && `/${new Date(r.created_at).getFullYear().toString().slice(-2)}`}</span>
-                        </td>
-
-                        {/* USERNAME: Wraps if long */}
-                        <td className={`p-2 font-bold wrap-break-word max-w-80px md:max-w-none ${isPending ? 'text-amber-500' : ''}`}>
-                          {r.username}
-                          {isPending && <span className="ml-2 text-[8px] animate-pulse">[LOAD...]</span>}
-                        </td>
-
-                        {/* TEAM: Hidden on very small screens, visible on tablets/desktop */}
-                        <td
-                          className={`p-2 italic truncate hidden sm:table-cell ${
-                            isPending ? 'text-amber-500 opacity-100' : 'text-[#00ff41] opacity-60'
-                          }`}>
-                          {r.team_name}
-                        </td>
-
-                        {/* SCORE */}
-                        <td className={`p-2 font-black text-right ${isPending ? 'text-amber-500' : 'text-[#00ff41]'}`}>
-                          {isPending ? (
-                            <div className="flex justify-end opacity-50">
-                              <CircleSlash size={14} strokeWidth={3} />
-                            </div>
-                          ) : (
-                            r.score
-                          )}
-                        </td>
-
-                        {/* ACTION buttons */}
-                        <td className="p-2">
-                          <div className="flex justify-center gap-2 md:gap-4">
-                            <button
-                              onClick={() => {
-                                // Select the language from the script (or [it] by default)
-                                const team = teamsList.find(t => t.id === r.team_id);
-                                const scenario = scenarios.find(s => s.id === team?.current_scenario);
-                                const lang = scenario?.language || PRIMARY_LANG;
-                                // To create the link: your current address + player name
-                                const url = `${window.location.origin}?user=${encodeURIComponent(r.username)}&lang=${lang}`;
-                                setShareData({ name: r.username, url });
-                              }}
-                              className={`${isPending ? 'text-amber-500' : 'text-[#00ff41]'} hover:text-white transition-colors p-1`}
-                              title={loc.admin_msg_qr}>
-                              <QrCode size={18} />{' '}
-                            </button>
-                            <button onClick={() => handleDeleteResult(r.id!)} className="text-red-500 hover:text-white transition-colors p-1">
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                ) : (
-                  <tr>
-                    <td colSpan={5} className="p-4 text-center opacity-50 italic">
-                      {loc.admin_lb_nodata}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-          <button
-            onClick={() => {
-              setPrevView('admin');
-              setView('leaderboard');
-            }}
-            className="border-2 border-[#00ff41] py-3 hover:bg-[#00ff41] hover:text-black uppercase font-bold text-xs">
-            {loc.admin_btn_results}
-          </button>
-
-          <button
-            onClick={() => {
-              if (adminTeamFilter === 'all') {
-                triggerModal('alert', ModalMode.IDLE, loc.msg_err_select_team);
-              } else {
-                setPrevView('admin');
-                setView('discussion-list');
-              }
-            }}
-            className="border-2 border-amber-500 py-3 text-amber-500 hover:bg-amber-500 hover:text-black uppercase font-black text-xs shadow-[0_0_15px_rgba(245,158,11,0.3)]">
-            {loc.admin_btn_dicusion}
-          </button>
-        </div>
-      </>
-    );
+    <AdminView
+      loc={loc}
+      availableLangs={availableLangs}
+      currentLangId={currentLangId}
+      setCurrentLangId={setCurrentLangId}
+      teamsList={teamsList}
+      scenarios={scenarios}
+      allResults={allResults} // Передаем ВСЕ результаты для фильтрации
+      adminTeamFilter={adminTeamFilter}
+      setAdminTeamFilter={setAdminTeamFilter}
+      updateTeamStatusAction={updateTeamStatusAction}
+      updateCommanderStatusAction={updateCommanderStatusAction}
+      getTeamsAction={getTeamsAction}
+      setTeamsList={setTeamsList}
+      handleDeleteTeam={handleDeleteTeam}
+      handleAddTeam={handleAddTeam}
+      getResultsAction={getResultsAction}
+      setAllResults={setAllResults}
+      handleWipeEverything={handleWipeEverything}
+      handleDeleteTeamResults={handleDeleteTeamResults}
+      handleDeleteResult={handleDeleteResult}
+      handleAddSinglePlayer={handleAddSinglePlayer}
+      isRefreshing={isRefreshing}
+      setIsRefreshing={setIsRefreshing}
+      isAutoRefresh={isAutoRefresh}
+      setIsAutoRefresh={setIsAutoRefresh}
+      newTeamName={newTeamName}
+      setNewTeamName={setNewTeamName}
+      selectedScenarioForNewTeam={selectedScenarioForNewTeam}
+      setSelectedScenarioForNewTeam={setSelectedScenarioForNewTeam}
+      setShareData={setShareData}
+      setSelectedUserDetail={setSelectedUserDetail}
+      setPrevView={setPrevView}
+      setView={setView}
+      triggerModal={triggerModal}
+    />;
   }
   return (
     <CRTWrapper>
