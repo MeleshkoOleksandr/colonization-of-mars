@@ -95,7 +95,7 @@ export const downloadQRCode = (name: string, loc: Localization) => {
   const pngUrl = canvas.toDataURL('image/png');
   const downloadLink = document.createElement('a');
   downloadLink.href = pngUrl;
-  downloadLink.download = `QR_ID_${shareData.name.replace(/\s+/g, '_').toUpperCase()}.png`;
+  downloadLink.download = `QR_ID_${name.replace(/\s+/g, '_').toUpperCase()}.png`;
   document.body.appendChild(downloadLink);
   downloadLink.click();
   document.body.removeChild(downloadLink);

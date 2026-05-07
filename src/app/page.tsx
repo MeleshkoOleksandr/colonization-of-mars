@@ -1,5 +1,4 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { motion } from 'framer-motion';
 import { X, Copy, Download } from 'lucide-react';
@@ -26,7 +25,7 @@ import { AdminView } from '../views/AdminView';
 import { getTeamsAction, getResultsAction, updateTeamStatusAction, updateCommanderStatusAction, checkTeamStatusAction } from './actions';
 
 // Import all INTERFACES & TYPES
-import { SurvivalItem, GameResult, Team, ModalMode, ModalType, ScoreEvaluation, Language, Localization, PRIMARY_LANG, BUTTON_STYLES } from '../types';
+import { ModalMode, BUTTON_STYLES } from '../types';
 
 // --- CONSTANTS FOR ADMIN MODE ---
 const ADMIN_PASSWORD = 'adm'; // Password to prevent players from seeing game results
@@ -248,7 +247,6 @@ export default function MarsSurvivalGame() {
                 level={'H'}
                 bgColor={'#00ff41'}
                 fgColor={'#000000'}
-                includeMargin={false}
                 style={{ width: '200px', height: '200px' }} // And we'll show 200px on the screen
               />
             </div>
@@ -260,7 +258,6 @@ export default function MarsSurvivalGame() {
                   onClick={() => {
                     if (app.shareData?.url) {
                       navigator.clipboard.writeText(app.shareData.url);
-                      app.triggerModal('alert', ModalMode.IDLE, 'Link error');
                     }
                   }}
                   className="text-[#00ff41] hover:text-white">
