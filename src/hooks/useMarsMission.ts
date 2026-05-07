@@ -24,6 +24,7 @@ export const useMarsMission = (ADMIN_USER: string, ADMIN_PASSWORD: string) => {
 
   const [view, setView] = useState<'login' | 'story' | 'game' | 'results' | 'admin' | 'leaderboard' | 'user-detail' | 'discussion-list'>('login');
   const [prevView, setPrevView] = useState<'leaderboard' | 'admin' | 'results' | 'discussion-list'>('leaderboard');
+  const [isCopied, setIsCopied] = useState(false);
 
   // Game Content from XML and scenarios
   const [story, setStory] = useState({ title: 'Loading...', plot: '', language: PRIMARY_LANG, photo: 'login_page.png' });
@@ -734,6 +735,8 @@ export const useMarsMission = (ADMIN_USER: string, ADMIN_PASSWORD: string) => {
     setIsRefreshing,
     isAutoRefresh,
     setIsAutoRefresh,
+    setIsCopied,
+    isCopied,
 
     // --- 7. ADMIN FORM DATA ---
     newTeamName,

@@ -1,7 +1,7 @@
 'use client';
 import { QRCodeCanvas } from 'qrcode.react';
-import { motion } from 'framer-motion';
-import { X, Copy, Download } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Copy, Check, Download } from 'lucide-react';
 
 import { CRTWrapper } from '../components/CRTWrapper';
 import { RetroModal } from '../components/RetroModal';
@@ -252,19 +252,49 @@ export default function MarsSurvivalGame() {
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center gap-2 bg-[#001100] border border-[#00ff41]/30 p-2 overflow-hidden">
-                <span className="text-[9px] text-[#00ff41] truncate flex-1 font-mono opacity-70">{app.shareData.url}</span>
+              {' '}
+              <div className="flex items-center gap-2 bg-[#001100] border border-[#00ff41]/30 p-2 overflow-hidden relative">
+                {/* Displaying a URL or the text “COPIED” */}
+                <div className="flex-1 min-w-0 flex items-center">
+                  <AnimatePresence mode="wait">
+                    {!app.isCopied ? (
+                      <motion.span
+                        key="url"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 0.7 }}
+                        exit={{ opacity: 0 }}
+                        className="text-[9px] text-[#00ff41] truncate font-mono">
+                        {app.shareData?.url}
+                      </motion.span>
+                    ) : (
+                      <motion.span
+                        key="copied"
+                        initial={{ y: 10, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: -10, opacity: 0 }}
+                        className="text-[9px] text-[#00ff41] font-black uppercase tracking-[0.2em] animate-pulse">
+                        {app.loc.msg_link_copied || '> LINK COPIED <'}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Button with a dynamic icon */}
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     if (app.shareData?.url) {
-                      navigator.clipboard.writeText(app.shareData.url);
+                      // Copy the text
+                      await navigator.clipboard.writeText(app.shareData.url);
+                      // Play the confirmation animation
+                      app.setIsCopied(true);
+                      // We'll return to the original state in 2 seconds
+                      setTimeout(() => app.setIsCopied(false), 2000);
                     }
                   }}
-                  className="text-[#00ff41] hover:text-white">
-                  <Copy size={16} />
+                  className={`transition-colors duration-300 ${app.isCopied ? 'text-white' : 'text-[#00ff41] hover:text-white'}`}>
+                  {app.isCopied ? <Check size={16} className="text-[#00ff41]" /> : <Copy size={16} />}
                 </button>
               </div>
-
               <button
                 onClick={() => {
                   if (app.shareData) {
