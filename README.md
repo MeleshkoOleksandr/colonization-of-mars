@@ -139,12 +139,34 @@ Each survival scenario defines its own language within the XML tag <Language>.
 
 ## 📂 Project Structure
 
-*   `/app/page.tsx` - The "Engine": Handles navigation, logic, and the retro CRT UI.
-*   `/app/actions.ts` - The "Bridge": Secure Server Actions for database communication.
-*   `/lib/db.ts` - The "Vault": Core Postgres queries and relational logic.
-*   `/public/data/` - The "Missions": XML scenario files and the Scenario Manifest.
-*   `/public/languages/` - The "Dictionaries": JSON translation files.
-*   `/public/img/` - The "Assets": Photos for survival items and mission logos.
+The platform uses a modular **separation of concerns** architecture, ensuring the codebase remains clean, readable, and easy to extend.
+
+### 🏗 Core Architecture
+*   **`src/app/page.tsx`** — **The Router**: The main entry point. It handles high-level navigation and determines which "View" to display.
+*   **`src/hooks/useMarsMission.ts`** — **The Brain**: A custom React hook containing all the global state, mission logic, database synchronization, and automated timers.
+*   **`src/app/actions.ts`** — **The Bridge**: Next.js Server Actions that securely connect the UI with the private database.
+*   **`src/lib/db.ts`** — **The Vault**: Core logic for Postgres database queries and relational data management.
+
+### 🖼 UI Layers
+*   **`src/views/`** — **Screens**: Full-screen components for each game state:
+    *   `LoginView`, `StoryView`, `GameView`, `AdminView`, `LeaderboardView`, `DiscussionListView`, `UserDetailView`.
+*   **`src/components/`** — **Modules**: Reusable UI elements styled with the retro-CRT aesthetic:
+    *   `RetroModal`: Universal dialog system for alerts, confirms, and prompts.
+    *   `QRModal`: Dynamic generator for player access codes and high-res PNG downloads.
+    *   `AnalysisSequence`: Immersive data-processing animation.
+    *   `CRTWrapper`: The primary visual frame with scanlines and glowing effects.
+
+### 🛠 Tools & Definitions
+*   **`src/utils/`** — **Helpers**: Pure JavaScript utilities:
+    *   `xmlParser.ts`: Converts mission XML files into structured game data.
+    *   `exportUtils.ts`: Handles CSV generation for Excel and canvas-to-PNG logic for QR codes.
+*   **`src/types/`** — **Schemas**: Global TypeScript interfaces and Enums (`ModalMode`, `GameResult`, `Story`) ensuring data consistency across the entire project.
+
+### 📦 Static Assets (`/public`)
+*   **`/data/`** — XML mission scenarios and the `scenarios.json` manifest.
+*   **`/languages/`** — JSON translation dictionaries for the multi-language engine.
+*   **`/img/`** — High-quality item photos and mission-specific branding.
+*   **`/sounds/`** — Audio files (e.g., `soft_beep.wav`) for real-time mission updates.
 
 ---
 
