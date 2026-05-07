@@ -2,7 +2,7 @@
 import React from 'react';
 import { Header } from '../components/Header';
 import { MissionImageBlock } from '../components/MissionImageBlock';
-import { GameResult, Team, Story, Localization, BUTTON_STYLES } from '../types';
+import { GameResult, Team, Story, Localization, BUTTON_STYLES } from '../logic';
 
 interface LoginViewProps {
   loc: Localization;

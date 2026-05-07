@@ -3,7 +3,7 @@ import React from 'react';
 import { Header } from '../components/Header';
 import { MissionImageBlock } from '../components/MissionImageBlock';
 import { ChevronRight } from 'lucide-react';
-import { Story, Localization } from '../types';
+import { Story, Localization } from '../logic';
 
 interface StoryViewProps {
   story: Story;

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { GameResult, Team, SurvivalItem, ScoreEvaluation, Language, ModalMode, ModalType, Localization, PRIMARY_LANG } from '../types';
+import { GameResult, Team, SurvivalItem, ScoreEvaluation, Language, ModalMode, ModalType, Localization, PRIMARY_LANG } from '.';
 import { parseStoryXml } from '../utils/xmlParser';
 
 // SERVER ACTIONS IMPORT

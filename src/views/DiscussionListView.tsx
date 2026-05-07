@@ -2,7 +2,7 @@
 import React from "react";
 import { ArrowLeft, RefreshCcw, ChevronRight, MessageSquare } from "lucide-react";
 import { motion } from "framer-motion";
-import { GameResult, Team, Localization, ModalMode } from "../types";
+import { GameResult, Team, Localization, ModalMode } from "../logic";
 
 interface DiscussionListViewProps {
   loc: Localization;

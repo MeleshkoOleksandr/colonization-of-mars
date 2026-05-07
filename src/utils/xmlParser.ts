@@ -1,4 +1,4 @@
-import { SurvivalItem, ScoreEvaluation, Story, PRIMARY_LANG } from '../types';
+import { SurvivalItem, ScoreEvaluation, Story, PRIMARY_LANG } from '../logic';
 
 /**
  * XML PARSER

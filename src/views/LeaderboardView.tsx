@@ -2,7 +2,7 @@
 import React from 'react';
 import { ArrowLeft, RefreshCcw, FileDown, ChevronRight, CircleSlash } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { GameResult, Localization, ModalMode } from '../types';
+import { GameResult, Localization, ModalMode } from '../logic';
 
 interface LeaderboardViewProps {
   loc: Localization;

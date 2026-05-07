@@ -92,7 +92,7 @@ Create a new file in public/data/my_mission.xml:
 <Mission>
     <Story>
         <Language>en</Language>
-        <Logo>logo_mars.png</Logo> 
+        <Logo>logo.png</Logo> 
         <Title>Mission Name</Title>
         <Plot>The survival story text here...</Plot>
     </Story>
@@ -139,13 +139,12 @@ Each survival scenario defines its own language within the XML tag <Language>.
 
 ## 📂 Project Structure
 
-The platform uses a modular **separation of concerns** architecture, ensuring the codebase remains clean, readable, and easy to extend.
-
 ### 🏗 Core Architecture
 *   **`src/app/page.tsx`** — **The Router**: The main entry point. It handles high-level navigation and determines which "View" to display.
-*   **`src/hooks/useMarsMission.ts`** — **The Brain**: A custom React hook containing all the global state, mission logic, database synchronization, and automated timers.
 *   **`src/app/actions.ts`** — **The Bridge**: Next.js Server Actions that securely connect the UI with the private database.
-*   **`src/lib/db.ts`** — **The Vault**: Core logic for Postgres database queries and relational data management.
+*   **`src/logic/useMarsMission.ts`** — **The Brain**: A custom React hook containing all the global state, mission logic, database synchronization, and automated timers.
+*   **`src/logic/db.ts`** — **The Vault**: Core logic for Postgres database queries and relational data management.
+*   **`src/logic/index.ts`** — **Schemas**: Global TypeScript interfaces and Enums (`ModalMode`, `GameResult`, `Story`) ensuring data consistency across the entire project.
 
 ### 🖼 UI Layers
 *   **`src/views/`** — **Screens**: Full-screen components for each game state:
@@ -156,17 +155,16 @@ The platform uses a modular **separation of concerns** architecture, ensuring th
     *   `AnalysisSequence`: Immersive data-processing animation.
     *   `CRTWrapper`: The primary visual frame with scanlines and glowing effects.
 
-### 🛠 Tools & Definitions
+### 🛠 Tools
 *   **`src/utils/`** — **Helpers**: Pure JavaScript utilities:
     *   `xmlParser.ts`: Converts mission XML files into structured game data.
     *   `exportUtils.ts`: Handles CSV generation for Excel and canvas-to-PNG logic for QR codes.
-*   **`src/types/`** — **Schemas**: Global TypeScript interfaces and Enums (`ModalMode`, `GameResult`, `Story`) ensuring data consistency across the entire project.
 
 ### 📦 Static Assets (`/public`)
 *   **`/data/`** — XML mission scenarios and the `scenarios.json` manifest.
 *   **`/languages/`** — JSON translation dictionaries for the multi-language engine.
-*   **`/img/`** — High-quality item photos and mission-specific branding.
-*   **`/sounds/`** — Audio files (e.g., `soft_beep.wav`) for real-time mission updates.
+*   **`/img/`** — Item photos and mission-specific logos.
+*   **`/sounds/`** — Audio files.
 
 ---
 

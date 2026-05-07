@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { Header } from '../components/Header';
-import { SurvivalItem, Localization } from '../types';
+import { SurvivalItem, Localization } from '../logic';
 
 interface ResultsViewProps {
   loc: Localization;

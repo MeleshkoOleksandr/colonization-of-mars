@@ -2,7 +2,7 @@
 import React from 'react';
 import { Reorder } from 'framer-motion';
 import { DraggableItem } from '../components/DraggableItem';
-import { SurvivalItem, Localization } from '../types';
+import { SurvivalItem, Localization } from '../logic';
 
 interface GameViewProps {
   username: string;

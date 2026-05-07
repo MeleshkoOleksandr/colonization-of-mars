@@ -1,4 +1,4 @@
-import { GameResult, SurvivalItem, Localization } from '../types';
+import { GameResult, SurvivalItem, Localization } from '../logic';
 
 import { ArrowLeft, MessageSquare } from 'lucide-react';
 

@@ -1,4 +1,4 @@
-import { GameResult, Localization } from '../types';
+import { GameResult, Localization } from '../logic';
 
 export const exportToCSV = (results: GameResult[], loc: Localization) => {
   // 1. Column headers

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { QRCodeCanvas } from 'qrcode.react';
 import { X, Copy, Check, Download } from 'lucide-react';
-import { Localization } from '../types';
+import { Localization } from '../logic';
 
 interface QRModalProps {
   shareData: { name: string; url: string } | null;

@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ModalType, Localization } from '../types';
+import { ModalType, Localization } from '../logic';
 
 /**
  * Universal Modal UI used for Alerts, Confirms, and Admin Prompts.

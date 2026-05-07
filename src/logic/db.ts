@@ -1,5 +1,5 @@
 import { neon } from '@neondatabase/serverless';
-import { Team, GameResult } from '../types'; 
+import { Team, GameResult } from '.'; 
 /**
  * DATABASE CONFIGURATION
  * The 'neon' function automatically looks for the POSTGRES_URL 

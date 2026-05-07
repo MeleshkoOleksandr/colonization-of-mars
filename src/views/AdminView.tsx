@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Users, LockOpen, UserCheck, Trash2, Info, QrCode, RefreshCcw, UserPlus, Globe, CircleSlash, Save } from 'lucide-react';
-import { Team, GameResult, Language, Localization, ModalMode, ModalType, PRIMARY_LANG } from '../types';
+import { Team, GameResult, Language, Localization, ModalMode, ModalType, PRIMARY_LANG } from '../logic';
 
 interface AdminViewProps {
   loc: Localization;

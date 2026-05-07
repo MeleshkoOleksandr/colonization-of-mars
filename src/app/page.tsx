@@ -6,7 +6,7 @@ import { RetroModal } from '../components/RetroModal';
 import { QRModal } from '../components/QRModal';
 import { AnalysisSequence } from '../components/AnalysisSequence';
 import { exportToCSV, downloadQRCode } from '../utils/exportUtils';
-import { useMarsMission } from '../hooks/useMarsMission';
+import { useMarsMission } from '../logic/useMarsMission';
 
 import { LoginView } from '../views/LoginView';
 import { GameView } from '../views/GameView';
@@ -24,7 +24,7 @@ import { AdminView } from '../views/AdminView';
 import { getTeamsAction, getResultsAction, updateTeamStatusAction, updateCommanderStatusAction, checkTeamStatusAction } from './actions';
 
 // Import all INTERFACES & TYPES
-import { ModalMode, BUTTON_STYLES } from '../types';
+import { ModalMode, BUTTON_STYLES } from '../logic';
 
 // --- CONSTANTS FOR ADMIN MODE ---
 const ADMIN_PASSWORD = 'adm'; // Password to prevent players from seeing game results
@@ -210,9 +210,8 @@ export default function MarsSurvivalGame() {
               break;
             case ModalMode.ADD_PLAYER:
               app.executeAddSinglePlayer();
-              break;
-            // For all alerts and confirmations (where mode === ModalMode.IDLE)
-            default:
+              break;        
+            default: // For all other alerts and confirmations
               app.modal.action(); // It simply closes the window or performs a simple action
               break;
           }

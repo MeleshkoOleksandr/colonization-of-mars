@@ -2,7 +2,7 @@
 import React from 'react';
 import { Reorder, useDragControls } from 'framer-motion';
 import { GripVertical } from 'lucide-react';
-import { SurvivalItem } from '../types';
+import { SurvivalItem } from '../logic';
 
 interface DraggableItemProps {
   item: SurvivalItem;
