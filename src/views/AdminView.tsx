@@ -2,8 +2,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Users, LockOpen, UserCheck, Trash2, Info, QrCode, RefreshCcw, UserPlus, Globe, CircleSlash, Save } from 'lucide-react';
-
-// Импортируем типы и энумы
 import { Team, GameResult, Language, Localization, ModalMode, ModalType, PRIMARY_LANG } from '../types';
 
 interface AdminViewProps {
@@ -16,7 +14,7 @@ interface AdminViewProps {
   allResults: GameResult[];
   adminTeamFilter: string;
   setAdminTeamFilter: (val: string) => void;
-  
+
   // Handlers & Actions
   updateTeamStatusAction: (id: number, status: boolean) => Promise<void>;
   updateCommanderStatusAction: (id: number, status: boolean) => Promise<void>;
@@ -27,10 +25,9 @@ interface AdminViewProps {
   getResultsAction: () => Promise<GameResult[]>;
   setAllResults: (results: GameResult[]) => void;
   handleWipeEverything: () => void;
-  handleDeleteTeamResults: (teamId: number) => void;
   handleDeleteResult: (id: number) => void;
   handleAddSinglePlayer: () => void;
-  
+
   // UI States
   isRefreshing: boolean;
   setIsRefreshing: (val: boolean) => void;
@@ -40,10 +37,9 @@ interface AdminViewProps {
   setNewTeamName: (val: string) => void;
   selectedScenarioForNewTeam: string;
   setSelectedScenarioForNewTeam: (val: string) => void;
-  
+
   // Navigation
   setShareData: (data: any) => void;
-  setSelectedUserDetail: (res: GameResult) => void;
   setPrevView: (view: any) => void;
   setView: (view: any) => void;
   triggerModal: (type: ModalType, mode: ModalMode, message: string) => void;
@@ -52,14 +48,38 @@ interface AdminViewProps {
 export const AdminView = (props: AdminViewProps) => {
   // --- (Destructuring) ---
   const {
-    loc, availableLangs, currentLangId, setCurrentLangId,
-    teamsList, scenarios, allResults, adminTeamFilter, setAdminTeamFilter,
-    updateTeamStatusAction, updateCommanderStatusAction, getTeamsAction, setTeamsList,
-    handleDeleteTeam, handleAddTeam, getResultsAction, setAllResults,
-    handleWipeEverything, handleDeleteTeamResults, handleDeleteResult, handleAddSinglePlayer,
-    isRefreshing, setIsRefreshing, isAutoRefresh, setIsAutoRefresh,
-    newTeamName, setNewTeamName, selectedScenarioForNewTeam, setSelectedScenarioForNewTeam,
-    setShareData, setSelectedUserDetail, setPrevView, setView, triggerModal
+    loc,
+    availableLangs,
+    currentLangId,
+    setCurrentLangId,
+    teamsList,
+    scenarios,
+    allResults,
+    adminTeamFilter,
+    setAdminTeamFilter,
+    updateTeamStatusAction,
+    updateCommanderStatusAction,
+    getTeamsAction,
+    setTeamsList,
+    handleDeleteTeam,
+    handleAddTeam,
+    getResultsAction,
+    setAllResults,
+    handleWipeEverything,
+    handleDeleteResult,
+    handleAddSinglePlayer,
+    isRefreshing,
+    setIsRefreshing,
+    isAutoRefresh,
+    setIsAutoRefresh,
+    newTeamName,
+    setNewTeamName,
+    selectedScenarioForNewTeam,
+    setSelectedScenarioForNewTeam,
+    setShareData,
+    setPrevView,
+    setView,
+    triggerModal,
   } = props;
 
   // ---  UNIVERSAL FILTERING LOGIC ---

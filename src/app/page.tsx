@@ -910,42 +910,43 @@ export default function MarsSurvivalGame() {
       />
     );
   } else if (view === 'admin') {
-    <AdminView
-      loc={loc}
-      availableLangs={availableLangs}
-      currentLangId={currentLangId}
-      setCurrentLangId={setCurrentLangId}
-      teamsList={teamsList}
-      scenarios={scenarios}
-      allResults={allResults} // Передаем ВСЕ результаты для фильтрации
-      adminTeamFilter={adminTeamFilter}
-      setAdminTeamFilter={setAdminTeamFilter}
-      updateTeamStatusAction={updateTeamStatusAction}
-      updateCommanderStatusAction={updateCommanderStatusAction}
-      getTeamsAction={getTeamsAction}
-      setTeamsList={setTeamsList}
-      handleDeleteTeam={handleDeleteTeam}
-      handleAddTeam={handleAddTeam}
-      getResultsAction={getResultsAction}
-      setAllResults={setAllResults}
-      handleWipeEverything={handleWipeEverything}
-      handleDeleteTeamResults={handleDeleteTeamResults}
-      handleDeleteResult={handleDeleteResult}
-      handleAddSinglePlayer={handleAddSinglePlayer}
-      isRefreshing={isRefreshing}
-      setIsRefreshing={setIsRefreshing}
-      isAutoRefresh={isAutoRefresh}
-      setIsAutoRefresh={setIsAutoRefresh}
-      newTeamName={newTeamName}
-      setNewTeamName={setNewTeamName}
-      selectedScenarioForNewTeam={selectedScenarioForNewTeam}
-      setSelectedScenarioForNewTeam={setSelectedScenarioForNewTeam}
-      setShareData={setShareData}
-      setSelectedUserDetail={setSelectedUserDetail}
-      setPrevView={setPrevView}
-      setView={setView}
-      triggerModal={triggerModal}
-    />;
+    content =
+      (
+        <AdminView
+          loc={loc}
+          availableLangs={availableLangs}
+          currentLangId={currentLangId}
+          setCurrentLangId={setCurrentLangId}
+          teamsList={teamsList}
+          scenarios={scenarios}
+          allResults={allResults}
+          adminTeamFilter={adminTeamFilter}
+          setAdminTeamFilter={setAdminTeamFilter}
+          updateTeamStatusAction={updateTeamStatusAction}
+          updateCommanderStatusAction={updateCommanderStatusAction}
+          getTeamsAction={getTeamsAction}
+          setTeamsList={setTeamsList}
+          handleDeleteTeam={handleDeleteTeam}
+          handleAddTeam={handleAddTeam}
+          getResultsAction={getResultsAction}
+          setAllResults={setAllResults}
+          handleWipeEverything={handleWipeEverything}
+          handleDeleteResult={handleDeleteResult}
+          handleAddSinglePlayer={handleAddSinglePlayer}
+          isRefreshing={isRefreshing}
+          setIsRefreshing={setIsRefreshing}
+          isAutoRefresh={isAutoRefresh}
+          setIsAutoRefresh={setIsAutoRefresh}
+          newTeamName={newTeamName}
+          setNewTeamName={setNewTeamName}
+          selectedScenarioForNewTeam={selectedScenarioForNewTeam}
+          setSelectedScenarioForNewTeam={setSelectedScenarioForNewTeam}
+          setShareData={setShareData}
+          setPrevView={setPrevView}
+          setView={setView}
+          triggerModal={triggerModal}
+        />
+      ); 
   }
   return (
     <CRTWrapper>
