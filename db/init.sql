@@ -13,8 +13,9 @@ DROP TABLE IF EXISTS teams;
 CREATE TABLE teams (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255) UNIQUE NOT NULL,
-  is_unlocked BOOLEAN DEFAULT false
-  has_commander BOOLEAN DEFAULT false
+  is_unlocked BOOLEAN DEFAULT false,
+  has_commander BOOLEAN DEFAULT false,
+  is_archived BOOLEAN DEFAULT false,
   current_scenario VARCHAR(255) DEFAULT 'mars_it';
 );
 

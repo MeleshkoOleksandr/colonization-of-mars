@@ -140,3 +140,10 @@ export async function addSinglePlayer(teamId: number, playerName: string) {
 export async function wipeEntireDatabase() {
   await sql`DELETE FROM teams`;
 }
+
+/**
+ * Set Archive status for selected team.
+ */
+export async function setTeamArchiveStatus(teamId: number, status: boolean) {
+  await sql`UPDATE teams SET is_archived = ${status} WHERE id = ${teamId}`;
+}

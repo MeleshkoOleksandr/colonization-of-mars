@@ -137,3 +137,9 @@ export async function wipeEntireDatabaseAction() {
     console.error("Wipe error:", error);
   }
 }
+
+//Update archive status for team
+export async function updateTeamArchiveStatusAction(teamId: number, status: boolean) {
+  await db.setTeamArchiveStatus(teamId, status);
+  revalidatePath("/");
+}
