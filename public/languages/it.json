@@ -110,7 +110,7 @@
   "admin_msg_teamQr": "Genera QR per l'intera squadra",
   "admin_msg_qrsave": "Scarica QR",
   "modal_msg_qr": "Accesso Identità: ",
-  "tooltip_wipe_all": "Cancella tutto il database (Team + Player)",
+  "tooltip_wipe_all": "Elimina i dati attuali",
   "btn_logout": "Esci",
   "btn_admin": "Admin",
   "btn_report": "Resoconto: ",
@@ -133,5 +133,11 @@
   "btn_archive_arch" : "Archivio",
   "btn_archive_active" : "Unità attive",
   "btn_archive_restore" : "Ripristina Unità",
-  "btn_archive_save" : "Archivia Unità"
+  "btn_archive_save" : "Archivia Unità", 
+
+  "admin_lb_wipe_active": "Svuota Team Attivi",
+  "admin_lb_wipe_archive": "Svuota Archivio",
+  "msg_confirm_wipe_active": "PERICOLO: Cancellare TUTTE le squadre attive?",
+  "msg_confirm_wipe_archive": "PERICOLO: Cancellare TUTTE le squadre archiviate?"
+
 }

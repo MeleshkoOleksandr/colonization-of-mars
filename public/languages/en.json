@@ -110,7 +110,7 @@
   "admin_msg_teamQr": "Generate QR for the entire team",
   "admin_msg_qrsave": "Download QR",
   "modal_msg_qr": "Identity Access: ",
-  "tooltip_wipe_all": "Clear entire database (Team + Player)",
+  "tooltip_wipe_all": "Delete current data",
   "btn_logout": "Logout",
   "btn_admin": "Admin",
   "btn_report": "Report: ",
@@ -133,5 +133,10 @@
   "btn_archive_arch": "Archive",
   "btn_archive_active": "Active Units",
   "btn_archive_restore": "Restore Unit",
-  "btn_archive_save": "Archive Unit"
+  "btn_archive_save": "Archive Unit",
+
+  "admin_lb_wipe_active": "Clear Active Teams",
+  "admin_lb_wipe_archive": "Clear Archive",
+  "msg_confirm_wipe_active": "DANGER: Delete ALL active teams?",
+  "msg_confirm_wipe_archive": "DANGER: Delete ALL archived teams?"
 }

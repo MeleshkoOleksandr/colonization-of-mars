@@ -138,6 +138,16 @@ export async function wipeEntireDatabaseAction() {
   }
 }
 
+// Deletes all teams and all results based on their archive status.
+export async function wipeTeamsByStatusAction(isArchived: boolean) {
+  try {
+    await db.wipeTeamsByStatus(isArchived);
+    revalidatePath("/");
+  } catch (error) {
+    console.error("Wipe error:", error);
+  }
+}
+
 //Update archive status for team
 export async function updateTeamArchiveStatusAction(teamId: number, status: boolean) {
   await db.setTeamArchiveStatus(teamId, status);

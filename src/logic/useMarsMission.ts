@@ -16,7 +16,7 @@ import {
   addTeamWithPlayersAction,
   updatePlayerResultAction,
   addSinglePlayerAction,
-  wipeEntireDatabaseAction,
+  wipeTeamsByStatusAction,
   updateTeamArchiveStatusAction,
 } from '../app/actions';
 
@@ -638,29 +638,23 @@ export const useMarsMission = (ADMIN_USER: string, ADMIN_PASSWORD: string) => {
 
   // Action for deleting all teams and, consequently, all results
   const handleWipeEverything = () => {
-    setModal({
-      isOpen: true,
-      type: 'confirm',
-      mode: ModalMode.IDLE,
-      message: loc.msg_confirm_wipe_system,
-      value: '',
-      action: async () => {
-        try {
-          // 1. Initiate a full deletion
-          await wipeEntireDatabaseAction();
-          // 2. Мгновенно очищаем локальные списки
-          setTeamsList([]);
-          setAllResults([]);
-          // 3. Set the filter to “all”
-          setAdminTeamFilter('all');
-          // 4. Closing the modal window
-          setModal(prev => ({ ...prev, isOpen: false }));
+    // Select a message based on the current view
+    const message = showArchivedTeams ? loc.msg_confirm_wipe_archive : loc.msg_confirm_wipe_active;
 
-          console.log('SYSTEM: Full database wipe complete.');
-        } catch (error) {
-          console.error(error);
-        }
-      },
+    triggerModal('confirm', ModalMode.IDLE, message, async () => {
+      try {
+        // Pass the current archive status to the action
+        await wipeTeamsByStatusAction(showArchivedTeams);
+        // Updating data locally
+        const [freshTeams, freshResults] = await Promise.all([getTeamsAction(), getResultsAction()]);
+        setTeamsList(freshTeams);
+        setAllResults(freshResults);
+        setAdminTeamFilter('all');
+
+        setModal(prev => ({ ...prev, isOpen: false }));
+      } catch (error) {
+        console.error(error);
+      }
     });
   };
 
@@ -707,7 +701,8 @@ export const useMarsMission = (ADMIN_USER: string, ADMIN_PASSWORD: string) => {
     });
   };
 
-  useEffect(() => {  // When the administrator switches between Active and Archived views, we reset the team filter to "all"
+  useEffect(() => {
+    // When the administrator switches between Active and Archived views, we reset the team filter to "all"
     setAdminTeamFilter('all');
   }, [showArchivedTeams]);
 

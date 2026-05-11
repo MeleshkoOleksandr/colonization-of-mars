@@ -110,7 +110,7 @@
   "admin_msg_teamQr": "QR für gesamtes Team generieren",
   "admin_msg_qrsave": "QR herunterladen",
   "modal_msg_qr": "Identitätszugang: ",
-  "tooltip_wipe_all": "Gesamte Datenbank löschen",
+  "tooltip_wipe_all": "Aktuelle Daten löschen",
   "btn_logout": "Abmelden",
   "btn_admin": "Admin",
   "btn_report": "Bericht: ",
@@ -133,5 +133,10 @@
   "btn_archive_arch": "Archiv",
   "btn_archive_active": "Aktive Einheiten",
   "btn_archive_restore": "Einheit wiederherstellen",
-  "btn_archive_save": "Einheit archivieren"
+  "btn_archive_save": "Einheit archivieren",
+
+  "admin_lb_wipe_active": "Aktive Teams löschen",
+  "admin_lb_wipe_archive": "Archiv leeren",
+  "msg_confirm_wipe_active": "GEFAHR: ALLE aktiven Teams löschen?",
+  "msg_confirm_wipe_archive": "GEFAHR: ALLE archivierten Teams löschen?"
 }

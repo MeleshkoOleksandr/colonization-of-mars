@@ -147,3 +147,10 @@ export async function wipeEntireDatabase() {
 export async function setTeamArchiveStatus(teamId: number, status: boolean) {
   await sql`UPDATE teams SET is_archived = ${status} WHERE id = ${teamId}`;
 }
+
+/**
+ * Wipes teams and results based on their archive status.
+ */
+export async function wipeTeamsByStatus(isArchived: boolean) {
+  await sql`DELETE FROM teams WHERE is_archived = ${isArchived}`;
+}

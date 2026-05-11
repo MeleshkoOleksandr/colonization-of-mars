@@ -378,12 +378,12 @@ export const AdminView = (props: AdminViewProps) => {
 
             {/* GROUP 2: DATA OPERATIONS (Delete, Filter, Add) */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1 min-w-0 lg:justify-end">
-              {/* DELETE ALL BUTTON */}
+              {/* CLEAR ALL BUTTON */}
               <button
                 onClick={handleWipeEverything}
                 className="px-3 py-1.5 border border-red-600 text-red-500 hover:bg-red-600 hover:text-white text-[9px] font-black uppercase transition-all shadow-[0_0_10px_rgba(220,38,38,0.2)] shrink-0"
                 title={loc.tooltip_wipe_all}>
-                {loc.admin_lb_clearall}
+                {showArchivedTeams ? loc.admin_lb_wipe_archive : loc.admin_lb_wipe_active}
               </button>
 
               {/* FILTER CONTAINER AND ADD BUTTONS */}
