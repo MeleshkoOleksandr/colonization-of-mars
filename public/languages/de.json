@@ -124,5 +124,14 @@
   "csv_status_waiting": "Wartet",
   "csv_status_na": "N/V",
   "msg_export_success": "BERICHT ERSTELLT: Die CSV-Datei wurde heruntergeladen. Sie können sie mit Excel öffnen.",
-  "csv_btn_export": "Missionsbericht exportieren (CSV)"
+  "csv_btn_export": "Missionsbericht exportieren (CSV)",
+
+   "/* --- Archive --- */": "",
+  "msg_confirm_restore": "Einheit wiederherstellen",
+  "msg_confirm_archive": "Einheit archivieren",
+  "msg_archive_hint": "Sie wird im Spieler-Login ausgeblendet und ins Archiv verschoben.",
+  "btn_archive_arch": "Archiv",
+  "btn_archive_active": "Aktive Einheiten",
+  "btn_archive_restore": "Einheit wiederherstellen",
+  "btn_archive_save": "Einheit archivieren"
 }

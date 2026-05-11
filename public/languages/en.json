@@ -124,5 +124,14 @@
   "csv_status_waiting": "Pending",
   "csv_status_na": "N/A",
   "msg_export_success": "REPORT GENERATED: CSV file has been downloaded. You can open it with Excel.",
-  "csv_btn_export": "Export Mission Report (CSV)"
+  "csv_btn_export": "Export Mission Report (CSV)",
+
+  "/* --- Archive --- */": "",
+  "msg_confirm_restore": "Restore unit",
+  "msg_confirm_archive": "Archive unit",
+  "msg_archive_hint": "It will be hidden from the player login and moved to the archive.",
+  "btn_archive_arch": "Archive",
+  "btn_archive_active": "Active Units",
+  "btn_archive_restore": "Restore Unit",
+  "btn_archive_save": "Archive Unit"
 }
