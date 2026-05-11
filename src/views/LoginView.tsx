@@ -28,8 +28,8 @@ export const LoginView = ({
   setUsername,
   handleStart,
 }: LoginViewProps) => {
-  // 1. Filter the commands that haven't finished yet (is_unlocked === false)
-  const activeTeams = teamsList.filter(t => !t.is_unlocked);
+  // 1. Filter the commands that haven't finished yet and not archived.
+  const activeTeams = teamsList.filter(t => !t.is_unlocked && !t.is_archived);
   // 2. Filter players for the SELECTED team who have not yet played (score === -1)
   const availablePlayers = allResults.filter(r => r.team_id === teamId && r.score === -1).sort((a, b) => a.username.localeCompare(b.username));
   return (

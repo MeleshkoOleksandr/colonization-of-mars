@@ -1,7 +1,21 @@
 'use client';
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Users, LockOpen, UserCheck, Trash2, Info, QrCode, RefreshCcw, UserPlus, Globe, CircleSlash, Save } from 'lucide-react';
+import {
+  Users,
+  LockOpen,
+  UserCheck,
+  Trash2,
+  Info,
+  QrCode,
+  RefreshCcw,
+  UserPlus,
+  Globe,
+  CircleSlash,
+  Save,
+  ArchiveRestore,
+  Archive,
+} from 'lucide-react';
 import { Team, GameResult, Language, Localization, ModalMode, ModalType, PRIMARY_LANG } from '../logic';
 
 interface AdminViewProps {
@@ -43,6 +57,11 @@ interface AdminViewProps {
   setPrevView: (view: any) => void;
   setView: (view: any) => void;
   triggerModal: (type: ModalType, mode: ModalMode, message: string) => void;
+
+  //Archive
+  handleToggleArchive: (id: number, currentStatus: boolean) => void;
+  setShowArchivedTeams: (val: boolean) => void;
+  showArchivedTeams: boolean;
 }
 
 export const AdminView = (props: AdminViewProps) => {
@@ -80,26 +99,32 @@ export const AdminView = (props: AdminViewProps) => {
     setPrevView,
     setView,
     triggerModal,
+    showArchivedTeams,
+    setShowArchivedTeams,
+    handleToggleArchive,
   } = props;
 
   // ---  UNIVERSAL FILTERING LOGIC ---
-  const resultsFilteredByMenu = allResults.filter(r => {
-    // If “All Teams” is selected
+  const resultsFilteredByMenu = (allResults || []).filter(r => {
+    // Find the team to which the result belongs
+    const teamOfPlayer = teamsList.find(t => t.id === r.team_id);
+    // If the command is not found (for example, it was deleted), we do not display the result
+    if (!teamOfPlayer) return false;
+    // Does the team's archive status match our selection?
+    if (teamOfPlayer.is_archived !== showArchivedTeams) return false;
+    // FILTER BY SELECTOR
     if (adminTeamFilter === 'all') return true;
-
-    // If a specific scenario (scen:id) is selected
+    // Filter by scenario
     if (adminTeamFilter.startsWith('scen:')) {
       const targetScenId = adminTeamFilter.split(':')[1];
-      // Let's check what scenario this player's team is facing
-      const teamOfPlayer = teamsList.find(t => t.id === r.team_id);
-      return teamOfPlayer?.current_scenario === targetScenId;
+      return teamOfPlayer.current_scenario === targetScenId;
     }
-
-    // If a specific team (team:id) is selected
+    // Filter by team
     if (adminTeamFilter.startsWith('team:')) {
       const targetTeamId = parseInt(adminTeamFilter.split(':')[1]);
       return r.team_id === targetTeamId;
     }
+
     return true;
   });
 
@@ -151,10 +176,23 @@ export const AdminView = (props: AdminViewProps) => {
       <div className="space-y-4">
         {/* 1. TEAMS MANAGEMENT  */}
         <div className="border-2 border-[#00ff41]/30 p-4 bg-[#111]/30">
-          <h3 className="font-bold uppercase flex items-center gap-2 mb-4 border-b border-[#00ff41]/10 pb-2">
-            <Users size={18} />
-            {loc.admin_lb_teamlist}
-          </h3>
+          <div className="flex justify-between items-center mb-4 border-b border-[#00ff41]/10 pb-2">
+            <h3 className="font-bold uppercase flex items-center gap-2 text-sm">
+              <Users size={18} /> {loc.admin_lb_teamlist}
+            </h3>
+
+            {/* Archive Toggle  */}
+            <button
+              onClick={() => setShowArchivedTeams(!showArchivedTeams)}
+              className={`px-3 py-1 border transition-all flex items-center gap-2 ${
+                showArchivedTeams ? 'border-amber-500 bg-amber-500/10 text-amber-500' : 'border-[#00ff41]/30 text-[#00ff41]/40 hover:text-[#00ff41]'
+              }`}>
+              <div className={`w-1.5 h-1.5 ${showArchivedTeams ? 'bg-amber-500 shadow-[0_0_8px_#f59e0b]' : 'bg-[#00ff41]/20'}`}></div>
+              <span className="text-[9px] font-black uppercase tracking-widest">
+                {showArchivedTeams ? loc.btn_archive_arch : loc.btn_archive_active}
+              </span>
+            </button>
+          </div>
 
           {/* Scroll container */}
           <div className="max-h-80 overflow-y-auto pr-2 custom-scrollbar relative">
@@ -177,11 +215,12 @@ export const AdminView = (props: AdminViewProps) => {
                   {/* Header 3: Scenario  */}
                   <th className="p-2 border border-black w-15 md:w-60">{loc.admin_lb_scename}</th>
 
-                  <th className="p-2 border border-black w-12 text-center">CMD</th>
+                  <th className="p-2 border border-black w-20 text-center">CMD</th>
                 </tr>
               </thead>
               <tbody className="text-[10px] uppercase">
                 {teamsList
+                  .filter(t => t.is_archived === showArchivedTeams) // Archive filter
                   .sort((a, b) => a.id - b.id)
                   .map(t => {
                     const scenarioName = scenarios.find(s => s.id === t.current_scenario)?.name || 'Default';
@@ -233,6 +272,14 @@ export const AdminView = (props: AdminViewProps) => {
 
                         <td className="p-2 text-center">
                           <div className="flex justify-center gap-2">
+                            {/* Archive button */}
+                            <button
+                              onClick={() => handleToggleArchive(t.id, t.is_archived)}
+                              className={`${t.is_archived ? 'text-amber-500' : 'text-[#00ff41]/40'} hover:text-white p-1`}
+                              title={t.is_archived ? loc.btn_archive_restore : loc.btn_archive_save}>
+                              {t.is_archived ? <ArchiveRestore size={14} /> : <Archive size={14} />}
+                            </button>
+
                             {/* QR code for the whole team */}
                             <button
                               onClick={() => {
@@ -357,7 +404,8 @@ export const AdminView = (props: AdminViewProps) => {
 
                   {/* 2. We only consider scenarios that contain at least one command */}
                   {scenarios
-                    .filter(scen => teamsList.some(t => t.current_scenario === scen.id))
+                    // Display only those scenarios that contain commands with the desired archive status
+                    .filter(scen => teamsList.some(t => t.current_scenario === scen.id && t.is_archived === showArchivedTeams))
                     .map(scen => (
                       <React.Fragment key={scen.id}>
                         {/* SELECTED SCENARIO (marked with an asterisk) */}
@@ -367,7 +415,7 @@ export const AdminView = (props: AdminViewProps) => {
 
                         {/* COMMANDS IN THIS SCRIPT */}
                         {teamsList
-                          .filter(t => t.current_scenario === scen.id)
+                          .filter(t => t.current_scenario === scen.id && t.is_archived === showArchivedTeams)
                           .sort((a, b) => a.id - b.id)
                           .map(t => (
                             <option key={t.id} value={`team:${t.id}`} className="bg-black text-[#00ff41]">

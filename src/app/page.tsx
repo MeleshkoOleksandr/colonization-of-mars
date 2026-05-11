@@ -1,5 +1,5 @@
 'use client';
-import {  AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 
 import { CRTWrapper } from '../components/CRTWrapper';
 import { RetroModal } from '../components/RetroModal';
@@ -177,6 +177,9 @@ export default function MarsSurvivalGame() {
         setPrevView={app.setPrevView}
         setView={app.setView}
         triggerModal={app.triggerModal}
+        handleToggleArchive={app.handleToggleArchive}
+        setShowArchivedTeams={app.setShowArchivedTeams}
+        showArchivedTeams={app.showArchivedTeams}
       />
     );
   }
@@ -210,7 +213,7 @@ export default function MarsSurvivalGame() {
               break;
             case ModalMode.ADD_PLAYER:
               app.executeAddSinglePlayer();
-              break;        
+              break;
             default: // For all other alerts and confirmations
               app.modal.action(); // It simply closes the window or performs a simple action
               break;

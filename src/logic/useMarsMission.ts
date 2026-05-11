@@ -17,6 +17,7 @@ import {
   updatePlayerResultAction,
   addSinglePlayerAction,
   wipeEntireDatabaseAction,
+  updateTeamArchiveStatusAction,
 } from '../app/actions';
 
 export const useMarsMission = (ADMIN_USER: string, ADMIN_PASSWORD: string) => {
@@ -681,6 +682,35 @@ export const useMarsMission = (ADMIN_USER: string, ADMIN_PASSWORD: string) => {
     }
   };
 
+  // Add selected team to Archive
+  const [showArchivedTeams, setShowArchivedTeams] = useState(false);
+
+  const handleToggleArchive = (teamId: number, currentStatus: boolean) => {
+    const teamName = teamsList.find(t => t.id === teamId)?.name || '';
+    // Select the message depending on whether you are archiving or restoring it
+    const message = currentStatus
+      ? `${loc.msg_confirm_restore || "Ripristinare l'unità"} [${teamName}]?`
+      : `${loc.msg_confirm_archive || "Archiviare l'unità"} [${teamName}]? 
+       ${loc.msg_archive_hint || 'Verrà nascosta dal login giocatori.'}`;
+
+    triggerModal('confirm', ModalMode.IDLE, message, async () => {
+      try {
+        await updateTeamArchiveStatusAction(teamId, !currentStatus);
+        // Updating the list of commands
+        const freshTeams = await getTeamsAction();
+        setTeamsList(freshTeams);
+        // Modal window close
+        setModal(prev => ({ ...prev, isOpen: false }));
+      } catch (error) {
+        console.error('Archive toggle failed:', error);
+      }
+    });
+  };
+
+  useEffect(() => {  // When the administrator switches between Active and Archived views, we reset the team filter to "all"
+    setAdminTeamFilter('all');
+  }, [showArchivedTeams]);
+
   //                                                                --- FINAL RETURN ---
   return {
     // --- 1. NAVIGATION & ROUTING ---
@@ -752,7 +782,7 @@ export const useMarsMission = (ADMIN_USER: string, ADMIN_PASSWORD: string) => {
     currentTeamName: teamsList.find(t => t.id === teamId)?.name || 'Anonimo',
     isAdmin: username.toLowerCase() === ADMIN_USER.toLowerCase(),
 
-     // --- 9. ACTION HANDLERS ---
+    // --- 9. ACTION HANDLERS ---
     handleStart,
     finishGame,
     executeAdminAuth,
@@ -766,9 +796,12 @@ export const useMarsMission = (ADMIN_USER: string, ADMIN_PASSWORD: string) => {
     executeAddSinglePlayer,
     handleBecomeCommander,
     handleWipeEverything,
+    handleToggleArchive,
 
     setSelectedUserDetail,
     getScoreMessage,
-    selectedUserDetail
+    selectedUserDetail,
+    showArchivedTeams,
+    setShowArchivedTeams,
   };
 };

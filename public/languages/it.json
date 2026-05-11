@@ -124,5 +124,14 @@
   "csv_status_waiting": "In attesa",
   "csv_status_na": "N/A",
   "msg_export_success": "REPORT GENERATO: Il file CSV è stato scaricato. Puoi aprirlo con Excel.",
-  "csv_btn_export": "Esporta Report Missione (CSV)"
+  "csv_btn_export": "Esporta Report Missione (CSV)",
+
+  "/* --- Archive --- */": "",
+  "msg_confirm_restore" : "Ripristinare l'unità",
+  "msg_confirm_archive" : "Archiviare l'unità",
+  "msg_archive_hint": "Verrà nascosta dal login giocatori и spostata in archivio.",
+  "btn_archive_arch" : "Archivio",
+  "btn_archive_active" : "Unità attive",
+  "btn_archive_restore" : "Ripristina Unità",
+  "btn_archive_save" : "Archivia Unità"
 }
