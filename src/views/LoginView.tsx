@@ -15,26 +15,23 @@ interface LoginViewProps {
   username: string;
   setUsername: (name: string) => void;
   handleStart: () => void;
+  onAdminLogin: () => void;
 }
 
-export const LoginView = ({
-  loc,
-  allResults,
-  teamsList,
-  scenarios,
-  teamId,
-  setTeamId,
-  username,
-  setUsername,
-  handleStart,
-}: LoginViewProps) => {
+export const LoginView = ({ loc, allResults, teamsList, scenarios, teamId, setTeamId, username, setUsername, handleStart, onAdminLogin }: LoginViewProps) => {
   // 1. Filter the commands that haven't finished yet and not archived.
   const activeTeams = teamsList.filter(t => !t.is_unlocked && !t.is_archived);
   // 2. Filter players for the SELECTED team who have not yet played (score === -1)
   const availablePlayers = allResults.filter(r => r.team_id === teamId && r.score === -1).sort((a, b) => a.username.localeCompare(b.username));
   return (
     <>
-      <Header title={loc.login_header || 'Mission Login'} />
+      {/* --- Header --- */}
+      <div className="relative">
+        <Header title={loc.login_header} />
+        <button onClick={onAdminLogin} className="absolute top-0 right-0 p-2 hover:opacity-50 transition-opacity" title={loc.tooltip_admin_access}>
+          <img src="/img/admin_ico.png" alt="Admin" className="w-8 h-8 md:w-10 md:h-10 border border-[#00ff41]/30" />
+        </button>
+      </div>
       {/* --- Image block --- */}
       <MissionImageBlock src={'login_page.png'} isFullWidth={false} />
       {/* --- LOGIN FORM--- */}
@@ -78,10 +75,6 @@ export const LoginView = ({
             value={username}
             onChange={e => setUsername(e.target.value)}>
             <option value="">{loc.login_select_prompt}</option>
-            {/* ADMIN IS ALWAYS AVAILABLE */}
-            <option value="admin" className="text-amber-500 font-black">
-              {loc.login_select_admin}
-            </option>
             {/* PLAYERS APPEAR ONLY AFTER A TEAM IS SELECTED */}
             {teamId !== 0 && (
               <optgroup label={`${loc.login_select_group}`}>

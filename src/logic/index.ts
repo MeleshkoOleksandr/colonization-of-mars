@@ -56,6 +56,7 @@ export interface Team {
   has_commander: boolean;
   is_archived: boolean;
   current_scenario: string;
+  access_token: string;
 }
 
 export interface GameResult {
@@ -66,6 +67,7 @@ export interface GameResult {
   score: number;
   selections: string[]; // Array of item IDs
   created_at?: Date;
+  access_token: string;
 }
 
 // Global Modal System

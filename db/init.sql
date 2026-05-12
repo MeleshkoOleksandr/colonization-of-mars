@@ -34,12 +34,6 @@ CREATE TABLE results (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 4. Seed Data
--- Add initial teams to the database
-INSERT INTO teams (name) VALUES ('Alfa Centauri');
-INSERT INTO teams (name) VALUES ('Marineris Rangers');
-INSERT INTO teams (name) VALUES ('Olympus Mons');
-
 /**
  * USEFUL QUERIES:
  * 

@@ -29,12 +29,11 @@ import { ModalMode, BUTTON_STYLES } from '../logic';
 
 // --- CONSTANTS FOR ADMIN MODE ---
 const ADMIN_PASSWORD = 'adm'; // Password to prevent players from seeing game results
-const ADMIN_USER = 'admin';
 
 // --- MAIN APPLICATION LOGIC ---
 export default function MarsSurvivalGame() {
   // This constant is a link to file where all the application logic is stored
-  const app = useMarsMission(ADMIN_USER, ADMIN_PASSWORD);
+  const app = useMarsMission(ADMIN_PASSWORD);
   /**
    * VIEW ENGINE
    * Determines which screen to render into the CRTWrapper.
@@ -61,6 +60,7 @@ export default function MarsSurvivalGame() {
         username={app.username}
         setUsername={app.setUsername}
         handleStart={app.handleStart}
+        onAdminLogin={app.openAdminLogin}
       />
     );
   } else if (app.view === 'story') {
@@ -189,6 +189,7 @@ export default function MarsSurvivalGame() {
         handleToggleArchive={app.handleToggleArchive}
         setShowArchivedTeams={app.setShowArchivedTeams}
         showArchivedTeams={app.showArchivedTeams}
+        handleLogout={app.handleLogout}
       />
     );
   }

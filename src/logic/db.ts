@@ -154,3 +154,22 @@ export async function setTeamArchiveStatus(teamId: number, status: boolean) {
 export async function wipeTeamsByStatus(isArchived: boolean) {
   await sql`DELETE FROM teams WHERE is_archived = ${isArchived}`;
 }
+
+
+/**
+ * Select functions based on tokens rather than IDs to ensure access
+ */
+export async function getTeamByToken(token: string) {
+  const result = await sql`SELECT * FROM teams WHERE access_token = ${token} AND is_archived = false`;
+  return result[0] || null;
+}
+
+export async function getPlayerByToken(token: string) {
+  const result = await sql`
+    SELECT r.*, t.is_archived, t.is_unlocked 
+    FROM results r 
+    JOIN teams t ON r.team_id = t.id 
+    WHERE r.access_token = ${token} AND t.is_archived = false
+  `;
+  return result[0] || null;
+}

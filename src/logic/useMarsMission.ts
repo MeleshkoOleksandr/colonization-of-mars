@@ -20,7 +20,7 @@ import {
   updateTeamArchiveStatusAction,
 } from '../app/actions';
 
-export const useMarsMission = (ADMIN_USER: string, ADMIN_PASSWORD: string) => {
+export const useMarsMission = (ADMIN_PASSWORD: string) => {
   //                                                       -----   STATE MANAGEMENT   -----
 
   const [view, setView] = useState<'standby' | 'login' | 'story' | 'game' | 'results' | 'admin' | 'leaderboard' | 'user-detail' | 'discussion-list'>(
@@ -28,6 +28,7 @@ export const useMarsMission = (ADMIN_USER: string, ADMIN_PASSWORD: string) => {
   );
   const [prevView, setPrevView] = useState<'leaderboard' | 'admin' | 'results' | 'discussion-list'>('leaderboard');
   const [isCopied, setIsCopied] = useState(false);
+  const [isSystemAdmin, setIsSystemAdmin] = useState(false);
 
   // Game Content from XML and scenarios
   const [story, setStory] = useState({ title: 'Loading...', plot: '', language: PRIMARY_LANG, photo: 'login_page.png' });
@@ -121,8 +122,14 @@ export const useMarsMission = (ADMIN_USER: string, ADMIN_PASSWORD: string) => {
         if (teamToken) {
           const team = teams.find(t => t.access_token === teamToken && !t.is_archived);
           if (team) {
-            setTeamId(team.id);
-            setView('login');
+            if (team.is_unlocked) {
+              setTeamId(team.id);
+              setView('leaderboard');  
+              setPrevView('leaderboard'); // We set prevView so that the “Back” button doesn't break 
+            } else {
+              setTeamId(team.id);
+              setView('login');
+            }
           } else {
             setView('standby');
           }
@@ -141,7 +148,7 @@ export const useMarsMission = (ADMIN_USER: string, ADMIN_PASSWORD: string) => {
             } else if (!team.is_unlocked) {
               setView('discussion-list'); // played it; let's talk about it
             } else {
-              setView('results'); // Everyone has finished
+              setView('leaderboard'); // Everyone has finished
             }
           } else {
             setView('standby');
@@ -385,7 +392,6 @@ export const useMarsMission = (ADMIN_USER: string, ADMIN_PASSWORD: string) => {
     resultsSnapshotRef.current = allResults;
   }, [allResults]);
 
-
   // Admin login password check
   const openAdminLogin = () => {
     triggerModal('prompt', ModalMode.ADMIN_AUTH, loc.msg_modal_admincode || 'Inserire Codice Autorizzazione');
@@ -408,21 +414,6 @@ export const useMarsMission = (ADMIN_USER: string, ADMIN_PASSWORD: string) => {
   const handleStart = () => {
     if (!username) {
       return triggerModal('alert', ModalMode.IDLE, loc.msg_modal_name);
-    }
-    // ADMIN CHECK
-    if (username.toLowerCase() === ADMIN_USER) {
-      setModal({
-        isOpen: true,
-        type: 'prompt',
-        mode: ModalMode.ADMIN_AUTH,
-        message: loc.msg_modal_admincode,
-        value: '',
-        action: () => {},
-      });
-      return;
-    }
-    if (teamId === 0) {
-      return triggerModal('alert', ModalMode.IDLE, loc.msg_modal_team);
     }
     setView('story');
   };
@@ -541,14 +532,22 @@ export const useMarsMission = (ADMIN_USER: string, ADMIN_PASSWORD: string) => {
   };
 
   const executeAdminAuth = () => {
-    if (modal.value.toLowerCase() === ADMIN_PASSWORD) {
-      // Pass
+    if (modal.value === ADMIN_PASSWORD) {
+      setIsSystemAdmin(true);
+      setUsername(''); // Clearing name var so we won't be considered a player
+      setTeamId(0); // Clearing team
       setModal(prev => ({ ...prev, isOpen: false, value: '' }));
       setView('admin');
     } else {
-      // Wrong password
       triggerModal('alert', ModalMode.IDLE, loc.msg_modal_wrongpass);
     }
+  };
+
+  const handleLogout = () => {
+    setIsSystemAdmin(false);
+    setUsername('');
+    setTeamId(0);
+    setView('login');
   };
 
   // Delete a specific player result
@@ -806,12 +805,13 @@ export const useMarsMission = (ADMIN_USER: string, ADMIN_PASSWORD: string) => {
     discussionResults,
     leaderboardResults,
     currentTeamName: teamsList.find(t => t.id === teamId)?.name || 'Anonimo',
-    isAdmin: username.toLowerCase() === ADMIN_USER.toLowerCase(),
+    isAdmin: isSystemAdmin,
 
     // --- 9. ACTION HANDLERS ---
     handleStart,
     finishGame,
     executeAdminAuth,
+    handleLogout,
     handleDeleteTeam,
     handleAddTeam,
     executeAddTeam,

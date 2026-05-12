@@ -41,6 +41,7 @@ interface AdminViewProps {
   handleWipeEverything: () => void;
   handleDeleteResult: (id: number) => void;
   handleAddSinglePlayer: () => void;
+  handleLogout: () => void;
 
   // UI States
   isRefreshing: boolean;
@@ -102,6 +103,7 @@ export const AdminView = (props: AdminViewProps) => {
     showArchivedTeams,
     setShowArchivedTeams,
     handleToggleArchive,
+    handleLogout,
   } = props;
 
   // ---  UNIVERSAL FILTERING LOGIC ---
@@ -142,7 +144,7 @@ export const AdminView = (props: AdminViewProps) => {
     <>
       <div className="flex justify-between items-center mb-8 border-b-4 border-[#00ff41] pb-2 ">
         <h2 className="text-2xl font-black italic uppercase bg-[#00ff41] text-black px-2 ">{loc.admin_lb_terminal}</h2>
-        <button onClick={() => setView('login')} className="text-xs underline pl-3">
+        <button onClick= {handleLogout}>
           {loc.admin_lb_LOGOUT}
         </button>
       </div>
@@ -284,7 +286,7 @@ export const AdminView = (props: AdminViewProps) => {
                             <button
                               onClick={() => {
                                 const scenario = scenarios.find(s => s.id === t.current_scenario);
-                                const url = `${window.location.origin}?team=${t.id}&lang=${scenario?.language || 'en'}`;
+                                const url = `${window.location.origin}?team_token=${t.access_token}&lang=${scenario?.language || 'en'}`;                          
                                 setShareData({
                                   name: `${t.name}`,
                                   url,
@@ -507,7 +509,7 @@ export const AdminView = (props: AdminViewProps) => {
                               const scenario = scenarios.find(s => s.id === team?.current_scenario);
                               const lang = scenario?.language || PRIMARY_LANG;
                               // To create the link: your current address + player name
-                              const url = `${window.location.origin}?user=${encodeURIComponent(r.username)}&lang=${lang}`;
+                              const url = `${window.location.origin}?player_token=${encodeURIComponent(r.access_token)}&lang=${lang}`;
                               setShareData({ name: r.username, url });
                             }}
                             className={`${isPending ? 'text-amber-500' : 'text-[#00ff41]'} hover:text-white transition-colors p-1`}
