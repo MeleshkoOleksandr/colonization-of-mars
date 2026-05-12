@@ -138,6 +138,11 @@
   "admin_lb_wipe_active": "Svuota Team Attivi",
   "admin_lb_wipe_archive": "Svuota Archivio",
   "msg_confirm_wipe_active": "PERICOLO: Cancellare TUTTE le squadre attive?",
-  "msg_confirm_wipe_archive": "PERICOLO: Cancellare TUTTE le squadre archiviate?"
+  "msg_confirm_wipe_archive": "PERICOLO: Cancellare TUTTE le squadre archiviate?",
+
+  "/* --- StandBy --- */": "",
+  "tooltip_admin_access" : "Accesso Amministratore",
+  "standby_msg" : "> In attesa di Mission Link <",
+  "standby_header" : "Terminale in StandBy"
 
 }

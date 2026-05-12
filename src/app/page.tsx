@@ -8,7 +8,8 @@ import { AnalysisSequence } from '../components/AnalysisSequence';
 import { exportToCSV, downloadQRCode } from '../utils/exportUtils';
 import { useMarsMission } from '../logic/useMarsMission';
 
-import { LoginView } from '../views/LoginView';
+import { StandbyView } from '../views/StandbyView';
+import { LoginView,  } from '../views/LoginView';
 import { GameView } from '../views/GameView';
 import { StoryView } from '../views/StoryView';
 import { ResultsView } from '../views/ResultsView';
@@ -39,6 +40,14 @@ export default function MarsSurvivalGame() {
    * Determines which screen to render into the CRTWrapper.
    */
   let content;
+  if (app.view === "standby") {
+  content = (
+    <StandbyView
+      loc={app.loc}
+      onAdminLogin={app.openAdminLogin}   
+    />
+  );
+}
   if (app.view === 'login') {
     content = (
       <LoginView

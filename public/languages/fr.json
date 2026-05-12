@@ -138,5 +138,10 @@
   "admin_lb_wipe_active": "Effacer les équipes actives",
   "admin_lb_wipe_archive": "Vider les archives",
   "msg_confirm_wipe_active": "DANGER : Supprimer TOUTES les équipes actives ?",
-  "msg_confirm_wipe_archive": "DANGER : Supprimer TOUTES les équipes archivées ?"
+  "msg_confirm_wipe_archive": "DANGER : Supprimer TOUTES les équipes archivées ?",
+
+  "/* --- StandBy --- */": "",
+  "tooltip_admin_access": "Accès administrateur",
+  "standby_msg": "> En attente du lien de mission <",
+  "standby_header": "Terminal en veille"
 }

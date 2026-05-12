@@ -138,5 +138,10 @@
   "admin_lb_wipe_active": "Clear Active Teams",
   "admin_lb_wipe_archive": "Clear Archive",
   "msg_confirm_wipe_active": "DANGER: Delete ALL active teams?",
-  "msg_confirm_wipe_archive": "DANGER: Delete ALL archived teams?"
+  "msg_confirm_wipe_archive": "DANGER: Delete ALL archived teams?",
+
+  "/* --- StandBy --- */": "",
+  "tooltip_admin_access" : "Administrator Login",
+  "standby_msg" : "> Waiting for Mission Link <",
+  "standby_header" : "Terminal StandBy"
 }

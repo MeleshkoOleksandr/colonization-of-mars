@@ -23,7 +23,9 @@ import {
 export const useMarsMission = (ADMIN_USER: string, ADMIN_PASSWORD: string) => {
   //                                                       -----   STATE MANAGEMENT   -----
 
-  const [view, setView] = useState<'login' | 'story' | 'game' | 'results' | 'admin' | 'leaderboard' | 'user-detail' | 'discussion-list'>('login');
+  const [view, setView] = useState<'standby' | 'login' | 'story' | 'game' | 'results' | 'admin' | 'leaderboard' | 'user-detail' | 'discussion-list'>(
+    'login'
+  );
   const [prevView, setPrevView] = useState<'leaderboard' | 'admin' | 'results' | 'discussion-list'>('leaderboard');
   const [isCopied, setIsCopied] = useState(false);
 
@@ -109,23 +111,45 @@ export const useMarsMission = (ADMIN_USER: string, ADMIN_PASSWORD: string) => {
 
         // 2. Processing URL parameters
         const params = new URLSearchParams(window.location.search);
-        const teamFromUrl = params.get('team');
-        const userFromUrl = params.get('user');
-        const langFromUrl = params.get('lang');
+        const teamToken = params.get('team_token');
+        const playerToken = params.get('player_token');
+        const urlLang = params.get('lang');
 
         // Language set
-        if (langFromUrl) {
-          console.log('SYSTEM: Setting language from URL:', langFromUrl);
+        if (urlLang) setCurrentLangId(urlLang);
+        // BRANCH A: Team link
+        if (teamToken) {
+          const team = teams.find(t => t.access_token === teamToken && !t.is_archived);
+          if (team) {
+            setTeamId(team.id);
+            setView('login');
+          } else {
+            setView('standby');
+          }
         }
-        //  Let's set the command
-        if (teamFromUrl) {
-          setTeamId(Number(teamFromUrl));
+        // BRANCH B: Personal link
+        else if (playerToken) {
+          const player = results.find(r => r.access_token === playerToken);
+          const team = teams.find(t => t.id === player?.team_id);
+
+          if (player && team && !team.is_archived) {
+            setTeamId(player.team_id);
+            setUsername(player.username);
+
+            if (player.score === -1) {
+              setView('login'); // haven't played it yet
+            } else if (!team.is_unlocked) {
+              setView('discussion-list'); // played it; let's talk about it
+            } else {
+              setView('results'); // Everyone has finished
+            }
+          } else {
+            setView('standby');
+          }
         }
-        if (userFromUrl) {
-          setUsername(userFromUrl);
-          // Processing URL parameters
-          const player = results.find(r => r.username === userFromUrl && r.score === -1);
-          if (player) setTeamId(player.team_id);
+        // BRANCH C: No parameters
+        else {
+          setView('standby');
         }
 
         console.log('SYSTEM: Ready.');
@@ -360,6 +384,12 @@ export const useMarsMission = (ADMIN_USER: string, ADMIN_PASSWORD: string) => {
   useEffect(() => {
     resultsSnapshotRef.current = allResults;
   }, [allResults]);
+
+
+  // Admin login password check
+  const openAdminLogin = () => {
+    triggerModal('prompt', ModalMode.ADMIN_AUTH, loc.msg_modal_admincode || 'Inserire Codice Autorizzazione');
+  };
 
   //                                                                  -----   LOGIC HANDLERS   -----
 
@@ -713,6 +743,7 @@ export const useMarsMission = (ADMIN_USER: string, ADMIN_PASSWORD: string) => {
     setView,
     prevView,
     setPrevView,
+    openAdminLogin,
 
     // --- 2. USER & SESSION INFO ---
     username,

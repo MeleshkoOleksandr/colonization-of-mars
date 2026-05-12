@@ -138,5 +138,10 @@
   "admin_lb_wipe_active": "Aktive Teams löschen",
   "admin_lb_wipe_archive": "Archiv leeren",
   "msg_confirm_wipe_active": "GEFAHR: ALLE aktiven Teams löschen?",
-  "msg_confirm_wipe_archive": "GEFAHR: ALLE archivierten Teams löschen?"
+  "msg_confirm_wipe_archive": "GEFAHR: ALLE archivierten Teams löschen?",
+
+    "/* --- StandBy --- */": "",
+  "tooltip_admin_access": "Administratorzugang",
+  "standby_msg": "> Warten auf Missionslink <",
+  "standby_header": "Terminal im Standby-Modus"
 }
