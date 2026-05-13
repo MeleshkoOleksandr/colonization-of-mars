@@ -18,7 +18,18 @@ interface LoginViewProps {
   onAdminLogin: () => void;
 }
 
-export const LoginView = ({ loc, allResults, teamsList, scenarios, teamId, setTeamId, username, setUsername, handleStart, onAdminLogin }: LoginViewProps) => {
+export const LoginView = ({
+  loc,
+  allResults,
+  teamsList,
+  scenarios,
+  teamId,
+  setTeamId,
+  username,
+  setUsername,
+  handleStart,
+  onAdminLogin,
+}: LoginViewProps) => {
   // 1. Filter the commands that haven't finished yet and not archived.
   const activeTeams = teamsList.filter(t => !t.is_unlocked && !t.is_archived);
   // 2. Filter players for the SELECTED team who have not yet played (score === -1)
@@ -28,8 +39,11 @@ export const LoginView = ({ loc, allResults, teamsList, scenarios, teamId, setTe
       {/* --- Header --- */}
       <div className="relative">
         <Header title={loc.login_header} />
-        <button onClick={onAdminLogin} className="absolute top-0 right-0 p-2 hover:opacity-50 transition-opacity" title={loc.tooltip_admin_access}>
-          <img src="/img/admin_ico.png" alt="Admin" className="w-8 h-8 md:w-10 md:h-10 border border-[#00ff41]/30" />
+        <button
+          onClick={onAdminLogin}
+          className="absolute top-1 right-0 md:top-0 md:right-2 z-50 hover:opacity-30 transition-opacity"
+          title={loc.tooltip_admin_access}>
+          <img src="/img/admin_ico.png" alt="Admin Access" className="w-6 h-6 md:w-10 md:h-10 border border-[#00ff41]/30 bg-black/50" />
         </button>
       </div>
       {/* --- Image block --- */}

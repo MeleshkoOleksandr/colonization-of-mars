@@ -10,7 +10,7 @@ interface StandbyViewProps {
 
 export const StandbyView = ({ loc, onAdminLogin }: StandbyViewProps) => (
   <div className="relative flex flex-col min-h-full">
-    <button onClick={onAdminLogin} className="absolute right-1 z-50 hover:opacity-30 transition-opacity" title={loc.tooltip_admin_access}>
+    <button onClick={onAdminLogin} className="absolute top-1 -right-1 md:top-0 md:right-2 z-50 hover:opacity-30 transition-opacity" title={loc.tooltip_admin_access}>
       <img src="/img/admin_ico.png" alt="Admin Access" className="w-6 h-6 md:w-10 md:h-10 border border-[#00ff41]/30 bg-black/50" />
     </button>
     <Header title={loc.standby_header} />

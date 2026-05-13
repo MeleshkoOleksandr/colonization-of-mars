@@ -24,11 +24,12 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
   //                                                       -----   STATE MANAGEMENT   -----
 
   const [view, setView] = useState<'standby' | 'login' | 'story' | 'game' | 'results' | 'admin' | 'leaderboard' | 'user-detail' | 'discussion-list'>(
-    'login'
+    'standby'
   );
   const [prevView, setPrevView] = useState<'leaderboard' | 'admin' | 'results' | 'discussion-list'>('leaderboard');
   const [isCopied, setIsCopied] = useState(false);
   const [isSystemAdmin, setIsSystemAdmin] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Game Content from XML and scenarios
   const [story, setStory] = useState({ title: 'Loading...', plot: '', language: PRIMARY_LANG, photo: 'login_page.png' });
@@ -124,8 +125,8 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
           if (team) {
             if (team.is_unlocked) {
               setTeamId(team.id);
-              setView('leaderboard');  
-              setPrevView('leaderboard'); // We set prevView so that the “Back” button doesn't break 
+              setView('leaderboard');
+              setPrevView('leaderboard'); // We set prevView so that the “Back” button doesn't break
             } else {
               setTeamId(team.id);
               setView('login');
@@ -159,8 +160,11 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
           setView('standby');
         }
 
+        setIsInitialized(true);
         console.log('SYSTEM: Ready.');
       } catch (error) {
+        setView("standby");
+        setIsInitialized(true);
         console.error('CRITICAL ERROR:', error);
         triggerModal('alert', ModalMode.IDLE, loc.msg_modal_sinx);
       }
@@ -743,6 +747,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     prevView,
     setPrevView,
     openAdminLogin,
+    isInitialized,
 
     // --- 2. USER & SESSION INFO ---
     username,

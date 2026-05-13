@@ -9,7 +9,7 @@ import { exportToCSV, downloadQRCode } from '../utils/exportUtils';
 import { useMarsMission } from '../logic/useMarsMission';
 
 import { StandbyView } from '../views/StandbyView';
-import { LoginView,  } from '../views/LoginView';
+import { LoginView } from '../views/LoginView';
 import { GameView } from '../views/GameView';
 import { StoryView } from '../views/StoryView';
 import { ResultsView } from '../views/ResultsView';
@@ -39,14 +39,16 @@ export default function MarsSurvivalGame() {
    * Determines which screen to render into the CRTWrapper.
    */
   let content;
-  if (app.view === "standby") {
-  content = (
-    <StandbyView
-      loc={app.loc}
-      onAdminLogin={app.openAdminLogin}   
-    />
-  );
-}
+  if (!app.isInitialized) {
+    //Check if init is passed
+    content = (
+      <div className="flex items-center justify-center py-40 animate-pulse">
+        <span className="text-[#00ff41] text-xs tracking-[0.5em] uppercase">Initializing System...</span>
+      </div>
+    );
+  } else if (app.view === 'standby') {
+    content = <StandbyView loc={app.loc} onAdminLogin={app.openAdminLogin} />;
+  }
   if (app.view === 'login') {
     content = (
       <LoginView
