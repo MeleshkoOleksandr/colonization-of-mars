@@ -536,7 +536,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
   };
 
   const executeAdminAuth = () => {
-    if (modal.value === ADMIN_PASSWORD) {
+    if (modal.value.toLocaleLowerCase() === ADMIN_PASSWORD.toLocaleLowerCase()) {
       setIsSystemAdmin(true);
       setUsername(''); // Clearing name var so we won't be considered a player
       setTeamId(0); // Clearing team
