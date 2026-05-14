@@ -163,7 +163,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
         setIsInitialized(true);
         console.log('SYSTEM: Ready.');
       } catch (error) {
-        setView("standby");
+        setView('standby');
         setIsInitialized(true);
         console.error('CRITICAL ERROR:', error);
         triggerModal('alert', ModalMode.IDLE, loc.msg_modal_sinx);
@@ -285,29 +285,29 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
    * UNIVERSAL DATA FILTERING LOGIC
    * Filters results based on "all", "scen:id", or "team:id"
    */
-  const isAdmin = username.toLowerCase() === 'admin';
 
   const getEffectiveResults = () => {
-    // 1. If it's a regular PLAYER, we always show only their team
-    if (!isAdmin) {
-      return allResults.filter(r => r.team_id === teamId);
-    }
-    // 2. If this is ADMIN, we'll follow your algorithm for strings
-    if (adminTeamFilter === 'all') return allResults;
+    // CHECK: If this is an admin (based on the system flag), use filters
+    if (isSystemAdmin) {
+      if (adminTeamFilter === 'all') return allResults;
 
-    if (adminTeamFilter.startsWith('scen:')) {
-      const targetScenId = adminTeamFilter.split(':')[1];
-      return allResults.filter(r => {
-        const team = teamsList.find(t => t.id === r.team_id);
-        return team?.current_scenario === targetScenId;
-      });
+      if (adminTeamFilter.startsWith('scen:')) {
+        const targetScenId = adminTeamFilter.split(':')[1];
+        return allResults.filter(r => {
+          const team = teamsList.find(t => t.id === r.team_id);
+          return team?.current_scenario === targetScenId;
+        });
+      }
+
+      if (adminTeamFilter.startsWith('team:')) {
+        const targetTeamId = parseInt(adminTeamFilter.split(':')[1]);
+        return allResults.filter(r => r.team_id === targetTeamId);
+      }
+      return allResults;
     }
 
-    if (adminTeamFilter.startsWith('team:')) {
-      const targetTeamId = parseInt(adminTeamFilter.split(':')[1]);
-      return allResults.filter(r => r.team_id === targetTeamId);
-    }
-    return allResults;
+    // If this is a player (not an admin)
+    return allResults.filter(r => r.team_id === teamId);
   };
 
   // 3. We use this function to create lists for each screen:
@@ -347,12 +347,11 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
    */
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    const isAdmin = username.toLowerCase() === 'admin';
 
     // Condition: Only for admins on authorized screens
     const isAllowedView = view === 'admin' || view === 'leaderboard' || view === 'discussion-list';
 
-    if (isAdmin && isAllowedView && isAutoRefresh) {
+    if (isSystemAdmin && isAllowedView && isAutoRefresh) {
       interval = setInterval(async () => {
         if (document.hidden) return;
 

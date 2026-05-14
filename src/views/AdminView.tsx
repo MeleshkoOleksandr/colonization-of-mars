@@ -144,7 +144,7 @@ export const AdminView = (props: AdminViewProps) => {
     <>
       <div className="flex justify-between items-center mb-8 border-b-4 border-[#00ff41] pb-2 ">
         <h2 className="text-2xl font-black italic uppercase bg-[#00ff41] text-black px-2 ">{loc.admin_lb_terminal}</h2>
-        <button onClick= {handleLogout} className="text-xs underline pl-3">
+        <button onClick={handleLogout} className="text-xs underline pl-3">
           {loc.admin_lb_LOGOUT}
         </button>
       </div>
@@ -256,7 +256,10 @@ export const AdminView = (props: AdminViewProps) => {
                         </td>
 
                         {/* Team Name */}
-                        <td className="p-2 font-bold truncate">{t.name}</td>
+                        <td className="p-2 font-bold truncate">
+                          {showArchivedTeams && <span className="opacity-30 mr-1 text-[8px] font-mono">#{t.id}</span>}
+                          {t.name}
+                        </td>
 
                         {/* SCENARIO: Desktop Text, Mobile Left-side Tooltip */}
                         <td className="p-2 opacity-70">
@@ -286,7 +289,7 @@ export const AdminView = (props: AdminViewProps) => {
                             <button
                               onClick={() => {
                                 const scenario = scenarios.find(s => s.id === t.current_scenario);
-                                const url = `${window.location.origin}?team_token=${t.access_token}&lang=${scenario?.language || 'en'}`;                          
+                                const url = `${window.location.origin}?team_token=${t.access_token}&lang=${scenario?.language || 'en'}`;
                                 setShareData({
                                   name: `${t.name}`,
                                   url,
@@ -418,10 +421,11 @@ export const AdminView = (props: AdminViewProps) => {
                         {/* COMMANDS IN THIS SCRIPT */}
                         {teamsList
                           .filter(t => t.current_scenario === scen.id && t.is_archived === showArchivedTeams)
-                          .sort((a, b) => a.id - b.id)
+                          .sort((a, b) => b.id - a.id)
                           .map(t => (
-                            <option key={t.id} value={`team:${t.id}`} className="bg-black text-[#00ff41]">
-                              &nbsp;&nbsp;&nbsp;{t.name}
+                            <option key={t.id} value={`team:${t.id}`} className="bg-black">
+                              &nbsp;&nbsp;&nbsp;{showArchivedTeams ? `[ID:${t.id}] ` : ''}
+                              {t.name}
                             </option>
                           ))}
                       </React.Fragment>
