@@ -37,14 +37,20 @@ The platform follows a specific "Team Synchronization" methodology designed for 
 
 The Command Center provides full control over the training session.
 
-#### Security: Access requires an Authorization Code (Default: `adm` can be changed in `page.tsx`).
+#### Security: Access requires an Authorization Code (Default: `adm` can be changed later in UI).
+*   **Secure Entry**: Access via a hidden terminal icon in the top-right corner of the **Standby** and **Login** screens.
+*   **Authentication**: Uses secure **hashed password** verification with a retro "Eye" toggle for visibility.
+*    **The passwordn** can be changed on the administrator page, and its hash is stored in the database in the table settings
+
 ### 🛠 Management Features:
-*   **Unit Deployment**: Select a scenario (Mars, Moon, etc.) and mass-enroll players by pasting names (one per line).
 *   **Access Control**: Generate **Unit QR Codes** (for the whole team) or **Individual QR Codes** (for specific players). Links automatically set the correct language and pre-select names.
+*   **Unit Management**: 
+    *   **Bulk Enrollment**: Register whole teams by pasting names (one per line).
+    *   **Archive System**: Move old teams to an **Archive View**.
 *   **Live Monitoring**: A real-time dashboard with **Audio Cues** (soft beep) and **Auto-Sync** alerts you when players finish their tasks.
-*   **Data Export**: Download professional **CSV Mission Reports** compatible with Excel for post-training analysis.
 *   **Access Overrides**: Manually toggle "Unlock Results" or "Commander Status" for any team.
-*   **System Wipe**: Quickly reset the entire database or specific team records for new training sessions.
+*   **System Wipe**: Quickly reset all active teams or specific team records for new training sessions.
+*   **Data Export**: Download **CSV Mission Reports** compatible with Excel for post-training analysis.
 
 ---
 
@@ -69,13 +75,15 @@ npm install bcryptjs
 npm install -D @types/bcryptjs
 ```
 ### 3. Connect Database (Postgres)
-The project is optimized for Vercel Postgres (or any Postgres instance).
+
+The platform is optimized for **Vercel Postgres (Neon)**. To ensure data isolation, it uses a dedicated **Database Schema**.
+
+*  **Initialize Tables**: Run the script in `/db/init.sql`. This creates the `mars_mission` schema and all required tables (`teams`, `results`, `settings`).
 * Create a .env.local file in the root directory.
 * Add your connection string:
 ```env
 POSTGRES_URL="your_postgres_connection_string_here"
 ```
-* Initialize the database schema using the script found in /db/init.sql.
 
 ### 4. Run locally
 In the terminal window, type the following command
@@ -150,7 +158,7 @@ Each survival scenario defines its own language within the XML tag <Language>.
 
 ### 🖼 UI Layers
 *   **`src/views/`** — **Screens**: Full-screen components for each game state:
-    *   `LoginView`, `StoryView`, `GameView`, `AdminView`, `LeaderboardView`, `DiscussionListView`, `UserDetailView`.
+    *   `StandBy`,`LoginView`, `StoryView`, `GameView`, `AdminView`, `LeaderboardView`, `DiscussionListView`, `UserDetailView`.
 *   **`src/components/`** — **Modules**: Reusable UI elements styled with the retro-CRT aesthetic:
     *   `RetroModal`: Universal dialog system for alerts, confirms, and prompts.
     *   `QRModal`: Dynamic generator for player access codes and high-res PNG downloads.
@@ -172,22 +180,13 @@ Each survival scenario defines its own language within the XML tag <Language>.
 
 ## 🛠 Tech Stack & Libraries
 
-This project leverages modern web technologies to ensure a smooth and reactive experience:
-
-*   **[React](https://reactjs.org/) & [TypeScript](https://www.typescriptlang.org/)**: Core UI logic and type safety.
-*   **[Tailwind CSS v4](https://tailwindcss.com/)**: Custom CRT scanline effects and responsive layout.
-*   **[Framer Motion](https://www.framer.com/motion/)**: Smooth, touch-friendly **Drag & Drop** sorting.
-*   **[Lucide React](https://lucide.dev/)**: Lightweight retro-style UI icons.
-*   **[QR Engine](https://github.com/zpao/qrcode.react)**: Canvas implementation for easy downloads.
-
----
-
-## 🏁 Prerequisites
-
-Before you begin, ensure you have the following installed on your machine:
-*   **[Node.js (LTS)](https://nodejs.org/)** (Version 20 or higher).
-*   **[Visual Studio Code](https://code.visualstudio.com/)** (Recommended editor).
-*   **Database:** [Vercel](https://vercel.com/) Postgres / Neon Serverless
+*   **Framework**: [Next.js 15+](https://nextjs.org/) (App Router)
+*   **Database**: [Vercel Postgres](https://vercel.com/docs/storage/vercel-postgres) / Neon (Serverless SQL)
+*   **Security**: [bcryptjs](https://www.npmjs.com/package/bcryptjs) (Password hashing)
+*   **Animations**: [Framer Motion](https://www.framer.com/motion/) (CRT effects & transitions)
+*   **Icons**: [Lucide React](https://lucide.dev/) (Retro UI iconography)
+*   **QR Engine**: [qrcode.react](https://www.npmjs.com/package/qrcode.react) (Canvas-based high-res generation)
+*   **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
 
 ---
 
