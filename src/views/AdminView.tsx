@@ -267,8 +267,19 @@ export const AdminView = (props: AdminViewProps) => {
 
                         {/* Team Name */}
                         <td className="p-2 font-bold truncate">
-                          {showArchivedTeams && <span className="opacity-30 mr-1 text-[8px] font-mono">#{t.id}</span>}
                           {t.name}
+                          {/* Add the date in square brackets only for the Archive  */}
+                          {showArchivedTeams && t.created_at && (
+                            <span className="opacity-40 ml-2 text-[8px] font-mono whitespace-nowrap">
+                              [
+                              {new Date(t.created_at).toLocaleDateString('it-IT', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: '2-digit',
+                              })}
+                              ]
+                            </span>
+                          )}
                         </td>
 
                         {/* SCENARIO: Desktop Text, Mobile Left-side Tooltip */}
@@ -432,12 +443,17 @@ export const AdminView = (props: AdminViewProps) => {
                         {teamsList
                           .filter(t => t.current_scenario === scen.id && t.is_archived === showArchivedTeams)
                           .sort((a, b) => b.id - a.id)
-                          .map(t => (
-                            <option key={t.id} value={`team:${t.id}`} className="bg-black">
-                              &nbsp;&nbsp;&nbsp;{showArchivedTeams ? `[ID:${t.id}] ` : ''}
-                              {t.name}
-                            </option>
-                          ))}
+                          .map(t => {
+                            const dateLabel = t.created_at
+                              ? ` [${new Date(t.created_at).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' }).replace(/\//g, '/')}]`
+                              : '';
+                            return (
+                              <option key={t.id} value={`team:${t.id}`} className="bg-black">
+                                &nbsp;&nbsp;&nbsp;{t.name}
+                                {showArchivedTeams ? dateLabel : ''}
+                              </option>
+                            );
+                          })}
                       </React.Fragment>
                     ))}
                 </select>

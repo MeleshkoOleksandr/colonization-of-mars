@@ -56,6 +56,7 @@ export interface Team {
   has_commander: boolean;
   is_archived: boolean;
   current_scenario: string;
+  created_at?: string;
   access_token: string;
 }
 

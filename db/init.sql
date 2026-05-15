@@ -49,6 +49,3 @@ CREATE TABLE mars_mission.settings (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL
 );
-
--- Add the initial language setting (optional)
-INSERT INTO mars_mission.settings (key, value) VALUES ('system_language', 'it');
