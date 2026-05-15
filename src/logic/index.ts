@@ -72,6 +72,7 @@ export interface GameResult {
 
 // Global Modal System
 export type ModalType = 'alert' | 'confirm' | 'prompt' | 'prompt-area';
+
 export enum ModalMode {
   IDLE = 'IDLE',
   ADMIN_AUTH = 'ADMIN_AUTH',

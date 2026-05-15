@@ -212,6 +212,7 @@ export default function MarsSurvivalGame() {
       <RetroModal
         isOpen={app.modal.isOpen}
         type={app.modal.type}
+        mode={app.modal.mode} 
         message={app.modal.message}
         value={app.modal.value}
         onClose={() => app.setModal(prev => ({ ...prev, isOpen: false, mode: ModalMode.IDLE }))}

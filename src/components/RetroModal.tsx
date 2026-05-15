@@ -1,7 +1,8 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ModalType, Localization } from '../logic';
+import { ModalType, Localization, ModalMode } from '../logic';
+import { Eye, EyeOff } from 'lucide-react';
 
 /**
  * Universal Modal UI used for Alerts, Confirms, and Admin Prompts.
@@ -12,6 +13,7 @@ import { ModalType, Localization } from '../logic';
 interface RetroModalProps {
   isOpen: boolean;
   type: ModalType;
+  mode: ModalMode; 
   message: string;
   value?: string;
   onClose: () => void;
@@ -20,7 +22,14 @@ interface RetroModalProps {
   loc: Localization;
 }
 
-export const RetroModal = ({ isOpen, type, message, value, onClose, onConfirm, onChange, loc }: RetroModalProps) => {
+export const RetroModal = ({ isOpen, type, mode, message, value, onClose, onConfirm, onChange, loc }: RetroModalProps) => {
+  // For password hide
+  const [showPassword, setShowPassword] = React.useState(false);
+  // Reset visibility when modal closes
+  React.useEffect(() => {
+    if (!isOpen) setShowPassword(false);
+  }, [isOpen]);
+
   // We specify that the arguments conform to the interface
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -36,6 +45,7 @@ export const RetroModal = ({ isOpen, type, message, value, onClose, onConfirm, o
   }, [isOpen, onConfirm, onClose, type]);
 
   if (!isOpen) return null;
+  const isPasswordField = mode === ModalMode.ADMIN_AUTH || (message && message.toLowerCase().includes("password"));
 
   return (
     <div className="fixed inset-0 z-300 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
@@ -56,22 +66,40 @@ export const RetroModal = ({ isOpen, type, message, value, onClose, onConfirm, o
 
         <p className="text-[#00ff41] mb-6 uppercase text-sm leading-relaxed tracking-wide">{message}</p>
 
-        {type === 'prompt-area' ? (
-          <textarea
-            autoFocus
-            className="w-full h-40 bg-[#001100] border-2 border-[#00ff41] p-2 text-[#00ff41] outline-none mb-6 focus:bg-[#003300] uppercase font-mono text-xs"
-            value={value}
-            onChange={e => onChange?.(e.target.value)}
-          />
-        ) : type === 'prompt' ? (
-          <input
-            autoFocus
-            className="w-full bg-[#001100] border-2 border-[#00ff41] p-2 text-[#00ff41] outline-none mb-6 focus:bg-[#003300] uppercase font-mono"
-            value={value}
-            onChange={e => onChange?.(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && onConfirm()}
-          />
-        ) : null}
+        <div className="w-full">
+          {/* 1. TEXTAREA logic (prompt-area) - Stays exactly as it was */}
+          {type === 'prompt-area' ? (
+            <textarea
+              autoFocus
+              className="w-full h-40 bg-[#001100] border-2 border-[#00ff41] p-2 text-[#00ff41] outline-none mb-6 focus:bg-[#003300] uppercase font-mono text-xs"
+              value={value}
+              onChange={e => onChange?.(e.target.value)}
+            />
+          ) : type === 'prompt' ? (
+            /* 2. INPUT logic (prompt) - Wrapped in a relative div for the eye icon */
+            <div className="relative w-full mb-6">
+              <input
+                autoFocus
+                // Switch type between "password" (dots) and "text" (visible)
+                type={isPasswordField && !showPassword ? 'password' : 'text'}
+                className="w-full bg-[#001100] border-2 border-[#00ff41] p-2 pr-10 text-[#00ff41] outline-none focus:bg-[#003300] uppercase font-mono"
+                value={value}
+                onChange={e => onChange?.(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && onConfirm()}
+              />
+
+              {/* Show the Eye icon ONLY if it's a password field */}
+              {isPasswordField && (
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[#00ff41]/40 hover:text-[#00ff41] transition-colors">
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              )}
+            </div>
+          ) : null}
+        </div>
 
         <div className="flex justify-end gap-4">
           {type !== 'alert' && (
