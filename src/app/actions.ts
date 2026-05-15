@@ -1,5 +1,6 @@
 "use server";
 
+import bcrypt from 'bcryptjs';
 import * as db from "../logic/db";
 import { revalidatePath } from "next/cache";
 
@@ -152,4 +153,29 @@ export async function wipeTeamsByStatusAction(isArchived: boolean) {
 export async function updateTeamArchiveStatusAction(teamId: number, status: boolean) {
   await db.setTeamArchiveStatus(teamId, status);
   revalidatePath("/");
+}
+
+/**
+ * Verifies the admin password. 
+ * Checks DB hash first, falls back to constant if DB is empty.
+ */
+export async function verifyAdminPasswordAction(input: string, fallback: string) {
+  const storedHash = await db.getSetting('admin_password');
+  
+  if (!storedHash) {
+    // If no password in DB yet, check against the hardcoded constant
+    return input === fallback;
+  }
+  // Compare input with stored hash
+  return await bcrypt.compare(input, storedHash);
+}
+
+/**
+ * Hashes and saves a new admin password to the DB.
+ */
+export async function updateAdminPasswordAction(newPassword: string) {
+  const salt = await bcrypt.genSalt(10);
+  const hash = await bcrypt.hash(newPassword, salt);
+  await db.updateSetting('admin_password', hash);
+  revalidatePath('/');
 }

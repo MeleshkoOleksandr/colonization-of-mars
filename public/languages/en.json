@@ -143,5 +143,11 @@
   "/* --- StandBy --- */": "",
   "tooltip_admin_access" : "Administrator Login",
   "standby_msg" : "> Waiting for Mission Link <",
-  "standby_header" : "Terminal StandBy"
+  "standby_header" : "Terminal StandBy",
+
+   "/* --- Password change --- */": "",
+  "admin_btn_change_pass": "Change Admin Password",
+  "admin_msg_newpass_req": "Enter new administrator password:",
+  "admin_msg_pass_updated": "SUCCESS: Password updated correctly in the database.",
+  "admin_msg_pass_short": "ERROR: Password too short (minimum 3 characters)."
 }

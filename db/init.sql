@@ -1,5 +1,5 @@
 /**
- * MARS SURVIVAL DATABASE INITIALIZATION
+ * SPACE SURVIVAL DATABASE INITIALIZATION
  * Run this script in your Vercel Storage Query or local Postgres tool.
  */
 
@@ -43,3 +43,12 @@ CREATE TABLE mars_mission.results (
   
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- 4. Creating a settings table
+CREATE TABLE mars_mission.settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+);
+
+-- Add the initial language setting (optional)
+INSERT INTO mars_mission.settings (key, value) VALUES ('system_language', 'it');

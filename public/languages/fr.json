@@ -143,5 +143,11 @@
   "/* --- StandBy --- */": "",
   "tooltip_admin_access": "Accès administrateur",
   "standby_msg": "> En attente du lien de mission <",
-  "standby_header": "Terminal en veille"
+  "standby_header": "Terminal en veille",
+
+  "/* --- Password change --- */": "",
+  "admin_btn_change_pass": "Modifier le mot de passe administrateur",
+  "admin_msg_newpass_req": "Saisissez le nouveau mot de passe administrateur :",
+  "admin_msg_pass_updated": "SUCCÈS : Mot de passe correctement mis à jour dans la base de données.",
+  "admin_msg_pass_short": "ERREUR : Mot de passe trop court (minimum 3 caractères)."
 }

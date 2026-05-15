@@ -140,8 +140,14 @@
   "msg_confirm_wipe_active": "GEFAHR: ALLE aktiven Teams löschen?",
   "msg_confirm_wipe_archive": "GEFAHR: ALLE archivierten Teams löschen?",
 
-    "/* --- StandBy --- */": "",
+  "/* --- StandBy --- */": "",
   "tooltip_admin_access": "Administratorzugang",
   "standby_msg": "> Warten auf Missionslink <",
-  "standby_header": "Terminal im Standby-Modus"
+  "standby_header": "Terminal im Standby-Modus",
+
+  "/* --- Password change --- */": "",
+  "admin_btn_change_pass": "Administrator-Passwort ändern",
+  "admin_msg_newpass_req": "Neues Administrator-Passwort eingeben:",
+  "admin_msg_pass_updated": "ERFOLG: Passwort erfolgreich in der Datenbank aktualisiert.",
+  "admin_msg_pass_short": "FEHLER: Passwort zu kurz (mindestens 3 Zeichen)."
 }

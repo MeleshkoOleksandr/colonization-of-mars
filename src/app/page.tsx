@@ -192,6 +192,7 @@ export default function MarsSurvivalGame() {
         setShowArchivedTeams={app.setShowArchivedTeams}
         showArchivedTeams={app.showArchivedTeams}
         handleLogout={app.handleLogout}
+        handlePasswordChangeRequest={app.handlePasswordChangeRequest}
       />
     );
   }
@@ -212,7 +213,7 @@ export default function MarsSurvivalGame() {
       <RetroModal
         isOpen={app.modal.isOpen}
         type={app.modal.type}
-        mode={app.modal.mode} 
+        mode={app.modal.mode}
         message={app.modal.message}
         value={app.modal.value}
         onClose={() => app.setModal(prev => ({ ...prev, isOpen: false, mode: ModalMode.IDLE }))}
@@ -226,6 +227,9 @@ export default function MarsSurvivalGame() {
               break;
             case ModalMode.ADD_PLAYER:
               app.executeAddSinglePlayer();
+              break;
+            case ModalMode.CHANGE_PASSWORD:
+              app.executePasswordChange();
               break;
             default: // For all other alerts and confirmations
               app.modal.action(); // It simply closes the window or performs a simple action

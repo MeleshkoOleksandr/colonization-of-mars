@@ -172,3 +172,22 @@ export async function getPlayerByToken(token: string) {
   `;
   return result[0] || null;
 }
+
+/**
+ * Gets a system setting by key.
+ */
+export async function getSetting(key: string): Promise<string | null> {
+  const result = await sql`SELECT value FROM mars_mission.settings WHERE key = ${key}`;
+  return result[0]?.value || null;
+}
+
+/**
+ * Updates or creates a system setting.
+ */
+export async function updateSetting(key: string, value: string) {
+  await sql`
+    INSERT INTO mars_mission.settings (key, value)
+    VALUES (${key}, ${value})
+    ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+  `;
+}

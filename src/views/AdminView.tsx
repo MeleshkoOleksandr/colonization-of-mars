@@ -42,6 +42,7 @@ interface AdminViewProps {
   handleDeleteResult: (id: number) => void;
   handleAddSinglePlayer: () => void;
   handleLogout: () => void;
+  handlePasswordChangeRequest: () => void;
 
   // UI States
   isRefreshing: boolean;
@@ -104,6 +105,7 @@ export const AdminView = (props: AdminViewProps) => {
     setShowArchivedTeams,
     handleToggleArchive,
     handleLogout,
+    handlePasswordChangeRequest,
   } = props;
 
   // ---  UNIVERSAL FILTERING LOGIC ---
@@ -172,6 +174,14 @@ export const AdminView = (props: AdminViewProps) => {
               ))
             )}
           </select>
+
+          {/* CHANGE PASSWORD BUTTON */}
+          <button
+            onClick={props.handlePasswordChangeRequest}
+            className="flex items-center justify-center gap-2 border border-amber-500/50 text-amber-500 py-2 text-[10px] font-black uppercase hover:bg-amber-500 hover:text-black transition-all">
+            <LockOpen size={14} />
+            {loc.admin_btn_change_pass || 'Change Admin Password'}
+          </button>
         </div>
       </div>
 

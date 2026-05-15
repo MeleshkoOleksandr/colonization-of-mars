@@ -18,6 +18,8 @@ import {
   addSinglePlayerAction,
   wipeTeamsByStatusAction,
   updateTeamArchiveStatusAction,
+  verifyAdminPasswordAction,
+  updateAdminPasswordAction,
 } from '../app/actions';
 
 export const useMarsMission = (ADMIN_PASSWORD: string) => {
@@ -534,16 +536,42 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     }
   };
 
-  const executeAdminAuth = () => {
-    if (modal.value.toLocaleLowerCase() === ADMIN_PASSWORD.toLocaleLowerCase()) {
+  /**
+   * Operation for the admin authorization.
+   * 1. Login as administrator.
+   */
+  const executeAdminAuth = async () => {
+    // Use only lower case to reduse error on Mobile
+    const passInput = modal.value.toLocaleLowerCase();
+    // Initiating a server check
+    const isCorrect = await verifyAdminPasswordAction(passInput, ADMIN_PASSWORD);
+
+    if (isCorrect) {
       setIsSystemAdmin(true);
-      setUsername(''); // Clearing name var so we won't be considered a player
-      setTeamId(0); // Clearing team
       setModal(prev => ({ ...prev, isOpen: false, value: '' }));
       setView('admin');
     } else {
       triggerModal('alert', ModalMode.IDLE, loc.msg_modal_wrongpass);
     }
+  };
+
+  // 2. Function to open the password change window
+  const handlePasswordChangeRequest = () => {
+    triggerModal('prompt', ModalMode.CHANGE_PASSWORD, loc.admin_msg_newpass_req || 'Inserire nuova Password Amministratore:');
+  };
+
+  // 3. Save New Password Function
+  const executePasswordChange = async () => {
+    // Use only lower case to reduse error on Mobile
+    const passInput = modal.value.toLocaleLowerCase();
+
+    if (passInput.trim().length < 3) {
+      return triggerModal('alert', ModalMode.IDLE, 'Password troppo corta (min 3 caratteri)');
+    }
+
+    await updateAdminPasswordAction(passInput);
+    setModal(prev => ({ ...prev, isOpen: false, value: '' }));
+    triggerModal('alert', ModalMode.IDLE, loc.admin_msg_pass_updated || 'Password aggiornata con successo.');
   };
 
   const handleLogout = () => {
@@ -804,6 +832,8 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     setAdminTeamFilter,
     selectedScenarioForNewTeam,
     setSelectedScenarioForNewTeam,
+    handlePasswordChangeRequest,
+    executePasswordChange, 
 
     // --- 8. COMPUTED / DERIVED DATA (Calculated on the fly) ---
     discussionResults,

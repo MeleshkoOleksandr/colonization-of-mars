@@ -143,6 +143,11 @@
   "/* --- StandBy --- */": "",
   "tooltip_admin_access" : "Accesso Amministratore",
   "standby_msg" : "> In attesa di Mission Link <",
-  "standby_header" : "Terminale in StandBy"
+  "standby_header" : "Terminale in StandBy",
 
+  "/* --- Password change --- */": "",
+  "admin_btn_change_pass": "Modifica Password Amministratore",
+  "admin_msg_newpass_req": "Inserire la nuova password amministratore:",
+  "admin_msg_pass_updated": "SUCCESSO: Password aggiornata correttamente nel database.",
+  "admin_msg_pass_short": "ERRORE: Password troppo corta (minimo 3 caratteri)."
 }
