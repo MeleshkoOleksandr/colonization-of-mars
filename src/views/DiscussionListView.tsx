@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { ArrowLeft, RefreshCcw, ChevronRight, MessageSquare } from 'lucide-react';
+import { ArrowLeft, RefreshCcw, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { GameResult, Team, Localization, ModalMode } from '../logic';
 
@@ -196,26 +196,48 @@ export const DiscussionListView = ({
         })}
       </div>
 
-      {/* --- BOTTOM BUTTON PANEL  --- */}
-      <div className="flex flex-col gap-4">
+      {/* --- BOTTOM BUTTON PANEL --- */}
+      <div className="flex flex-col gap-4 mt-8">
+        {/* CONDITION 1: Logic for the ADMIN or COMMANDER */}
         {isAdmin || isCommander ? (
-          <button onClick={handleUnlockResults} className={BUTTON_STYLES}>
-            {loc.btn_unblock}
-          </button>
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={handleUnlockResults}
+              className="w-full bg-[#00ff41] text-black py-3 font-black uppercase text-lg hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,255,65,0.4)]">
+              {loc.btn_unblock}
+            </button>
+
+            {/* “Go to Results” button (For ADMIN only) */}
+            {isAdmin && (
+              <button
+                onClick={() => {
+                  setPrevView('admin'); // To return to the admin panel from the Leaderboard
+                  setView('leaderboard');
+                }}
+                className="w-full bg-[#00ff41] text-black py-3 font-black uppercase text-lg hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,255,65,0.4)] flex items-center justify-center gap-2">
+                <Info size={20} />
+                {loc.admin_btn_results}
+              </button>
+            )}
+          </div>
         ) : (
+          /* CONDITION 2: Logic for REGULAR PLAYERS (two buttons in a row) */
           <div className="flex flex-col md:flex-row gap-4 w-full">
             <button
-              onClick={async () =>
-                (await checkTeamStatusAction(teamId)) ? setView('results') : triggerModal('alert', ModalMode.IDLE, loc.msg_modal_nocommandr)
-              }
-              className="w-full flex-1 border-2 border-[#00ff41] text-[#00ff41] py-4 font-black uppercase text-sm">
+              onClick={async () => {
+                const unlocked = await checkTeamStatusAction(teamId);
+                if (unlocked) setView('results');
+                else triggerModal('alert', ModalMode.IDLE, loc.msg_modal_nocommandr);
+              }}
+              className="w-full flex-1 border-2 border-[#00ff41] text-[#00ff41] py-4 font-black uppercase text-sm hover:bg-[#00ff41] hover:text-black transition-all">
               {loc.btn_request}
             </button>
 
+            {/* COMMANDER button (displayed if there is no commander on the team yet) */}
             {!teamsList.find(t => t.id === teamId)?.has_commander && (
               <button
                 onClick={handleBecomeCommander}
-                className="w-full flex-1 border-2 border-amber-500 text-amber-500 py-4 font-black uppercase text-sm">
+                className="w-full flex-1 border-2 border-amber-500 text-amber-500 py-4 font-black uppercase text-sm hover:bg-amber-500 hover:text-black transition-all">
                 {loc.btn_commander}
               </button>
             )}
