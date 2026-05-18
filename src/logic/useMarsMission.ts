@@ -283,59 +283,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     loadDictionary();
   }, [currentLangId]);
 
-  /**
-   * UNIVERSAL DATA FILTERING LOGIC
-   * Filters results based on "all", "scen:id", or "team:id"
-   */
-
-  const getEffectiveResults = () => {
-    // CHECK: If this is an admin (based on the system flag), use filters
-    if (isSystemAdmin) {
-      if (adminTeamFilter === 'all') return allResults;
-
-      if (adminTeamFilter.startsWith('scen:')) {
-        const targetScenId = adminTeamFilter.split(':')[1];
-        return allResults.filter(r => {
-          const team = teamsList.find(t => t.id === r.team_id);
-          return team?.current_scenario === targetScenId;
-        });
-      }
-
-      if (adminTeamFilter.startsWith('team:')) {
-        const targetTeamId = parseInt(adminTeamFilter.split(':')[1]);
-        return allResults.filter(r => r.team_id === targetTeamId);
-      }
-      return allResults;
-    }
-
-    // If this is a player (not an admin)
-    return allResults.filter(r => r.team_id === teamId);
-  };
-
-  // 3. We use this function to create lists for each screen:
-  // For the main admin table (sorted by date)
-  const displayedResults = getEffectiveResults().sort((a, b) => {
-    const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
-    const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
-    return dateB - dateA;
-  });
-
-  // For the discussion list (sorted by Commander -> Name)
-  const discussionResults = getEffectiveResults().sort((a, b) => {
-    if (a.username === 'Commander') return -1;
-    if (b.username === 'Commander') return 1;
-    return a.username.localeCompare(b.username);
-  });
-
-  // For the leaderboard
-  const leaderboardResults = getEffectiveResults().sort((a, b) => {
-    // 1. If one player has finished and the other hasn't, the one who has finished always ranks higher
-    if (a.score === -1 && b.score !== -1) return 1;
-    if (a.score !== -1 && b.score === -1) return -1;
-    // 2. If both are finished, sort them from best to worst (lower = better)
-    return a.score - b.score;
-  });
-
+  
   // Audio playback function
   const playBeep = () => {
     const audio = new Audio('/sounds/soft_beep.wav');
@@ -766,6 +714,65 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     setAdminTeamFilter('all');
   }, [showArchivedTeams]);
 
+  /**
+   * UNIVERSAL DATA FILTERING LOGIC
+   * Unified logic to filter results for Admin, Leaderboard, and Discussion.
+   */
+  const getEffectiveResults = () => {
+    // 1. Logic for regular PLAYERS (always see only their own team)
+    if (!isSystemAdmin) {
+      return allResults.filter(r => r.team_id === teamId);
+    }
+    // 2. Logic for ADMIN (Must respect both Archive toggle AND dropdown filter)
+    return allResults.filter(r => {
+      // Find the team this result belongs to
+      const team = teamsList.find(t => t.id === r.team_id);
+      // Safety check: if team doesn't exist, hide result
+      if (!team) return false;
+      // This must match the current toggle state (Active Units vs Archive View)
+      if (team.is_archived !== showArchivedTeams) return false;
+
+      // --- SUB-FILTER: DROPDOWN SELECTION ---
+      if (adminTeamFilter === 'all') return true;
+
+      if (adminTeamFilter.startsWith('scen:')) {
+        const targetScenId = adminTeamFilter.split(':')[1];
+        return team.current_scenario === targetScenId;
+      }
+
+      if (adminTeamFilter.startsWith('team:')) {
+        const targetTeamId = parseInt(adminTeamFilter.split(':')[1]);
+        return team.id === targetTeamId;
+      }
+
+      return true;
+    });
+  };
+
+  // 3. We use this function to create lists for each screen:
+  // For the main admin table (sorted by date)
+  const displayedResults = getEffectiveResults().sort((a, b) => {
+    const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+    return dateB - dateA;
+  });
+
+  // For the discussion list (sorted by Commander -> Name)
+  const discussionResults = getEffectiveResults().sort((a, b) => {
+    if (a.username === 'Commander') return -1;
+    if (b.username === 'Commander') return 1;
+    return a.username.localeCompare(b.username);
+  });
+
+  // For the leaderboard
+  const leaderboardResults = getEffectiveResults().sort((a, b) => {
+    // 1. If one player has finished and the other hasn't, the one who has finished always ranks higher
+    if (a.score === -1 && b.score !== -1) return 1;
+    if (a.score !== -1 && b.score === -1) return -1;
+    // 2. If both are finished, sort them from best to worst (lower = better)
+    return a.score - b.score;
+  });
+
   //                                                                --- FINAL RETURN ---
   return {
     // --- 1. NAVIGATION & ROUTING ---
@@ -833,7 +840,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     selectedScenarioForNewTeam,
     setSelectedScenarioForNewTeam,
     handlePasswordChangeRequest,
-    executePasswordChange, 
+    executePasswordChange,
 
     // --- 8. COMPUTED / DERIVED DATA (Calculated on the fly) ---
     discussionResults,
