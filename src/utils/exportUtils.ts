@@ -89,7 +89,17 @@ export const downloadQRCode = (name: string, loc: Localization) => {
   // 5. Drow the QR code
   ctx.fillStyle = '#00ff41';
   ctx.fillRect(padding - 10, headerSpace - 10, qrSize + 20, qrSize + 20);
-  ctx.drawImage(qrCanvas, padding, headerSpace);
+  ctx.drawImage(
+    qrCanvas,
+    0,
+    0,
+    qrCanvas.width,
+    qrCanvas.height,
+    padding,
+    headerSpace,
+    qrSize,
+    qrSize
+  );
 
   // 6. Saving
   const pngUrl = canvas.toDataURL('image/png');
