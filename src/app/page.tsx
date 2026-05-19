@@ -103,6 +103,12 @@ export default function MarsSurvivalGame() {
         checkTeamStatusAction={checkTeamStatusAction}
         handleBecomeCommander={app.handleBecomeCommander}
         BUTTON_STYLES={BUTTON_STYLES}
+        timerSeconds={app.timerSeconds}
+        setTimerSeconds={app.setTimerSeconds}
+        timeLeft={app.timeLeft}
+        isTimerRunning={app.isTimerRunning}
+        startTimer={app.startTimer}
+        stopTimer={app.stopTimer}
       />
     );
   } else if (app.view === 'results') {

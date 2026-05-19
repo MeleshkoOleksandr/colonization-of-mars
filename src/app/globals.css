@@ -86,3 +86,22 @@ input[type="checkbox"].border-amber-500:checked::after {
 [title] {
   cursor: help;
 }
+
+/* Hide the default arrows for Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide the arrows in Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* Let's make it so that when the focus is on the input, there's no blue border, but instead our own glow */
+input:focus {
+  outline: none;
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+}

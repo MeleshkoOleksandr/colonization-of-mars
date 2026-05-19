@@ -69,6 +69,11 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
   // Computed helper
   const currentTeamName = teamsList.find(t => t.id === teamId)?.name || 'NASA';
 
+  // Variables for timer implementation
+  const [timerSeconds, setTimerSeconds] = useState<number>(600); // Value in the input (default: 60 seconds)
+  const [timeLeft, setTimeLeft] = useState<number | null>(null); // Current count
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+
   // Auto Refresh timer component:
   const [isAutoRefresh, setIsAutoRefresh] = useState(false);
   const resultsSnapshotRef = useRef<GameResult[]>([]);
@@ -347,6 +352,35 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
   // Admin login password check
   const openAdminLogin = () => {
     triggerModal('prompt', ModalMode.ADMIN_AUTH, loc.msg_modal_admincode || 'Inserire Codice Autorizzazione');
+  };
+
+  // Timer logic
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    if (isTimerRunning && timeLeft !== null && timeLeft > 0) {
+      interval = setInterval(() => {
+        setTimeLeft(prev => (prev !== null ? prev - 1 : null));
+      }, 1000);
+    } else if (timeLeft === 0) {
+      // timer ends
+      playBeep(); // Your current audio
+      setIsTimerRunning(false);
+      setTimeLeft(null);
+    }
+
+    return () => clearInterval(interval);
+  }, [isTimerRunning, timeLeft]);
+
+  const startTimer = () => {
+    setTimeLeft(timerSeconds);
+    setIsAutoRefresh(false); // Disable automatic database updates so as not to interfere
+    setIsTimerRunning(true);
+  };
+
+  const stopTimer = () => {
+    setIsTimerRunning(false);
+    setTimeLeft(null);
   };
 
   //                                                                  -----   LOGIC HANDLERS   -----
@@ -876,5 +910,13 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     selectedUserDetail,
     showArchivedTeams,
     setShowArchivedTeams,
+
+    // --- Timer ---
+    timerSeconds,
+    setTimerSeconds,
+    timeLeft,
+    isTimerRunning,
+    startTimer,
+    stopTimer,
   };
 };
