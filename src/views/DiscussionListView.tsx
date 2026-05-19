@@ -132,7 +132,7 @@ export const DiscussionListView = ({
             {/* A very wide, translucent band across the entire screen */}
             <div className="w-full bg-[#00ff41]/5 border-y-2 border-[#00ff41]/20 backdrop-blur-md py-12 flex flex-col items-center justify-center shadow-[0_0_100px_rgba(0,0,0,0.9)]">
               <div className="text-[#00ff41] font-black uppercase tracking-[0.8em] text-[10px] md:text-sm mb-4 animate-pulse opacity-70">
-                 — {loc.timer_overlay_title || "DEBRIEFING COUNTDOWN"} —
+                — {loc.timer_overlay_title || 'DEBRIEFING COUNTDOWN'} —
               </div>
 
               {/* GIANT NUMBERS */}
@@ -251,7 +251,7 @@ export const DiscussionListView = ({
           <div className="mb-6 p-3 border-2 border-[#00ff41]/20 bg-black/40 flex items-center gap-4">
             <div className="flex items-center gap-2 flex-1">
               <Clock size={16} className="text-[#00ff41]/60" />
-              <span className="text-[14px] font-bold uppercase whitespace-nowrap">  {loc.timer_control_label || "Set Mission Duration"} </span>
+              <span className="text-[14px] font-bold uppercase whitespace-nowrap"> {loc.timer_control_label || 'Set Mission Duration'} </span>
               <input
                 type="number"
                 value={timerSeconds}
@@ -265,59 +265,62 @@ export const DiscussionListView = ({
               <button
                 onClick={startTimer}
                 className="px-4 py-1.5 bg-[#00ff41] text-black text-[10px] font-black uppercase flex items-center gap-2 hover:bg-white transition-colors">
-                <Play size={12} fill="currentColor" /> {loc.timer_btn_start || "INITIATE COUNTDOWN"}
+                <Play size={12} fill="currentColor" /> {loc.timer_btn_start || 'INITIATE COUNTDOWN'}
               </button>
             ) : (
               <button
                 onClick={stopTimer}
                 className="px-4 py-1.5 bg-red-600 text-white text-[12px] font-black uppercase flex items-center gap-2 hover:bg-red-500 transition-colors">
-                <Square size={12} fill="currentColor" />  {loc.timer_btn_stop || "ABORT TIMER"}
+                <Square size={12} fill="currentColor" /> {loc.timer_btn_stop || 'ABORT TIMER'}
               </button>
             )}
           </div>
         )}
 
-        {/* CONDITION 1: Logic for the ADMIN or COMMANDER */}
-        {isAdmin || isCommander ? (
-          <div className="flex flex-col gap-3">
+        {/* 1. LOGIC FOR ADMINISTRATORS ONLY */}
+        {isAdmin ? (
+          <div className="flex flex-col gap-3 w-full">
+            {/* UNLOCK button: Now only the admin can use it */}
             <button
               onClick={handleUnlockResults}
               className="w-full bg-[#00ff41] text-black py-3 font-black uppercase text-lg hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,255,65,0.4)]">
-              {loc.btn_unblock}
+              {loc.btn_unblock || 'Sblocca Risultati NASA'}
             </button>
 
-            {/* “Go to Results” button (For ADMIN only) */}
-            {isAdmin && (
-              <button
-                onClick={() => {
-                  setPrevView('admin'); // To return to the admin panel from the Leaderboard
-                  setView('leaderboard');
-                }}
-                className="w-full bg-[#00ff41] text-black py-3 font-black uppercase text-lg hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,255,65,0.4)] flex items-center justify-center gap-2">
-                <Info size={20} />
-                {loc.admin_btn_results}
-              </button>
-            )}
+            {/* “Go to Leaderboard” button */}
+            <button
+              onClick={() => {
+                setPrevView('admin');
+                setView('leaderboard');
+              }}
+              className="w-full bg-[#00ff41] text-black py-3 font-black uppercase text-lg hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,255,65,0.4)] flex items-center justify-center gap-2">
+              <Info size={20} />
+              {loc.admin_btn_results || 'Visualizza Classifica'}
+            </button>
           </div>
         ) : (
-          /* CONDITION 2: Logic for REGULAR PLAYERS (two buttons in a row) */
+          /* 2. LOGIC FOR PLAYERS AND THE COMMANDER */
           <div className="flex flex-col md:flex-row gap-4 w-full">
+            {/* The captain and players see the request button */}
             <button
               onClick={async () => {
                 const unlocked = await checkTeamStatusAction(teamId);
-                if (unlocked) setView('results');
-                else triggerModal('alert', ModalMode.IDLE, loc.msg_modal_nocommandr);
+                if (unlocked) {
+                  setView('results');
+                } else {
+                  triggerModal('alert', ModalMode.IDLE, loc.msg_modal_nocommandr || "ACCESSO NEGATO: In attesa dell'autorizzazione finale.");
+                }
               }}
               className="w-full flex-1 border-2 border-[#00ff41] text-[#00ff41] py-4 font-black uppercase text-sm hover:bg-[#00ff41] hover:text-black transition-all">
-              {loc.btn_request}
+              {loc.btn_request || 'Richiedi Risultati NASA'}
             </button>
 
-            {/* COMMANDER button (displayed if there is no commander on the team yet) */}
-            {!teamsList.find(t => t.id === teamId)?.has_commander && (
+            {/* Display the “Become Commander” button only if he is NOT YET in the database and the CURRENT USER is not him */}
+            {!teamsList.find(t => t.id === teamId)?.has_commander && !isCommander && (
               <button
                 onClick={handleBecomeCommander}
                 className="w-full flex-1 border-2 border-amber-500 text-amber-500 py-4 font-black uppercase text-sm hover:bg-amber-500 hover:text-black transition-all">
-                {loc.btn_commander}
+                {loc.btn_commander || 'Assumi il Comando'}
               </button>
             )}
           </div>
