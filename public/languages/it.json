@@ -153,7 +153,7 @@
 
   "/* --- TIMER SYSTEM --- */": "",
   "timer_overlay_title": "CONTO ALLA ROVESCIA DISCUSSIONE",
-  "timer_control_label": "IMPOSTA DURATA MISSIONE",
-  "timer_btn_start": "INIZIA CONTO ALLA ROVESCIA",
+  "timer_control_label": "DURATA",
+  "timer_btn_start": "INIZIA CONTO",
   "timer_btn_stop": "INTERROMPI TIMER"
 }

@@ -149,5 +149,11 @@
   "admin_btn_change_pass": "Change Admin Password",
   "admin_msg_newpass_req": "Enter new administrator password:",
   "admin_msg_pass_updated": "SUCCESS: Password updated correctly in the database.",
-  "admin_msg_pass_short": "ERROR: Password too short (minimum 3 characters)."
+  "admin_msg_pass_short": "ERROR: Password too short (minimum 3 characters).",
+
+  "/* --- TIMER SYSTEM --- */": "",
+  "timer_overlay_title": "DEBRIEFING COUNTDOWN",
+  "timer_control_label": "MISSION DURATION",
+  "timer_btn_start": "INITIATE COUNTDOWN",
+  "timer_btn_stop": "ABORT TIMER"
 }

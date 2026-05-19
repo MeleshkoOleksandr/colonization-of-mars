@@ -149,5 +149,11 @@
   "admin_btn_change_pass": "Modifier le mot de passe administrateur",
   "admin_msg_newpass_req": "Saisissez le nouveau mot de passe administrateur :",
   "admin_msg_pass_updated": "SUCCÈS : Mot de passe correctement mis à jour dans la base de données.",
-  "admin_msg_pass_short": "ERREUR : Mot de passe trop court (minimum 3 caractères)."
+  "admin_msg_pass_short": "ERREUR : Mot de passe trop court (minimum 3 caractères).",
+
+  "/* --- TIMER SYSTEM --- */": "",
+  "timer_overlay_title": "COMPTE À REBOURS DE DISCUSSION",
+  "timer_control_label": "DURÉE",
+  "timer_btn_start": "DÉMARRER LE COMPTE À REBOURS",
+  "timer_btn_stop": "ARRÊTER LE TIMER"
 }
