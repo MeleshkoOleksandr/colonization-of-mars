@@ -36,6 +36,7 @@ export const RetroModal = ({ isOpen, type, mode, message, value, onClose, onConf
       if (!isOpen) return;
       if (e.key === 'Enter' && type !== 'prompt-area') {
         e.preventDefault();
+        e.stopPropagation();
         onConfirm();
       }
       if (e.key === 'Escape') onClose();
@@ -85,7 +86,6 @@ export const RetroModal = ({ isOpen, type, mode, message, value, onClose, onConf
                 className="w-full bg-[#001100] border-2 border-[#00ff41] p-2 pr-10 text-[#00ff41] outline-none focus:bg-[#003300] uppercase font-mono"
                 value={value}
                 onChange={e => onChange?.(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && onConfirm()}
               />
 
               {/* Show the Eye icon ONLY if it's a password field */}

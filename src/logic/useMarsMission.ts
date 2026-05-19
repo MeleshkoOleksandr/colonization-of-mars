@@ -283,7 +283,6 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     loadDictionary();
   }, [currentLangId]);
 
-  
   // Audio playback function
   const playBeep = () => {
     const audio = new Audio('/sounds/soft_beep.wav');
@@ -666,21 +665,28 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     });
   };
 
+  let isProcessing = false;
   // Function used for save (called from a modal window)
   const executeAddSinglePlayer = async () => {
+    // If the request is already being processed, we ignore the duplicate call
+    if (isProcessing) return;
+
     if (modal.value.trim() && adminTeamFilter.startsWith('team:')) {
       const targetTeamId = parseInt(adminTeamFilter.split(':')[1]);
 
       try {
+        isProcessing = true; // Block
         await addSinglePlayerAction(targetTeamId, modal.value);
-        setAllResults(await getResultsAction());
+        // Updating the list of results
+        const freshResults = await getResultsAction();
+        setAllResults(freshResults);
+        // Close the window and clear the checkbox
         setModal(prev => ({ ...prev, isOpen: false, value: '' }));
       } catch (error) {
-        console.error('Error adding player:', error);
-        triggerModal('alert', ModalMode.IDLE, loc.msg_saveplayer);
+        console.error(error);
+      } finally {
+        isProcessing = false; // We'll unlock it anyway
       }
-    } else {
-      triggerModal('alert', ModalMode.IDLE, loc.msg_selectteam);
     }
   };
 

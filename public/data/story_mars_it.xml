@@ -54,7 +54,7 @@
             <Name>Tenda gonfiabile ermetica</Name>
             <Photo>item_tent.jpg</Photo>
             <Position>7</Position>
-            <Description>Permette di riposare fuori dalla tuta spaziale.</Description>
+            <Description>Permette di riposare senza indossare la tuta spaziale.</Description>
         </Item>
         <Item id="solar">
             <Name>Set di pannelli solari flessibili</Name>
