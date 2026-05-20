@@ -67,7 +67,7 @@ export const DiscussionListView = ({
   stopTimer,
 }: DiscussionListViewProps) => {
   const uniqueTeamIds: number[] = Array.from(new Set(discussionResults.map(r => r.team_id))).sort((a, b) => a - b);
-  const isCommander = username === 'Commander';
+  const isCommander = username.startsWith('Commander');
 
   const getCurrentTeamName = () => {
     if (isAdmin) {
@@ -204,21 +204,20 @@ export const DiscussionListView = ({
               {/* 3. INER LOOP: Players on this team */}
               <div className="space-y-2">
                 {teamMembers.map(res => {
-                  const isCommander = res.username === 'Commander';
+                  const isCommEntry = res.username.startsWith("Commander");
                   const hasResult = res.score !== -1;
-                  const btnColorClass = isCommander ? 'bg-amber-500' : hasResult ? 'bg-[#00ff41]' : 'bg-red-600 animate-pulse';
+                  const btnColorClass = isCommEntry ? 'bg-amber-500' : hasResult ? 'bg-[#00ff41]' : 'bg-red-600 animate-pulse';
 
                   return (
                     <div
                       key={res.id}
                       className={`flex justify-between items-center p-3 border ${
-                        isCommander
+                        isCommEntry
                           ? 'bg-[#38180670] border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.2)]'
                           : 'bg-[#00ff41]/5 border-[#00ff41]/20'
                       }`}>
                       <div className="flex items-center gap-3">
-                        {isCommander && <div className="bg-amber-500 text-black text-[8px] px-1 font-black uppercase">Final Order</div>}
-                        <span className={`font-bold uppercase text-xs ${isCommander ? 'text-amber-500' : 'text-[#00ff41]'}`}>{res.username}</span>
+                        <span className={`font-bold uppercase text-xs ${isCommEntry ? 'text-amber-500' : 'text-[#00ff41]'}`}>{res.username}</span>
                       </div>
 
                       <button

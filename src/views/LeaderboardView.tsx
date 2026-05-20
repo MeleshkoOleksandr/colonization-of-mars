@@ -82,8 +82,8 @@ export const LeaderboardView = ({
       </div>
 
       {leaderboardResults.map(res => {
-        const isCommEntry = res.username === 'Commander';
-        // Проверка наличия результата
+        const isCommEntry = res.username.startsWith("Commander");
+        // Checking for a result
         const hasResult = res.score !== -1 || isCommEntry;
 
         return (
@@ -109,12 +109,12 @@ export const LeaderboardView = ({
             {/* SCORE: The commander can also be highlighted in orange */}
             <span className={`text-right font-black text-xs md:text-base ${isCommEntry ? 'text-amber-500' : 'text-[#00ff41]'}`}>
               {res.score === -1 ? (
-                // Показываем иконку вместо -1
+                // Display an icon instead of -1
                 <div className="flex justify-end" title={loc.msg_waiting || 'In attesa...'}>
                   <CircleSlash size={16} strokeWidth={3} />
                 </div>
               ) : (
-                // Показываем реальный балл
+                // We show the actual score
                 res.score
               )}
             </span>

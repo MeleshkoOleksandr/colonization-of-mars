@@ -426,7 +426,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     };
     //Save rusult to DB
     try {
-      if (username === 'Commander') {
+      if (username.startsWith("Commander")){
         // Create a new record (INSERT) for the commander
         await saveResultAction(resultData);
       } else {
@@ -649,7 +649,8 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
       }
 
       await updateCommanderStatusAction(teamId, true);
-      setUsername('Commander');
+      const newCommanderName = `Commander ${username}`;
+      setUsername(newCommanderName);
 
       // We're shuffling the items for the final team score
       setItems([...staticItems].sort(() => Math.random() - 0.5));
@@ -799,8 +800,10 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
 
   // For the discussion list (sorted by Commander -> Name)
   const discussionResults = getEffectiveResults().sort((a, b) => {
-    if (a.username === 'Commander') return -1;
-    if (b.username === 'Commander') return 1;
+    const aIsComm = a.username.startsWith('Commander');
+    const bIsComm = b.username.startsWith('Commander');
+    if (aIsComm && !bIsComm) return -1;
+    if (!aIsComm && bIsComm) return 1;
     return a.username.localeCompare(b.username);
   });
 
