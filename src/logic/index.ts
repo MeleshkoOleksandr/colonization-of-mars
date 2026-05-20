@@ -23,6 +23,7 @@ export interface SurvivalItem {
   photo: string;
   idealPosition: number;
   description: string;
+  originalIndex?: number; // The position the player chose the first time. For Commander game
 }
 
 export interface ScoreEvaluation {

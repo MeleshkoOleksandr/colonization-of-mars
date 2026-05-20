@@ -216,10 +216,8 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     // 1. DETERMINE THE TARGET COMMAND ID
     // If we're viewing a player's details, we use their team. If not, we use the player's current team.
     const targetTeamId = selectedUserDetail && (view === 'user-detail' || view === 'discussion-list') ? selectedUserDetail.team_id : teamId;
-
     // 2. Search for a team in the list
     const targetTeam = teamsList.find(t => t.id === targetTeamId);
-
     // 3. We're looking for a script configuration for this command
     const foundConfig = scenarios.find(s => s.id === targetTeam?.current_scenario);
 
@@ -242,9 +240,14 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
           setStaticItems(parsedData.items);
           setEvaluations(parsedData.evaluations);
 
-          // only if we're in game mode
           if (view === 'game' || view === 'login') {
-            setItems([...parsedData.items].sort(() => Math.random() - 0.5));
+            // WE DO NOT MODIFY  items, as they have already been prepared by the `handleBecomeCommander` function
+            if (!username.startsWith('Commander')) {
+              setItems([...parsedData.items].sort(() => Math.random() - 0.5));
+              console.log('SYSTEM: Items shuffled for regular player.');
+            } else {
+              console.log('SYSTEM: Commander detected, skipping shuffle to preserve custom order.');
+            }
           }
         } catch (err) {
           console.error('Failed to load scenario XML:', err);
@@ -651,15 +654,25 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
         triggerModal('alert', ModalMode.IDLE, loc.msg_modal_commError);
         return;
       }
-
-      await updateCommanderStatusAction(teamId, true);
-      const newCommanderName = `Commander ${username}`;
-      setUsername(newCommanderName);
-
-      // We're shuffling the items for the final team score
-      setItems([...staticItems].sort(() => Math.random() - 0.5));
-      setView('game');
-      setModal(prev => ({ ...prev, isOpen: false }));
+      // 1. Look up this player's previous result in the database
+      const myOldResult = allResults.find(r => r.username === username && r.team_id === teamId);
+      // 2. Create a new list of items based on the old order
+      if (myOldResult && myOldResult.selections) {
+        const orderedItems = myOldResult.selections.map((itemId, index) => {
+          const itemData = staticItems.find(si => si.id === itemId);
+          return {
+            ...itemData!,
+            originalIndex: index + 1, // remember that this object was in spot X
+          };
+        });
+        // 3. Let's set this order as the default for the game
+        setItems(orderedItems);
+        // 4. Change your status and name
+        await updateCommanderStatusAction(teamId, true);
+        setUsername(`Commander ${username}`);
+        setView('game');
+        setModal(prev => ({ ...prev, isOpen: false }));
+      }
     });
   };
 

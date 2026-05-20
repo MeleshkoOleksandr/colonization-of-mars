@@ -13,8 +13,12 @@ interface DraggableItemProps {
  * Item component for the Drag & Drop list.
  * Restricted to drag only via the GripVertical handle for better mobile UX.
  */
+
 export const DraggableItem = ({ item, index }: DraggableItemProps) => {
   const controls = useDragControls();
+
+  // CHECK: Has the commander changed the position of this item
+  const isChanged = item.originalIndex !== undefined && item.originalIndex !== index + 1;
 
   return (
     <Reorder.Item
@@ -22,26 +26,27 @@ export const DraggableItem = ({ item, index }: DraggableItemProps) => {
       id={item.id}
       dragListener={false}
       dragControls={controls}
-      className="group bg-[#111] border-2 border-[#00ff41]/30 p-3 flex items-center gap-4 hover:border-[#00ff41]/60 transition-colors"
+      // CHANGE COLOR: If the status has changed, the border turns orange
+      className={`group bg-[#111] border-2 p-3 flex items-center gap-4 transition-colors ${
+        isChanged ? 'border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)]' : 'border-[#00ff41]/30 hover:border-[#00ff41]/60'
+      }`}
       style={{ touchAction: 'pan-y' }}>
-      {/* 1. THE DRAG HANDLE */}
+      <div className="..." onPointerDown={e => controls.start(e)} style={{ touchAction: 'none' }}>
+        <GripVertical size={20} className={isChanged ? 'text-amber-500' : 'text-[#00ff41]/30'} />
+      </div>
+
+      {/*  INDEX NUMBER : <current>[<old>] - for Commander */}
       <div
-        className="cursor-grab active:cursor-grabbing p-2 text-[#00ff41]/30 hover:text-[#00ff41] transition-colors"
-        // Start dragging only when touching this handle ---
-        onPointerDown={e => controls.start(e)}
-        style={{ touchAction: 'none' }}>
-        <GripVertical size={20} />
+        className={`flex flex-col items-center justify-center w-12 shrink-0 font-black leading-none ${isChanged ? 'text-amber-500' : 'text-[#00ff41]/40'}`}>
+        <span className="text-xl">{index + 1}</span>
+        {isChanged && <span className="text-[10px] opacity-70">[{item.originalIndex}]</span>}
       </div>
-      {/* 2. INDEX NUMBER */}
-      <span className="text-xl font-black w-8 text-[#00ff41]/40 group-hover:text-[#00ff41]">{index + 1}</span>
-      {/* 3. ITEM PHOTO */}
-      <div className="w-20 h-20 border border-[#00ff41]/20 overflow-hidden bg-black shrink-0">
-        <img src={`/img/${item.photo}`} alt={item.name} draggable="false" className="w-full h-full object-cover opacity-80" />
+      {/*  ITEM PHOTO */}
+      <div className={`w-16 h-16 border overflow-hidden bg-black shrink-0 ${isChanged ? 'border-amber-500/50' : 'border-[#00ff41]/20'}`}>
+        <img src={`/img/${item.photo}`} alt="" className={`w-full h-full object-cover ${isChanged ? 'opacity-100' : 'opacity-80'}`} />
       </div>
-      {/* 4. ITEM NAME */}
-      <div className="flex-1">
-        <div className="uppercase font-bold text-xs leading-tight">{item.name}</div>
-      </div>
+      {/*  ITEM NAME */}
+      <div className={`flex-1 uppercase font-bold text-[10px] md:text-xs leading-tight ${isChanged ? 'text-amber-500' : ''}`}>{item.name}</div>
     </Reorder.Item>
   );
 };
