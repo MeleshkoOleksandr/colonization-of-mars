@@ -151,6 +151,10 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
             setTeamId(player.team_id);
             setUsername(player.username);
 
+            if (player.score !== -1) {
+              setCurrentScore(player.score);
+            }
+
             if (player.score === -1) {
               setView('login'); // haven't played it yet
             } else if (!team.is_unlocked) {
@@ -426,7 +430,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     };
     //Save rusult to DB
     try {
-      if (username.startsWith("Commander")){
+      if (username.startsWith('Commander')) {
         // Create a new record (INSERT) for the commander
         await saveResultAction(resultData);
       } else {
