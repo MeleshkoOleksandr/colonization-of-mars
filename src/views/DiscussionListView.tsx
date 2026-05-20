@@ -28,12 +28,15 @@ interface DiscussionListViewProps {
   handleBecomeCommander: () => void;
   BUTTON_STYLES: any;
   // --- Timer
-  timerSeconds: number;
-  setTimerSeconds: (val: number) => void;
+  timerInputMin: number;
+  setTimerInputMin: (val: number) => void;
+  timerInputSec: number;
+  setTimerInputSec: (val: number) => void;
   timeLeft: number | null;
   isTimerRunning: boolean;
   startTimer: () => void;
   stopTimer: () => void;
+  activeTimerDuration: number;
 }
 
 export const DiscussionListView = ({
@@ -59,12 +62,15 @@ export const DiscussionListView = ({
   checkTeamStatusAction,
   handleBecomeCommander,
   BUTTON_STYLES,
-  timerSeconds,
-  setTimerSeconds,
+  timerInputMin,
+  setTimerInputMin,
+  timerInputSec,
+  setTimerInputSec,
   timeLeft,
   isTimerRunning,
   startTimer,
   stopTimer,
+  activeTimerDuration,
 }: DiscussionListViewProps) => {
   const uniqueTeamIds: number[] = Array.from(new Set(discussionResults.map(r => r.team_id))).sort((a, b) => a - b);
   const isCommander = username.startsWith('Commander');
@@ -147,7 +153,7 @@ export const DiscussionListView = ({
                 <motion.div
                   initial={{ width: '100%' }}
                   animate={{ width: '0%' }}
-                  transition={{ duration: timerSeconds, ease: 'linear' }}
+                  transition={{ duration: activeTimerDuration, ease: 'linear' }}
                   className="absolute inset-0 bg-[#00ff41] shadow-[0_0_15px_#00ff41]"
                 />
               </div>
@@ -204,7 +210,7 @@ export const DiscussionListView = ({
               {/* 3. INER LOOP: Players on this team */}
               <div className="space-y-2">
                 {teamMembers.map(res => {
-                  const isCommEntry = res.username.startsWith("Commander");
+                  const isCommEntry = res.username.startsWith('Commander');
                   const hasResult = res.score !== -1;
                   const btnColorClass = isCommEntry ? 'bg-amber-500' : hasResult ? 'bg-[#00ff41]' : 'bg-red-600 animate-pulse';
 
@@ -231,7 +237,7 @@ export const DiscussionListView = ({
                           setPrevView('discussion-list');
                           setView('user-detail');
                         }}
-                        className={`${btnColorClass} text-black px-4 py-1 text-[10px] font-black uppercase`}>
+                        className={`${btnColorClass} text-black px-4 py-1 text-[10px] font-black hover:bg-white uppercase`}>
                         {loc.btn_analise || 'Analizza'}
                       </button>
                     </div>
@@ -244,33 +250,59 @@ export const DiscussionListView = ({
       </div>
 
       {/* --- BOTTOM BUTTON PANEL --- */}
-      <div className="flex flex-col gap-4 mt-8">
+      <div className="flex flex-col gap-2 mt-8">
         {/* Timer */}
+        {/* ТЕРМИНАЛ ТАЙМЕРА (ADMIN ONLY - SLIM ROW VERSION) */}
         {isAdmin && (
-          <div className="mb-6 p-3 border-2 border-[#00ff41]/20 bg-black/40 flex items-center gap-4">
-            <div className="flex items-center gap-2 flex-1">
-              <Clock size={16} className="text-[#00ff41]/60" />
-              <span className="text-[14px] font-bold uppercase whitespace-nowrap"> {loc.timer_control_label || 'Set Mission Duration'} </span>
-              <input
-                type="number"
-                value={timerSeconds}
-                onChange={e => setTimerSeconds(parseInt(e.target.value) || 0)}
-                className="w-16 bg-[#001100] border border-[#00ff41]/40 p-1 text-[#00ff41] text-[14px] font-mono outline-none focus:border-[#00ff41]"
-              />
-              <span className="text-[14px] opacity-50 uppercase">sec</span>
+          <div className="mb-4 border-2 border-[#00ff41]/20 bg-black/60 flex items-stretch p-1 gap-1 w-full shadow-[inset_0_0_10px_rgba(0,255,65,0.05)]">
+            {/* ЛЕВАЯ ЧАСТЬ: ИНФО + ИНПУТЫ (Все в одну строку) */}
+            <div className="flex items-center gap-4 flex-1 px-3 py-1 bg-black/40 border border-[#00ff41]/10">
+              {/* СТОЛБЕЦ 1: Иконка и подпись (друг под другом) */}
+              <div className="flex flex-col items-center justify-center shrink-0 min-w-12.5">
+                <Clock size={16} className={`${isTimerRunning ? 'text-[#00ff41] animate-pulse' : 'text-[#00ff41]/30'}`} />
+                <span className="text-[8px] uppercase opacity-50 font-black tracking-tighter leading-none mt-1">
+                  {loc.timer_control_label || 'Duration'}
+                </span>
+              </div>
+
+              {/* СТОЛБЕЦ 2: Поля ввода (в строчку) */}
+              <div className="flex items-center gap-2 font-mono">
+                <div className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    value={timerInputMin}
+                    onChange={e => setTimerInputMin(Math.max(0, parseInt(e.target.value) || 0))}
+                    className="w-10 bg-black border-b border-[#00ff41]/50 text-[#00ff41] text-base text-center outline-none focus:bg-[#00ff41]/10 transition-colors"
+                  />
+                  <span className="text-[10px] opacity-40 uppercase font-bold">m.</span>
+                </div>
+
+                <span className="text-base font-black text-[#00ff41] opacity-30">:</span>
+
+                <div className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    value={timerInputSec}
+                    onChange={e => setTimerInputSec(Math.min(59, Math.max(0, parseInt(e.target.value) || 0)))}
+                    className="w-10 bg-black border-b border-[#00ff41]/50 text-[#00ff41] text-base text-center outline-none focus:bg-[#00ff41]/10 transition-colors"
+                  />
+                  <span className="text-[10px] opacity-40 uppercase font-bold">s.</span>
+                </div>
+              </div>
             </div>
 
+            {/* ПРАВАЯ ЧАСТЬ: КНОПКА (Растянута на всю высоту тонкой строки) */}
             {!isTimerRunning ? (
               <button
                 onClick={startTimer}
-                className="px-4 py-1.5 bg-[#00ff41] text-black text-[10px] font-black uppercase flex items-center gap-2 hover:bg-white transition-colors">
-                <Play size={12} fill="currentColor" /> {loc.timer_btn_start || 'INITIATE COUNTDOWN'}
+                className="px-6 md:px-10 bg-[#00ff41] text-black font-black uppercase text-[12px] hover:bg-white transition-all flex items-center justify-center active:scale-95 shrink-0">
+                 <Play size={12} fill="currentColor" />{loc.timer_btn_start || 'Start'}
               </button>
             ) : (
               <button
                 onClick={stopTimer}
-                className="px-4 py-1.5 bg-red-600 text-white text-[12px] font-black uppercase flex items-center gap-2 hover:bg-red-500 transition-colors">
-                <Square size={12} fill="currentColor" /> {loc.timer_btn_stop || 'ABORT TIMER'}
+                className="px-6 md:px-10 bg-red-600 text-white font-black uppercase text-[12px] hover:bg-red-500 transition-all flex items-center justify-center active:scale-95 shrink-0">
+                 <Square size={12} fill="currentColor" />{loc.timer_btn_stop || 'Abort'}
               </button>
             )}
           </div>

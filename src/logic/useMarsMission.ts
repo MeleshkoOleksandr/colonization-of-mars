@@ -70,9 +70,11 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
   const currentTeamName = teamsList.find(t => t.id === teamId)?.name || 'NASA';
 
   // Variables for timer implementation
-  const [timerSeconds, setTimerSeconds] = useState<number>(600); // Value in the input (default: 60 seconds)
-  const [timeLeft, setTimeLeft] = useState<number | null>(null); // Current count
+  const [timerInputMin, setTimerInputMin] = useState<number>(10); // По умолчанию 10 мин
+  const [timerInputSec, setTimerInputSec] = useState<number>(0); // 0 сек
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [activeTimerDuration, setActiveTimerDuration] = useState<number>(0);
 
   // Auto Refresh timer component:
   const [isAutoRefresh, setIsAutoRefresh] = useState(false);
@@ -380,7 +382,10 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
   }, [isTimerRunning, timeLeft]);
 
   const startTimer = () => {
-    setTimeLeft(timerSeconds);
+    const totalSeconds = timerInputMin * 60 + timerInputSec;
+    if (totalSeconds <= 0) return;
+    setActiveTimerDuration(totalSeconds);
+    setTimeLeft(totalSeconds);
     setIsAutoRefresh(false); // Disable automatic database updates so as not to interfere
     setIsTimerRunning(true);
   };
@@ -932,8 +937,11 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     setShowArchivedTeams,
 
     // --- Timer ---
-    timerSeconds,
-    setTimerSeconds,
+    timerInputMin,
+    setTimerInputMin,
+    timerInputSec,
+    setTimerInputSec,
+    activeTimerDuration,
     timeLeft,
     isTimerRunning,
     startTimer,

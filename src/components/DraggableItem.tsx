@@ -16,7 +16,6 @@ interface DraggableItemProps {
 
 export const DraggableItem = ({ item, index }: DraggableItemProps) => {
   const controls = useDragControls();
-
   // CHECK: Has the commander changed the position of this item
   const isChanged = item.originalIndex !== undefined && item.originalIndex !== index + 1;
 
