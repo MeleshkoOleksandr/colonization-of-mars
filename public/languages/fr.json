@@ -154,6 +154,6 @@
   "/* --- TIMER SYSTEM --- */": "",
   "timer_overlay_title": "COMPTE À REBOURS DE DISCUSSION",
   "timer_control_label": "DURÉE",
-  "timer_btn_start": "DÉMARRER LE COMPTE À REBOURS",
-  "timer_btn_stop": "ARRÊTER LE TIMER"
+  "timer_btn_start": " DÉMARRER",
+  "timer_btn_stop": " ARRÊTER"
 }

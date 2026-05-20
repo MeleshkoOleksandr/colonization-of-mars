@@ -154,6 +154,6 @@
   "/* --- TIMER SYSTEM --- */": "",
   "timer_overlay_title": "DISKUSSIONS-COUNTDOWN",
   "timer_control_label": "DAUER",
-  "timer_btn_start": "COUNTDOWN STARTEN",
-  "timer_btn_stop": "TIMER STOPPEN"
+  "timer_btn_start": " STARTEN",
+  "timer_btn_stop": " STOPPEN"
 }

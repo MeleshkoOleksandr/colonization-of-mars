@@ -154,6 +154,6 @@
   "/* --- TIMER SYSTEM --- */": "",
   "timer_overlay_title": "DEBRIEFING COUNTDOWN",
   "timer_control_label": "MISSION DURATION",
-  "timer_btn_start": "INITIATE COUNTDOWN",
-  "timer_btn_stop": "ABORT TIMER"
+  "timer_btn_start": " INITIATE",
+  "timer_btn_stop": " ABORT"
 }
