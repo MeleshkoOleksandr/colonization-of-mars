@@ -362,10 +362,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
         if (document.hidden) return;
 
         try {
-          console.log(`SYSTEM: Polling data... (${isSystemAdmin ? 'Admin' : 'Player'} mode)`);
-
           const [freshResults, freshTeams] = await Promise.all([getResultsAction(), getTeamsAction()]);
-
           // 3. Audio Alert Logic (ADMIN ONLY)
           if (isSystemAdmin) {
             const prevResults = resultsSnapshotRef.current;
@@ -386,7 +383,6 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
         }
       }, pollInterval);
     }
-
     return () => {
       if (interval) clearInterval(interval);
     };
@@ -415,6 +411,8 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
       playBeep(); // Your current audio
       setIsTimerRunning(false);
       setTimeLeft(null);
+      // Re-enable the update after the discussion has ended
+      setIsAutoRefresh(true);
     }
 
     return () => clearInterval(interval);
@@ -432,6 +430,8 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
   const stopTimer = () => {
     setIsTimerRunning(false);
     setTimeLeft(null);
+    // restore auto update
+    setIsAutoRefresh(true);
   };
 
   /**
