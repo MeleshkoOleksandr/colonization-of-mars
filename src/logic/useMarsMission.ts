@@ -133,7 +133,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
         if (savedSessionRaw) {
           try {
             const saved = JSON.parse(savedSessionRaw);
-             // Check: Does the token from the link match the one we saved
+            // Check: Does the token from the link match the one we saved
             const isSamePlayer = playerToken && saved.player_token === playerToken;
             const isSameTeam = teamToken && saved.team_token === teamToken;
 
@@ -349,47 +349,48 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
   useEffect(() => {
     let interval: NodeJS.Timeout;
 
-    // Condition: Only for admins on authorized screens
-    const isAllowedView = view === 'admin' || view === 'leaderboard' || view === 'discussion-list';
+    // 1. Determine if polling should be active
+    const isAdminPolling = isSystemAdmin && isAutoRefresh && ['admin', 'leaderboard', 'discussion-list'].includes(view);
+    const isPlayerPolling = !isSystemAdmin && view === 'discussion-list';
 
-    if (isSystemAdmin && isAllowedView && isAutoRefresh) {
+    if (isAdminPolling || isPlayerPolling) {
+      // 2. Set dynamic delay (15s for Admin, 30s for Player)
+      const pollInterval = isSystemAdmin ? 15000 : 30000;
+
       interval = setInterval(async () => {
+        // Don't poll if the user switched tab
         if (document.hidden) return;
 
         try {
-          console.log(`SYSTEM: Auto-sync active for [${view}]...`);
+          console.log(`SYSTEM: Polling data... (${isSystemAdmin ? 'Admin' : 'Player'} mode)`);
 
           const [freshResults, freshTeams] = await Promise.all([getResultsAction(), getTeamsAction()]);
 
-          // --- LOGIC OF THE AUDIO SIGNAL (Using Snapshot Ref)
-          const prevResults = resultsSnapshotRef.current;
+          // 3. Audio Alert Logic (ADMIN ONLY)
+          if (isSystemAdmin) {
+            const prevResults = resultsSnapshotRef.current;
+            const hasNewEntries = freshResults.length > prevResults.length;
+            const prevPending = prevResults.filter(r => r.score === -1).length;
+            const newPending = freshResults.filter(r => r.score === -1).length;
 
-          // 1. Checking for new players
-          const hasNewEntries = freshResults.length > prevResults.length;
-
-          // 2. Check for completed games
-          const prevPendingCount = prevResults.filter(r => r.score === -1).length;
-          const newPendingCount = freshResults.filter(r => r.score === -1).length;
-          const hasNewFinishes = newPendingCount < prevPendingCount;
-
-          if (hasNewEntries || hasNewFinishes) {
-            console.log('SYSTEM: New telemetry received!');
-            playBeep();
+            if (hasNewEntries || newPending < prevPending) {
+              playBeep();
+            }
           }
 
-          // Updating statuses
+          // 4. Update states
           setAllResults(freshResults);
           setTeamsList(freshTeams);
         } catch (error) {
-          console.error('Auto-sync error:', error);
+          console.error('Poll error:', error);
         }
-      }, 15000); // 15 sec. refresh time
+      }, pollInterval);
     }
 
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [view, isAutoRefresh, username]);
+  }, [view, isAutoRefresh, isSystemAdmin, teamId]);
 
   // We update the snapshot every time allResults changes
   useEffect(() => {
@@ -500,6 +501,16 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     if (view === 'standby' || view === 'login') {
     }
   }, [view]);
+
+  /**
+   * AUTO-ENABLE ADMIN SYNC
+   * Forces Auto-Sync to ON when the admin enters the Discussion view.
+   */
+  useEffect(() => {
+    if (isSystemAdmin && view === 'discussion-list') {
+      setIsAutoRefresh(true);
+    }
+  }, [view, isSystemAdmin]);
 
   //                                                                  -----   LOGIC HANDLERS   -----
 
