@@ -101,6 +101,7 @@
   "msg_saveplayer": "Error saving player.",
   "msg_selectteam": "Select a specific team.",
   "msg_confirm_wipe_system": "CRITICAL DANGER: This action will delete ALL teams and ALL results. Are you absolutely sure?",
+   "loc.msg_confirm_quit": "WARNING: Exit the mission? Current progress will be saved locally.",
 
   "/* --- TOOLTIPS & ACCESS --- */": "",
   "admin_msg_chkresults": "Results Status: Unlock to allow colonists to view the NASA report",

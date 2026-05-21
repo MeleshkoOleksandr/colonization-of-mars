@@ -124,28 +124,28 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
 
         // Checking if we have a saved session
         const savedSessionRaw = localStorage.getItem(SESSION_KEY);
-        let hasRecovered = false;
         if (savedSessionRaw) {
           try {
             const saved = JSON.parse(savedSessionRaw);
-            // Check whether the command from the link matches the one in memory
-            const currentUrlParams = new URLSearchParams(window.location.search);
-            const teamTokenFromUrl = currentUrlParams.get('team_token');
-            const playerTokenFromUrl = currentUrlParams.get('player_token');
-            // Find the team in the database to compare tokens
-            const teamFromDb = teams.find(t => t.id === saved.teamId);
+            const params = new URLSearchParams(window.location.search);
+            const teamTokenFromUrl = params.get('team_token');
+            // We check that the team in memory matches the team in the link
+            const currentTeam = teams.find(t => t.id === saved.teamId);
 
-            if (teamFromDb && (teamFromDb.access_token === teamTokenFromUrl || playerTokenFromUrl)) {
-              console.log('SYSTEM: Recovering session for', saved.username);
+            if (currentTeam && (currentTeam.access_token === teamTokenFromUrl || params.has('player_token'))) {
+              console.log('🚀 RECOVERY: Restoring session to view:', saved.view);
+
+              // Restore all
               setUsername(saved.username);
               setTeamId(saved.teamId);
-              setItems(saved.items); // Restorew items order!
-              setView(saved.view);
+              setItems(saved.items); // Items order
+              setView(saved.view); // We go on last players screen
 
-              hasRecovered = true;
+              setIsInitialized(true);
+              return; // We're stop the function so that BRANCH A/B/C don't passes!
             }
           } catch (e) {
-            console.error('Session recovery failed', e);
+            console.error('Recovery failed', e);
           }
         }
 
@@ -272,13 +272,23 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
           setEvaluations(parsedData.evaluations);
 
           if (view === 'game' || view === 'login') {
-            // WE DO NOT MODIFY  items, as they have already been prepared by the `handleBecomeCommander` function
-            if (!username.startsWith('Commander')) {
-              setItems([...parsedData.items].sort(() => Math.random() - 0.5));
-              console.log('SYSTEM: Items shuffled for regular player.');
-            } else {
-              console.log('SYSTEM: Commander detected, skipping shuffle to preserve custom order.');
-            }
+            setItems(prevItems => {
+              // 1. PRIORITY #1: If we ALREADY have items in memory (15 items)
+              // This means that either the data was restored from LocalStorage after pressing F5,
+              // or this is the Commander, for whom we have already prepared a list.
+              if (prevItems.length === 15) {
+                return prevItems; // Return the current list unchanged
+              }
+              // 2. PRIORITY #2: If there are no items, check the role
+              if (!username.startsWith('Commander')) {
+                // For a standard player on their first entry—shuffle
+                return [...parsedData.items].sort(() => Math.random() - 0.5);
+              } else {
+                // Commander: if the list happens to be empty, we'll just pull the data from the XML without using randomization
+                console.log('SYSTEM: Commander detected with empty list. Loading standard order.');
+                return [...parsedData.items];
+              }
+            });
           }
         } catch (err) {
           console.error('Failed to load scenario XML:', err);
@@ -442,7 +452,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
         triggerModal(
           'confirm',
           ModalMode.IDLE,
-          loc.msg_confirm_quit || 'ATTENZIONE: Uscire dalla missione? Il progresso corrente verrà salvato локально.',
+          loc.msg_confirm_quit || 'ATTENZIONE: Uscire dalla missione? Il progresso corrente verrà salvato a livello locale.',
           () => {
             // If exit is confirmed, clear everything and switch to Standby
             localStorage.removeItem(SESSION_KEY);
@@ -461,18 +471,28 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
    */
   useEffect(() => {
     // We don't save the admin panel or blank screens
-    if (!isSystemAdmin && !['standby', 'login'].includes(view)) {
-      const sessionData = {
-        username,
-        teamId,
-        view,
-        items, // We  savep the current order of the items!
-        timestamp: Date.now(),
-      };
-      localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
+    if (isInitialized && !isSystemAdmin && !['standby', 'login'].includes(view)) {
+      if (items.length > 0) {
+        const sessionData = {
+          username,
+          teamId,
+          view,
+          items,
+          timestamp: Date.now(),
+        };
+        console.log('💾 LS: Saving progress...', { view, username, itemsCount: items.length });
+        localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
+      }
     }
-  }, [view, items, username, teamId, isSystemAdmin]);
+  }, [view, items, username, teamId, isSystemAdmin, isInitialized]);
 
+  /**
+   * CLEANUP ON LOGOUT/STANDBY
+   */
+  useEffect(() => {
+    if (view === 'standby' || view === 'login') {
+    }
+  }, [view]);
 
   //                                                                  -----   LOGIC HANDLERS   -----
 
@@ -917,7 +937,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     return a.score - b.score;
   });
 
-    /**
+  /**
    * FINISH MISSION & EXIT
    * Clears the local session and redirects to the clean domain (Standby).
    */

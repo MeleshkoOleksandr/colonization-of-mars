@@ -101,6 +101,7 @@
   "msg_saveplayer": "Fehler beim Speichern des Spielers.",
   "msg_selectteam": "Team auswählen.",
   "msg_confirm_wipe_system": "KRITISCHE GEFAHR: ALLE Daten werden gelöscht. Sicher?",
+  "loc.msg_confirm_quit": "WARNUNG: Mission verlassen? Der aktuelle Fortschritt wird lokal gespeichert.",
 
   "/* --- TOOLTIPS & ACCESS --- */": "",
   "admin_msg_chkresults": "Ergebnisstatus: Freischalten, um NASA-Bericht anzuzeigen",
