@@ -149,6 +149,7 @@ export default function MarsSurvivalGame() {
         setPrevView={app.setPrevView}
         setView={app.setView}
         triggerModal={app.triggerModal}
+        handleFinishMission={app.handleFinishMission} 
       />
     );
   } else if (app.view === 'user-detail' && app.selectedUserDetail) {

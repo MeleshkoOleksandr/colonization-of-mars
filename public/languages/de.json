@@ -43,8 +43,8 @@
   "lb_classific": "Team-Rangliste",
   "lb_statuscol": "Status",
   "lb_detals": "Details",
-  "result_lb_newmiss": "Neue Mission starten",
-  "result_lb_atten": "Achtung: Ein Neustart setzt die aktuelle Sitzung zurück",
+  "result_lb_newmiss": "Mission beenden",
+  "result_lb_atten": "Das Terminal wird getrennt und die Sitzung beendet",
   "filter_all": "ALLE ERGEBNISSE",
 
   "/* --- ADMIN TERMINAL --- */": "",

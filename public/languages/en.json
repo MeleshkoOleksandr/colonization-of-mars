@@ -43,8 +43,8 @@
   "lb_classific": "Team Ranking",
   "lb_statuscol": "Status",
   "lb_detals": "Details",
-  "result_lb_newmiss": "Start New Mission",
-  "result_lb_atten": "Warning: restarting will reset the current session",
+  "result_lb_newmiss": "Conclude Mission",
+  "result_lb_atten": "The terminal will disconnect and the session will close",
   "filter_all": "ALL RESULTS",
 
   "/* --- ADMIN TERMINAL --- */": "",

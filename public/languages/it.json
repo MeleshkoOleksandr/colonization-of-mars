@@ -43,8 +43,8 @@
   "lb_classific": "Classifica Team",
   "lb_statuscol": "Status",
   "lb_detals": "Dettagli",
-  "result_lb_newmiss": "Inizia Nuova Missione",
-  "result_lb_atten": "Attenzione: il riavvio resetterà la sessione corrente",
+  "result_lb_newmiss": "Concludi Missione",
+  "result_lb_atten": "Il terminale verrà scollegato и la sessione chiusa",
   "filter_all": "TUTTI I RISULTATI",
 
   "/* --- ADMIN TERMINAL --- */": "",

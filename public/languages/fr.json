@@ -43,8 +43,8 @@
   "lb_classific": "Classement des équipes",
   "lb_statuscol": "Statut",
   "lb_detals": "Détails",
-  "result_lb_newmiss": "Démarrer une nouvelle mission",
-  "result_lb_atten": "Attention : le redémarrage réinitialisera la session en cours",
+"result_lb_newmiss": "Terminer la mission",
+  "result_lb_atten": "Le terminal sera déconnecté et la session sera fermée",
   "filter_all": "TOUS LES RÉSULTATS",
 
   "/* --- ADMIN TERMINAL --- */": "",

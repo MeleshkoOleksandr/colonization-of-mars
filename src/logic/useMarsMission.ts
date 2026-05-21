@@ -25,6 +25,8 @@ import {
 export const useMarsMission = (ADMIN_PASSWORD: string) => {
   //                                                       -----   STATE MANAGEMENT   -----
 
+  const SESSION_KEY = 'ARES_MISSION_SESSION_V1'; // Local storage session state saving
+
   const [view, setView] = useState<'standby' | 'login' | 'story' | 'game' | 'results' | 'admin' | 'leaderboard' | 'user-detail' | 'discussion-list'>(
     'standby'
   );
@@ -119,6 +121,33 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
         setAvailableLangs(resLang);
         setTeamsList(teams);
         setAllResults(results);
+
+        // Checking if we have a saved session
+        const savedSessionRaw = localStorage.getItem(SESSION_KEY);
+        let hasRecovered = false;
+        if (savedSessionRaw) {
+          try {
+            const saved = JSON.parse(savedSessionRaw);
+            // Check whether the command from the link matches the one in memory
+            const currentUrlParams = new URLSearchParams(window.location.search);
+            const teamTokenFromUrl = currentUrlParams.get('team_token');
+            const playerTokenFromUrl = currentUrlParams.get('player_token');
+            // Find the team in the database to compare tokens
+            const teamFromDb = teams.find(t => t.id === saved.teamId);
+
+            if (teamFromDb && (teamFromDb.access_token === teamTokenFromUrl || playerTokenFromUrl)) {
+              console.log('SYSTEM: Recovering session for', saved.username);
+              setUsername(saved.username);
+              setTeamId(saved.teamId);
+              setItems(saved.items); // Restorew items order!
+              setView(saved.view);
+
+              hasRecovered = true;
+            }
+          } catch (e) {
+            console.error('Session recovery failed', e);
+          }
+        }
 
         // 2. Processing URL parameters
         const params = new URLSearchParams(window.location.search);
@@ -394,6 +423,56 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     setIsTimerRunning(false);
     setTimeLeft(null);
   };
+
+  /**
+   * HISTORY TRAP
+   * Prevents accidental exit on mobile devices by intercepting the "Back" gesture.
+   */
+  useEffect(() => {
+    // We block the exit only on the game screens
+    const isProtectedView = ['story', 'game', 'discussion-list', 'user-order'].includes(view);
+    if (isProtectedView && !isSystemAdmin) {
+      // 1. Add a fake entry to the browser history
+      window.history.pushState(null, '', window.location.href);
+      const handlePopState = () => {
+        // 2. When the user taps “Back,” the browser tries to navigate back,
+        // but we immediately reset the history
+        window.history.pushState(null, '', window.location.href);
+        // 3. Display our nice confirmation window
+        triggerModal(
+          'confirm',
+          ModalMode.IDLE,
+          loc.msg_confirm_quit || 'ATTENZIONE: Uscire dalla missione? Il progresso corrente verrà salvato локально.',
+          () => {
+            // If exit is confirmed, clear everything and switch to Standby
+            localStorage.removeItem(SESSION_KEY);
+            window.location.href = window.location.origin; // Full exit
+          }
+        );
+      };
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
+    }
+  }, [view, loc, isSystemAdmin]);
+
+  /**
+   * AUTO-SAVE SESSION
+   * Persists the current state to LocalStorage for recovery.
+   */
+  useEffect(() => {
+    // We don't save the admin panel or blank screens
+    if (!isSystemAdmin && !['standby', 'login'].includes(view)) {
+      const sessionData = {
+        username,
+        teamId,
+        view,
+        items, // We  savep the current order of the items!
+        timestamp: Date.now(),
+      };
+      localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
+    }
+  }, [view, items, username, teamId, isSystemAdmin]);
+
 
   //                                                                  -----   LOGIC HANDLERS   -----
 
@@ -838,6 +917,22 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     return a.score - b.score;
   });
 
+    /**
+   * FINISH MISSION & EXIT
+   * Clears the local session and redirects to the clean domain (Standby).
+   */
+  const handleFinishMission = () => {
+    // 1. Clear the local session cache
+    localStorage.removeItem(SESSION_KEY);
+    // 2. Reset all states (just in case)
+    setUsername('');
+    setTeamId(0);
+    setCurrentScore(0);
+    setItems([]);
+    // 3. FULL URL RESET AND PAGE REFRESH
+    window.location.href = window.location.origin;
+  };
+
   //                                                                --- FINAL RETURN ---
   return {
     // --- 1. NAVIGATION & ROUTING ---
@@ -847,6 +942,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     setPrevView,
     openAdminLogin,
     isInitialized,
+    handleFinishMission,
 
     // --- 2. USER & SESSION INFO ---
     username,

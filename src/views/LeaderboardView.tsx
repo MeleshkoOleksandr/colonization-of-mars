@@ -19,6 +19,7 @@ interface LeaderboardViewProps {
   setPrevView: (view: any) => void;
   setView: (view: any) => void;
   triggerModal: (type: any, mode: any, message: string) => void;
+  handleFinishMission: () => void;
 }
 
 export const LeaderboardView = ({
@@ -35,6 +36,7 @@ export const LeaderboardView = ({
   setPrevView,
   setView,
   triggerModal,
+  handleFinishMission,
 }: LeaderboardViewProps) => (
   <>
     <div className="flex justify-between items-center mb-6 border-b-2 border-[#00ff41] pb-2">
@@ -82,7 +84,7 @@ export const LeaderboardView = ({
       </div>
 
       {leaderboardResults.map(res => {
-        const isCommEntry = res.username.startsWith("Commander");
+        const isCommEntry = res.username.startsWith('Commander');
         // Checking for a result
         const hasResult = res.score !== -1 || isCommEntry;
 
@@ -154,13 +156,17 @@ export const LeaderboardView = ({
       ) : (
         /* 2. PLAYER OPTION: NEW MISSION button */
         <>
-          <button
-            onClick={() => window.location.reload()}
-            className="w-full bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors flex items-center justify-center gap-3 active:scale-[0.98]">
-            <RefreshCcw size={24} />
-            {loc.result_lb_newmiss}
-          </button>
-          <p className="text-[10px] text-center mt-4 opacity-50 uppercase tracking-widest">{loc.result_lb_atten}</p>
+          <div className="w-full flex flex-col items-center">
+            <button        
+              onClick={handleFinishMission}
+              className="w-full bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors flex items-center justify-center gap-3 active:scale-[0.98] shadow-[0_0_20px_rgba(0,255,65,0.3)]">
+              <RefreshCcw size={24} />
+              {loc.result_lb_newmiss || 'Concludi Missione'}
+            </button>
+            <p className="text-[10px] text-center mt-4 opacity-50 uppercase tracking-widest w-full">
+              {loc.result_lb_atten || 'Il terminale verrà scollegato и la sessione chiusa'}
+            </p>
+          </div>
         </>
       )}
     </div>
