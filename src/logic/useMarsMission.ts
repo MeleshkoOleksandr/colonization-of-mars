@@ -122,38 +122,37 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
         setTeamsList(teams);
         setAllResults(results);
 
-        // Checking if we have a saved session
-        const savedSessionRaw = localStorage.getItem(SESSION_KEY);
-        if (savedSessionRaw) {
-          try {
-            const saved = JSON.parse(savedSessionRaw);
-            const params = new URLSearchParams(window.location.search);
-            const teamTokenFromUrl = params.get('team_token');
-            // We check that the team in memory matches the team in the link
-            const currentTeam = teams.find(t => t.id === saved.teamId);
-
-            if (currentTeam && (currentTeam.access_token === teamTokenFromUrl || params.has('player_token'))) {
-              console.log('🚀 RECOVERY: Restoring session to view:', saved.view);
-
-              // Restore all
-              setUsername(saved.username);
-              setTeamId(saved.teamId);
-              setItems(saved.items); // Items order
-              setView(saved.view); // We go on last players screen
-
-              setIsInitialized(true);
-              return; // We're stop the function so that BRANCH A/B/C don't passes!
-            }
-          } catch (e) {
-            console.error('Recovery failed', e);
-          }
-        }
-
         // 2. Processing URL parameters
         const params = new URLSearchParams(window.location.search);
         const teamToken = params.get('team_token');
         const playerToken = params.get('player_token');
         const urlLang = params.get('lang');
+
+        // Checking if we have a saved session
+        const savedSessionRaw = localStorage.getItem(SESSION_KEY);
+        if (savedSessionRaw) {
+          try {
+            const saved = JSON.parse(savedSessionRaw);
+             // Check: Does the token from the link match the one we saved
+            const isSamePlayer = playerToken && saved.player_token === playerToken;
+            const isSameTeam = teamToken && saved.team_token === teamToken;
+
+            if (isSamePlayer || isSameTeam) {
+              setUsername(saved.username);
+              setTeamId(saved.teamId);
+              setItems(saved.items);
+              setView(saved.view);
+              setIsInitialized(true);
+              return; // Restore session
+            } else {
+              // If the tokens don't match (the user accessed a different link)
+              // Clear the old session so it doesn't interfere with the new game
+              localStorage.removeItem(SESSION_KEY);
+            }
+          } catch (e) {
+            localStorage.removeItem(SESSION_KEY);
+          }
+        }
 
         // Language set
         if (urlLang) setCurrentLangId(urlLang);
@@ -441,6 +440,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
   useEffect(() => {
     // We block the exit only on the game screens
     const isProtectedView = ['story', 'game', 'discussion-list', 'user-order'].includes(view);
+    console.log(`🛡️ TRAP CHECK: View=[${view}], Protected=[${isProtectedView}], Admin=[${isSystemAdmin}]`);
     if (isProtectedView && !isSystemAdmin) {
       // 1. Add a fake entry to the browser history
       window.history.pushState(null, '', window.location.href);
@@ -449,16 +449,18 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
         // but we immediately reset the history
         window.history.pushState(null, '', window.location.href);
         // 3. Display our nice confirmation window
-        triggerModal(
-          'confirm',
-          ModalMode.IDLE,
-          loc.msg_confirm_quit || 'ATTENZIONE: Uscire dalla missione? Il progresso corrente verrà salvato a livello locale.',
-          () => {
-            // If exit is confirmed, clear everything and switch to Standby
-            localStorage.removeItem(SESSION_KEY);
-            window.location.href = window.location.origin; // Full exit
-          }
-        );
+        triggerModal('confirm', ModalMode.IDLE, loc.msg_confirm_quit || 'ATTENZIONE: Uscire dalla missione?', () => {
+          // If exit is confirmed
+          // 1. Completely delete the entry from LocalStorage
+          localStorage.removeItem(SESSION_KEY);
+          // 2. Reset only the game progress
+          setItems([]);
+          setCurrentScore(0);
+          // 3. Proceed to the login page.
+          // NOTE: Do NOT clear the username and teamId variables,
+          setView('login');
+          setModal(prev => ({ ...prev, isOpen: false }));
+        });
       };
       window.addEventListener('popstate', handlePopState);
       return () => window.removeEventListener('popstate', handlePopState);
@@ -472,19 +474,24 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
   useEffect(() => {
     // We don't save the admin panel or blank screens
     if (isInitialized && !isSystemAdmin && !['standby', 'login'].includes(view)) {
-      if (items.length > 0) {
-        const sessionData = {
-          username,
-          teamId,
-          view,
-          items,
-          timestamp: Date.now(),
-        };
-        console.log('💾 LS: Saving progress...', { view, username, itemsCount: items.length });
-        localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
-      }
+      // Getting the current tokens from the URL to save them along with the progress
+      const params = new URLSearchParams(window.location.search);
+      const pToken = params.get('player_token');
+      const tToken = params.get('team_token');
+
+      const sessionData = {
+        username,
+        teamId,
+        view,
+        items,
+        player_token: pToken,
+        team_token: tToken,
+        timestamp: Date.now(),
+      };
+
+      localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
     }
-  }, [view, items, username, teamId, isSystemAdmin, isInitialized]);
+  }, [view, items, username, teamId, isInitialized, isSystemAdmin]);
 
   /**
    * CLEANUP ON LOGOUT/STANDBY

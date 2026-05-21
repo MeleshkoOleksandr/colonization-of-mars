@@ -252,12 +252,9 @@ export const DiscussionListView = ({
       {/* --- BOTTOM BUTTON PANEL --- */}
       <div className="flex flex-col gap-2 mt-8">
         {/* Timer */}
-        {/* ТЕРМИНАЛ ТАЙМЕРА (ADMIN ONLY - SLIM ROW VERSION) */}
         {isAdmin && (
           <div className="mb-4 border-2 border-[#00ff41]/20 bg-black/60 flex items-stretch p-1 gap-1 w-full shadow-[inset_0_0_10px_rgba(0,255,65,0.05)]">
-            {/* ЛЕВАЯ ЧАСТЬ: ИНФО + ИНПУТЫ (Все в одну строку) */}
             <div className="flex items-center gap-4 flex-1 px-3 py-1 bg-black/40 border border-[#00ff41]/10">
-              {/* СТОЛБЕЦ 1: Иконка и подпись (друг под другом) */}
               <div className="flex flex-col items-center justify-center shrink-0 min-w-12.5">
                 <Clock size={16} className={`${isTimerRunning ? 'text-[#00ff41] animate-pulse' : 'text-[#00ff41]/30'}`} />
                 <span className="text-[8px] uppercase opacity-50 font-black tracking-tighter leading-none mt-1">
@@ -265,7 +262,6 @@ export const DiscussionListView = ({
                 </span>
               </div>
 
-              {/* СТОЛБЕЦ 2: Поля ввода (в строчку) */}
               <div className="flex items-center gap-2 font-mono">
                 <div className="flex items-center gap-1">
                   <input
@@ -290,7 +286,7 @@ export const DiscussionListView = ({
                 </div>
               </div>
             </div>
-
+            
             {!isTimerRunning ? (
               <button
                 onClick={startTimer}
