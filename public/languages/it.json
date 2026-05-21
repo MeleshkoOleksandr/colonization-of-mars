@@ -101,7 +101,7 @@
   "msg_saveplayer": "Errore nel salvataggio del giocatore.",
   "msg_selectteam": "Selezionare una squadra specifica.",
   "msg_confirm_wipe_system": "PERICOLO CRITICO: Questa azione cancellerà TUTTE le squadre e TUTTI i risultati. Sei assolutamente sicuro?",
-  "loc.msg_confirm_quit" : "ATTENZIONE: Uscire dalla missione? Il progresso corrente verrà salvato a livello locale.",
+  "msg_confirm_quit" : "ATTENZIONE: Sei sicuro di voler uscire dalla missione? I tuoi progressi attuali andranno persi.",
 
   "/* --- TOOLTIPS & ACCESS --- */": "",
   "admin_msg_chkresults": "Status Risultati: Sblocca per permettere ai coloni di vedere il rapporto",

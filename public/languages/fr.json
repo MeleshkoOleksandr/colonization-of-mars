@@ -101,7 +101,7 @@
   "msg_saveplayer": "Erreur lors de l'enregistrement du joueur.",
   "msg_selectteam": "Sélectionnez une équipe spécifique.",
   "msg_confirm_wipe_system": "DANGER CRITIQUE : Cette action supprimera TOUTES les équipes et TOUS les résultats. Êtes-vous absolument sûr ?",
-  "loc.msg_confirm_quit": "ATTENTION : Quitter la mission ? La progression actuelle sera sauvegardée localement.",
+  "msg_confirm_quit": "ATTENTION : Quitter la mission ? La progression actuelle sera sauvegardée localement.",
 
   "/* --- TOOLTIPS & ACCESS --- */": "",
   "admin_msg_chkresults": "Statut des résultats : Déverrouiller pour permettre aux colons de consulter le rapport NASA",

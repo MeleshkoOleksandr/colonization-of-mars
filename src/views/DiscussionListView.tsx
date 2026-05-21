@@ -291,7 +291,6 @@ export const DiscussionListView = ({
               </div>
             </div>
 
-            {/* ПРАВАЯ ЧАСТЬ: КНОПКА (Растянута на всю высоту тонкой строки) */}
             {!isTimerRunning ? (
               <button
                 onClick={startTimer}
