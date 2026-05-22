@@ -371,9 +371,9 @@ export const AdminView = (props: AdminViewProps) => {
             <Save size={18} /> {loc.admin_lb_users}
           </h3>
           {/* RESULTS DASHBOARD */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 w-full overflow-hidden">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 w-full overflow-hidden">
             {/* GROUP 1: SYSTEM BUTTONS */}
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center gap-2 shrink-0">
               <button
                 onClick={() => setIsAutoRefresh(!isAutoRefresh)}
                 className={`px-3 py-1 border transition-all duration-300 flex items-center gap-2 ${

@@ -320,7 +320,6 @@ export const DiscussionListView = ({
                 setView('leaderboard');
               }}
               className="w-full bg-[#00ff41] text-black py-3 font-black uppercase text-lg hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,255,65,0.4)] flex items-center justify-center gap-2">
-              <Info size={20} />
               {loc.admin_btn_results || 'Visualizza Classifica'}
             </button>
           </div>
