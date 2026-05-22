@@ -44,10 +44,10 @@ export const SurvivalChart = ({ selections, staticItems, loc }: SurvivalChartPro
       <div className="border-2 border-[#00ff41]/30 bg-[#050505] p-2 shadow-[0_0_20px_rgba(0,255,65,0.1)] relative overflow-hidden">
         {/* Terminal-Style Tooltip */}
         <div className="h-6 mb-2 px-2 flex justify-between items-center border-b border-[#00ff41]/10">
-          <span className="text-[12px] font-black uppercase text-[#00ff41]/60">
-            {activeItem ? `> DATA_TRACE: ${activeItem}` : `> ANALISI_GRAFICA_RETE`}
+          <span className="text-[8px] md:text-[12px] font-black uppercase text-[#00ff41]/60">
+            {activeItem ? `${activeItem}` : `> ANALISI_GRAFICA_RETE`}
           </span>
-          <span className="text-[8px] text-amber-500 animate-pulse">{activeItem ? 'TARGET_LOCKED' : 'STANDBY'}</span>
+          <span className="text-[6px] md:text-[8px] text-amber-500 animate-pulse">{activeItem ? 'TARGET_LOCKED' : 'STANDBY'}</span>
         </div>
 
         <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto font-mono cursor-crosshair">
