@@ -98,6 +98,18 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     action: () => {},
   });
 
+   //  Switch modal window
+  const triggerModal = (type: ModalType, mode: ModalMode, message: string, action?: () => void) => {
+    setModal({
+      isOpen: true,
+      type,
+      mode,
+      message,
+      value: '',
+      action: action || (() => setModal(prev => ({ ...prev, isOpen: false }))),
+    });
+  };
+
   //                                                -----   ALL useEffect (Init, Auto-sync, ...)   -----
 
   /**
@@ -437,37 +449,41 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
   /**
    * HISTORY TRAP
    * Prevents accidental exit on mobile devices by intercepting the "Back" gesture.
+   * - If in User Detail: returns to previous list.
+   * - If in Mission: asks for exit confirmation.
    */
   useEffect(() => {
     // We block the exit only on the game screens
-    const isProtectedView = ['story', 'game', 'discussion-list', 'user-order'].includes(view);
-    console.log(`🛡️ TRAP CHECK: View=[${view}], Protected=[${isProtectedView}], Admin=[${isSystemAdmin}]`);
-    if (isProtectedView && !isSystemAdmin) {
-      // 1. Add a fake entry to the browser history
-      window.history.pushState(null, '', window.location.href);
-      const handlePopState = () => {
-        // 2. When the user taps “Back,” the browser tries to navigate back,
-        // but we immediately reset the history
-        window.history.pushState(null, '', window.location.href);
-        // 3. Display our nice confirmation window
-        triggerModal('confirm', ModalMode.IDLE, loc.msg_confirm_quit || 'ATTENZIONE: Uscire dalla missione?', () => {
-          // If exit is confirmed
-          // 1. Completely delete the entry from LocalStorage
-          localStorage.removeItem(SESSION_KEY);
-          // 2. Reset only the game progress
-          setItems([]);
-          setCurrentScore(0);
-          // 3. Proceed to the login page.
-          // NOTE: Do NOT clear the username and teamId variables,
-          setView('login');
-          setModal(prev => ({ ...prev, isOpen: false }));
-        });
-      };
-      window.addEventListener('popstate', handlePopState);
-      return () => window.removeEventListener('popstate', handlePopState);
-    }
-  }, [view, loc, isSystemAdmin]);
+    const protectedViews = ['story', 'game', 'discussion-list', 'results', 'leaderboard', 'user-detail'];
 
+    if (!protectedViews.includes(view) || isSystemAdmin) return;
+    // Every time the screen changes, we add an entry to the browser history
+    window.history.pushState({ view }, '', window.location.href);
+
+    const handlePopState = (event: PopStateEvent) => {
+      // CONTEXT CHECK:
+      if (view === 'user-detail') {
+        // SCENARIO A: We're in the player's details screen.
+        // Just switch the screen back (to the Leaderboard or Discussion)
+        setView(prevView);
+      } else {
+        // SCENARIO B: We're on the game screens.
+        // We log the entry to “lock” the user out
+        window.history.pushState({ view }, '', window.location.href);
+        // We show  the exit confirmation
+        triggerModal('confirm', ModalMode.IDLE, loc.msg_confirm_quit || 'Uscire dalla missione? Il progresso corrente verrà eliminato.', () => {
+          localStorage.removeItem(SESSION_KEY);
+          window.location.href = window.location.origin;
+        });
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [view, prevView, loc, isSystemAdmin, triggerModal]); // Все зависимости важны для правильной работы
   /**
    * AUTO-SAVE SESSION
    * Persists the current state to LocalStorage for recovery.
@@ -513,18 +529,6 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
   }, [view, isSystemAdmin]);
 
   //                                                                  -----   LOGIC HANDLERS   -----
-
-  //  Switch modal window
-  const triggerModal = (type: ModalType, mode: ModalMode, message: string, action?: () => void) => {
-    setModal({
-      isOpen: true,
-      type,
-      mode,
-      message,
-      value: '',
-      action: action || (() => setModal(prev => ({ ...prev, isOpen: false }))),
-    });
-  };
 
   const handleStart = () => {
     if (!username) {
