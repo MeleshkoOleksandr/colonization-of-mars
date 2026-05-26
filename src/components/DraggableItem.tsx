@@ -30,8 +30,20 @@ export const DraggableItem = ({ item, index }: DraggableItemProps) => {
         isChanged ? 'border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)]' : 'border-[#00ff41]/30 hover:border-[#00ff41]/60'
       }`}
       style={{ touchAction: 'pan-y' }}>
-      <div className="..." onPointerDown={e => controls.start(e)} style={{ touchAction: 'none' }}>
-        <GripVertical size={20} className={isChanged ? 'text-amber-500' : 'text-[#00ff41]/30'} />
+      {/* --- IMPROVED GRIP AREA --- */}
+      <div
+        className={`
+          cursor-grab active:cursor-grabbing 
+          /* Делаем область захвата широкой: 48px в ширину (w-12) и растягиваем на всю высоту */
+          w-12 -my-3 -ml-3 flex items-center justify-center shrink-0
+          /* Легкая фоновая подсветка, чтобы игрок понимал, за что тянуть */
+          bg-[#00ff41]/5 group-hover:bg-[#00ff41]/10 border-r border-[#00ff41]/10
+          transition-colors
+        `}
+        onPointerDown={e => controls.start(e)}
+        style={{ touchAction: 'none' }} // Disables scrolling ONLY in this area
+      >
+        <GripVertical size={24} className={isChanged ? 'text-amber-500' : 'text-[#00ff41]/40'} />
       </div>
 
       {/*  INDEX NUMBER : <current>[<old>] - for Commander */}
