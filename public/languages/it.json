@@ -156,5 +156,12 @@
   "timer_overlay_title": "CONTO ALLA ROVESCIA DISCUSSIONE",
   "timer_control_label": "DURATA",
   "timer_btn_start": " INIZIA",
-  "timer_btn_stop": " INTERROMPI"
+  "timer_btn_stop": " INTERROMPI",
+
+  "/* --- SENERGY --- */": "",
+  "lb_synergy_avg": "Media Squadra:",
+  "lb_synergy_gain": "Sinergia:",
+  "lb_synergy_result": "Efficienza Collettiva",
+  "lb_synergy_positive": "MIGLIORAMENTO",
+  "lb_synergy_negative": "DEGRADAZIONE"
 }

@@ -11,9 +11,21 @@ interface ResultsViewProps {
   getScoreMessage: (s: number) => string;
   staticItems: SurvivalItem[];
   setView: (view: any) => void;
+  teamId: number;
+  getTeamSynergy: (tId: number) => any;
 }
 
-export const ResultsView = ({ loc, username, currentTeamName, currentScore, getScoreMessage, staticItems, setView }: ResultsViewProps) => (
+export const ResultsView = ({
+  loc,
+  username,
+  currentTeamName,
+  currentScore,
+  getScoreMessage,
+  staticItems,
+  setView,
+  teamId,
+  getTeamSynergy,
+}: ResultsViewProps) => (
   <>
     <Header title={loc.result_lb_analis} />
     {/* PLAYER INFO BAR */}
@@ -22,6 +34,26 @@ export const ResultsView = ({ loc, username, currentTeamName, currentScore, getS
         {loc.lb_operator} <span className="text-white">{username}</span> | {loc.lb_team} <span className="text-white">{currentTeamName}</span>
       </div>
     </div>
+
+    {/* TEAM SENERGY INFO BAR */}
+    {username.startsWith('Commander') && (
+      <div className="text-center mb-4">
+        {(() => {
+          const stats = getTeamSynergy(teamId);
+          if (!stats) return null;
+          return (
+            <div
+              className={`inline-block border-2 px-4 py-1 text-[12px] md:text-[14px] uppercase tracking-widest ${
+                stats.isPositive ? 'border-[#00ff41] bg-[#00ff41]/10 text-[#00ff41]' : 'border-amber-500 bg-amber-500/10 text-amber-500'
+              }`}>
+              {loc.lb_synergy_avg} <span className="text-white font-black">{stats.avg}</span> | {loc.lb_synergy_gain}{' '}
+              <span className="text-white font-black">{stats.isPositive ? `+${stats.percentage}%` : `${stats.percentage}%`}</span>
+              <span className="ml-2 opacity-70">({stats.isPositive ? loc.lb_synergy_positive : loc.lb_synergy_negative})</span>
+            </div>
+          );
+        })()}
+      </div>
+    )}
 
     <div className="text-center mb-4">
       <div className="text-4xl font-black mb-2">{currentScore} (110) </div>

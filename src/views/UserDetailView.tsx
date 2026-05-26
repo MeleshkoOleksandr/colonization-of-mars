@@ -12,12 +12,13 @@ interface UserDetailViewProps {
   prevView: string;
   setView: (view: any) => void;
   loc: Localization;
+  getTeamSynergy: (tId: number) => any;
 }
 
 /**
  * MAIN VIEW COMPONENT
  */
-export const UserDetailView = ({ selectedUserDetail, staticItems, showDeltas, prevView, setView, loc }: any) => {
+export const UserDetailView = ({ selectedUserDetail, staticItems, showDeltas, prevView, setView, loc, getTeamSynergy }: any) => {
   // Condition of the accordion
   const [isChartExpanded, setIsChartExpanded] = useState(false);
   return (
@@ -37,6 +38,29 @@ export const UserDetailView = ({ selectedUserDetail, staticItems, showDeltas, pr
               <span className="text-white">{selectedUserDetail.team_name}</span>
             </div>
           </div>
+
+          {/* TEAM SENERGY INFO BAR */}
+          {selectedUserDetail.username.startsWith('Commander') && showDeltas && (
+            <div className="flex justify-center mt-4">
+              {(() => {
+                const stats = getTeamSynergy(selectedUserDetail.team_id);
+                // If there isn't enough data for the calculation, we don't display anything
+                if (!stats) return null;
+                return (
+                  <div
+                    className={`inline-block border px-4 py-1 text-[12px] uppercase tracking-wider shadow-[0_0_10px_rgba(0,0,0,0.5)] ${
+                      stats.isPositive ? 'border-[#00ff41] bg-[#00ff41]/10 text-[#00ff41]' : 'border-amber-500 bg-amber-500/10 text-amber-500'
+                    }`}>
+                    <span className="opacity-80">{loc.lb_synergy_result || 'Efficienza Collettiva'}:</span>
+                    <span className="text-white font-black ml-2">{stats.isPositive ? `+${stats.percentage}%` : `${stats.percentage}%`}</span>
+                    <span className="ml-2 text-[10px] opacity-60 lowercase italic">
+                      (Avg: {stats.avg} vs Cmd: {stats.commanderScore})
+                    </span>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
 
           <div className="mt-2 flex justify-center ">
             {showDeltas ? (

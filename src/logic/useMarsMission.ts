@@ -98,7 +98,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     action: () => {},
   });
 
-   //  Switch modal window
+  //  Switch modal window
   const triggerModal = (type: ModalType, mode: ModalMode, message: string, action?: () => void) => {
     setModal({
       isOpen: true,
@@ -587,6 +587,34 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
   };
 
   /**
+   * TEAM SYNERGY CALCULATOR
+   * Compares the average score of all individual players
+   * against the final Commander's score.
+   */
+  const getTeamSynergy = (tId: number) => {
+    // 1. Get all regular members (exclude results starting with "Commander" and those who haven't finished)
+    const members = allResults.filter(r => r.team_id === tId && r.score !== -1 && !r.username.startsWith('Commander'));
+    // 2. Get the Commander's result
+    const commander = allResults.find(r => r.team_id === tId && r.username.startsWith('Commander'));
+    // If we don't have both components, synergy cannot be calculated
+    if (members.length === 0 || !commander) return null;
+    // 3. Calculate Average
+    const totalMemberScore = members.reduce((sum, r) => sum + r.score, 0);
+    const avgScore = totalMemberScore / members.length;
+    // 4. Calculate Gain/Loss (Lower score is better in NASA logic)
+    const gain = avgScore - commander.score;
+    const percentage = (gain / avgScore) * 100;
+
+    return {
+      avg: Math.round(avgScore),
+      commanderScore: commander.score,
+      gain: Math.round(gain),
+      percentage: Math.round(percentage),
+      isPositive: gain >= 0,
+    };
+  };
+
+  /**
    * ADMIN & DATABASE HANDLERS
    */
   // Logic for deleting a team
@@ -995,6 +1023,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     setCurrentScore,
     isAnalyzing,
     setIsAnalyzing,
+    getTeamSynergy,
 
     // --- 3. MISSION CONTENT (XML DATA) ---
     story,
@@ -1084,5 +1113,6 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     isTimerRunning,
     startTimer,
     stopTimer,
+    
   };
 };

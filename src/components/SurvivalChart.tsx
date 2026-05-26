@@ -45,7 +45,7 @@ export const SurvivalChart = ({ selections, staticItems, loc }: SurvivalChartPro
         {/* Terminal-Style Tooltip */}
         <div className="h-6 mb-2 px-2 flex justify-between items-center border-b border-[#00ff41]/10">
           <span className="text-[8px] md:text-[12px] font-black uppercase text-[#00ff41]/60">
-            {activeItem ? `${activeItem}` : `> ANALISI_GRAFICA_RETE`}
+            {activeItem ? `> ${activeItem}` : `> ANALISI_GRAFICA_RETE`}
           </span>
           <span className="text-[6px] md:text-[8px] text-amber-500 animate-pulse">{activeItem ? 'TARGET_LOCKED' : 'STANDBY'}</span>
         </div>

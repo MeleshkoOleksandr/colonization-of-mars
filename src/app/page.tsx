@@ -124,6 +124,8 @@ export default function MarsSurvivalGame() {
         getScoreMessage={app.getScoreMessage}
         staticItems={app.staticItems}
         setView={app.setView}
+        teamId={app.teamId}
+        getTeamSynergy={app.getTeamSynergy}
       />
     );
   } else if (app.view === 'leaderboard') {
@@ -149,7 +151,7 @@ export default function MarsSurvivalGame() {
         setPrevView={app.setPrevView}
         setView={app.setView}
         triggerModal={app.triggerModal}
-        handleFinishMission={app.handleFinishMission} 
+        handleFinishMission={app.handleFinishMission}
       />
     );
   } else if (app.view === 'user-detail' && app.selectedUserDetail) {
@@ -161,6 +163,7 @@ export default function MarsSurvivalGame() {
         prevView={app.prevView}
         setView={app.setView}
         loc={app.loc}
+        getTeamSynergy={app.getTeamSynergy}
       />
     );
   } else if (app.view === 'admin') {

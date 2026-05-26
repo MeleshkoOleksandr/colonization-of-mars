@@ -156,5 +156,12 @@
   "timer_overlay_title": "DISKUSSIONS-COUNTDOWN",
   "timer_control_label": "DAUER",
   "timer_btn_start": " STARTEN",
-  "timer_btn_stop": " STOPPEN"
+  "timer_btn_stop": " STOPPEN",
+
+   "/* --- SENERGY --- */": "",
+  "lb_synergy_avg": "Teamdurchschnitt:",
+  "lb_synergy_gain": "Synergie:",
+  "lb_synergy_result": "Kollektive Effizienz",
+  "lb_synergy_positive": "VERBESSERUNG",
+  "lb_synergy_negative": "VERSCHLECHTERUNG"
 }
