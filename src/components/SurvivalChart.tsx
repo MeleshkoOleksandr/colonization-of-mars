@@ -1,20 +1,28 @@
 'use client';
 import React, { useState } from 'react';
 import { SurvivalItem, Localization } from '../logic';
+import { downloadSVGAsPNG } from '../utils/exportUtils';
+import { Download } from 'lucide-react';
 
 interface SurvivalChartProps {
   selections: string[];
   staticItems: SurvivalItem[];
   loc: Localization;
+  playerName: string;
 }
 
 /**
  * COMPONENT: Survival Correlation Chart
  * Renders an SVG line graph comparing User order vs NASA ideal order.
  */
-export const SurvivalChart = ({ selections, staticItems, loc }: SurvivalChartProps) => {
+export const SurvivalChart = ({ selections, staticItems, loc, playerName }: SurvivalChartProps) => {
   // State for storing the item name on hover
   const [activeItem, setActiveItem] = useState<string | null>(null);
+
+  const handleExport = () => {
+    const fileName = `CHART_${playerName?.replace(/\s+/g, '_') || 'MISSION'}`;
+    downloadSVGAsPNG('survival-svg-chart', fileName);
+  };
 
   const width = 500;
   const height = 300;
@@ -50,7 +58,7 @@ export const SurvivalChart = ({ selections, staticItems, loc }: SurvivalChartPro
           <span className="text-[6px] md:text-[8px] text-amber-500 animate-pulse">{activeItem ? 'TARGET_LOCKED' : 'STANDBY'}</span>
         </div>
 
-        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto font-mono cursor-crosshair">
+        <svg id="survival-svg-chart" viewBox={`0 0 ${width} ${height}`} className="w-full h-auto font-mono cursor-crosshair">
           <defs>
             <filter id="glow-chart">
               <feGaussianBlur stdDeviation="1.5" result="blur" />
@@ -138,14 +146,25 @@ export const SurvivalChart = ({ selections, staticItems, loc }: SurvivalChartPro
         </svg>
 
         {/* LEGEND */}
-        <div className="flex justify-center gap-6 mt-2 pb-1 text-[8px] font-black uppercase text-[#00ff41]/50 tracking-tighter">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#00ff41] opacity-60"></div>
-            <span>NASA_REF</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 border border-amber-500 bg-black"></div>
-            <span>USER_DATA</span>
+        <div className="flex justify-between items-center mt-2 px-2 pb-1">
+          {/* Download button */}
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-1 text-[12px] font-black uppercase text-[#00ff41]/40 hover:text-[#00ff41] transition-colors border border-transparent hover:border-[#00ff41]/30 px-1 py-0.5"
+            title={loc.btn_download || 'Scarica Immagine'}>
+            <Download size={16} />
+            <span>Export PNG</span>
+          </button>
+
+          <div className="flex gap-4 text-[7px] font-black uppercase text-[#00ff41]/30">
+            <div className="flex items-center gap-1">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#00ff41] opacity-50"></div>
+              <span>NASA</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-1.5 h-1.5 border border-amber-500 bg-black"></div>
+              <span>YOU</span>
+            </div>
           </div>
         </div>
       </div>

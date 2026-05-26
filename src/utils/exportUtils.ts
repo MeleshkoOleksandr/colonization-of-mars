@@ -89,17 +89,7 @@ export const downloadQRCode = (name: string, loc: Localization) => {
   // 5. Drow the QR code
   ctx.fillStyle = '#00ff41';
   ctx.fillRect(padding - 10, headerSpace - 10, qrSize + 20, qrSize + 20);
-  ctx.drawImage(
-    qrCanvas,
-    0,
-    0,
-    qrCanvas.width,
-    qrCanvas.height,
-    padding,
-    headerSpace,
-    qrSize,
-    qrSize
-  );
+  ctx.drawImage(qrCanvas, 0, 0, qrCanvas.width, qrCanvas.height, padding, headerSpace, qrSize, qrSize);
 
   // 6. Saving
   const pngUrl = canvas.toDataURL('image/png');
@@ -109,4 +99,51 @@ export const downloadQRCode = (name: string, loc: Localization) => {
   document.body.appendChild(downloadLink);
   downloadLink.click();
   document.body.removeChild(downloadLink);
+};
+
+/**
+ * EXPORT SVG TO PNG
+ * Captures an SVG element and triggers a high-res PNG download.
+ */
+export const downloadSVGAsPNG = (svgId: string, filename: string) => {
+  const svg = document.getElementById(svgId);
+  if (!svg) return;
+
+  // 1. Get SVG data and serialize it
+  const svgData = new XMLSerializer().serializeToString(svg);
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  // 2. Set dimensions (using a multiplier for higher quality)
+  const svgRect = svg.getBoundingClientRect();
+  const scale = 2; // Increase for better resolution
+  canvas.width = svgRect.width * scale;
+  canvas.height = svgRect.height * scale;
+
+  const img = new Image();
+  // Using btoa to encode SVG as Base64
+  const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(svgBlob);
+
+  img.onload = () => {
+    // Fill background (since our theme is dark)
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw the image onto canvas
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    // Trigger download
+    const pngUrl = canvas.toDataURL('image/png');
+    const downloadLink = document.createElement('a');
+    downloadLink.href = pngUrl;
+    downloadLink.download = `${filename}.png`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+    URL.revokeObjectURL(url);
+  };
+
+  img.src = url;
 };
