@@ -163,5 +163,6 @@
   "lb_synergy_gain": "Sinergia:",
   "lb_synergy_result": "Efficienza Collettiva",
   "lb_synergy_positive": "MIGLIORAMENTO",
-  "lb_synergy_negative": "DEGRADAZIONE"
+  "lb_synergy_negative": "DEGRADAZIONE",
+  "lb_synergy_aveg": "Team m.a."
 }

@@ -163,5 +163,6 @@
   "lb_synergy_gain": "Synergie :",
   "lb_synergy_result": "Efficacité collective",
   "lb_synergy_positive": "AMÉLIORATION",
-  "lb_synergy_negative": "DÉGRADATION"
+  "lb_synergy_negative": "DÉGRADATION",
+  "lb_synergy_aveg": "Avg:"
 }
