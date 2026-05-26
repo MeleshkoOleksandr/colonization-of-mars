@@ -54,7 +54,7 @@ export const UserDetailView = ({ selectedUserDetail, staticItems, showDeltas, pr
                     <span className="opacity-80">{loc.lb_synergy_result || 'Efficienza Collettiva'}:</span>
                     <span className="text-white font-black ml-2">{stats.isPositive ? `+${stats.percentage}%` : `${stats.percentage}%`}</span>
                     <span className="ml-2 text-[10px] opacity-60 lowercase italic">
-                      ({loc.lb_synergy_aveg} {stats.avg} vs Cmd: {stats.commanderScore})
+                      ({loc.lb_synergy_aveg} {stats.avg})
                     </span>
                   </div>
                 );
