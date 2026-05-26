@@ -125,7 +125,7 @@ export const UserDetailView = ({ selectedUserDetail, staticItems, showDeltas, pr
           {/* graphic rendering */}
           {isChartExpanded && (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="overflow-hidden">
-              <SurvivalChart selections={selectedUserDetail.selections} staticItems={staticItems} loc={loc} />
+              <SurvivalChart selections={selectedUserDetail.selections} staticItems={staticItems} loc={loc}  playerName={selectedUserDetail.username}  />
             </motion.div>
           )}
         </div>
