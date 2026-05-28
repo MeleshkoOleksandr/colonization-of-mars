@@ -47,7 +47,6 @@ export const DraggableItem = ({ item, index }: DraggableItemProps) => {
       {/*  ITEM PHOTO */}
       <div className="flex items-center">
         {' '}
-        {/* Обертка для центрирования фото */}
         <div className={`w-16 h-16 border overflow-hidden bg-black shrink-0 ${isChanged ? 'border-amber-500/50' : 'border-[#00ff41]/20'}`}>
           <img src={`/img/${item.photo}`} alt="" className="w-full h-full object-cover opacity-80" />
         </div>

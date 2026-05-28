@@ -21,7 +21,7 @@ export const GameView = ({ username, currentTeamName, items, setItems, finishGam
         <br />
         {loc.lb_team} {currentTeamName}
       </div>
-      <h2 className="text-xl font-bold uppercase tracking-widest">{loc.lb_configuration}</h2>
+      <h2 className="text-xl font-bold uppercase tracking-widest ml-3">{loc.lb_configuration}</h2>
     </div>
 
     <Reorder.Group
