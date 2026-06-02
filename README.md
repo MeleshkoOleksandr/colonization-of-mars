@@ -15,21 +15,12 @@ The game features a **Retro-Futuristic CRT aesthetic** (inspired by 70s-80s sci-
 ## 🎮 Gameplay Flow & Features
 
 The platform follows a specific "Team Synchronization" methodology designed for educational environments:
-### 1. Identity Verification:
-*   Admin pre-registers players for each team.
-*   Players select their name from an authorized list (or access the game via a direct personal link).
-### 2. Individual Phase:
-*   Each player ranks 15 items via Drag & Drop.
-*   Once submitted, data is archived. Scores and NASA's correct order remain locked and hidden.
-### 3. Collaborative Debrief (Discussion Room):
-*   Players enter a live list where they see who has finished.
-*   They can "Analyze" each other's choices to discuss survival logic without being biased by scores.
-### 4. Assuming Command:
-*   The team elects a Commander.
-*   The Commander re-takes the simulation on behalf of the whole unit, incorporating the group's collective insights.
-### 5. Data Synchronization:
-*   Once the Commander submits the "Final Order", they (or the Admin) can Unlock Results.
-*   The entire team is then granted access to the final NASA report, penalty scores, and survival logic.
+1.  **Terminal Standby**: The public domain opens to a **Standby Screen**. Direct access is forbidden. Users must arrive via a secure **Access Link** or **QR Code**.
+2.  **Identity Verification**: Players select their name from a pre-authorized manifest created by the Admin. Personal links automatically pre-select the player.
+3.  **Individual Phase**: Each colono ranks 15 inventory items via **Drag & Drop**. Upon submission, data is archived. NASA standard ranks and individual scores remain **Classified (Hidden)**.
+4.  **Collective Debrief**: Players enter a live **Discussion List**. They can "Analyze" each other's lists to argue their logic verbally, without the bias of scores.
+5.  **Assuming Command**: The team elects a **Commander**. The Commander re-takes the simulation, incorporating the group's collective wisdom. The Commander's UI highlights changes from their original individual order in **Amber**.
+6.  **Mission Report**: The Admin unlocks the data. The system calculates **Team Synergy** (Collective IQ vs. Individual Average) and generates a **Correlation Matrix Chart** to visualize decision-making accuracy.
 
 ---
 
@@ -40,7 +31,7 @@ The Command Center provides full control over the training session.
 #### Security: Access requires an Authorization Code (Default: `adm` can be changed later in UI).
 *   **Secure Entry**: Access via a hidden terminal icon in the top-right corner of the **Standby** and **Login** screens.
 *   **Authentication**: Uses secure **hashed password** verification with a retro "Eye" toggle for visibility.
-*    **The passwordn** can be changed on the administrator page, and its hash is stored in the database in the table settings
+*    **The password** can be changed on the administrator page, and its hash is stored in the database in the table settings
 
 ### 🛠 Management Features:
 *   **Access Control**: Generate **Unit QR Codes** (for the whole team) or **Individual QR Codes** (for specific players). Links automatically set the correct language and pre-select names.
@@ -73,13 +64,15 @@ npm install framer-motion lucide-react.
 npm install qrcode.react
 npm install bcryptjs
 npm install -D @types/bcryptjs
+npm install pg
+npm install -D @types/pg
 ```
 ### 3. Connect Database (Postgres)
 
-The platform is optimized for **Vercel Postgres (Neon)**. To ensure data isolation, it uses a dedicated **Database Schema**.
+The platform is optimized for **Vercel Postgres (Neon)** and local Postgres use. To ensure data isolation, it uses a dedicated **Database Schema**.
 
 *  **Initialize Tables**: Run the script in `/db/init.sql`. This creates the `mars_mission` schema and all required tables (`teams`, `results`, `settings`).
-* Create a .env.local file in the root directory.
+* Create or copy a .env.local file in the root directory for Vercel environment variables.
 * Add your connection string:
 ```env
 POSTGRES_URL="your_postgres_connection_string_here"
@@ -91,6 +84,23 @@ In the terminal window, type the following command
 npm run dev.
 ```
 Navigate to: http://localhost:3000
+
+---
+
+## 📦 Containerization (Docker)
+
+The platform is fully containerized for easy deployment on any server or private network.
+
+### 🛠 Building the Container
+To build the image locally:
+```bash
+docker compose build
+```
+### 🚀 Running the Local Stack
+To start the app and a local Postgres instance simultaneously:
+```bash
+docker compose up -d
+```
 
 ---
 
