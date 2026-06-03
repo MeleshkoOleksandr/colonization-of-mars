@@ -650,7 +650,9 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     });
   };
 
+  const [isSaving, setIsSaving] = useState(false);
   const executeAddTeam = async () => {
+    if (isSaving) return; // Safety lock: If you've already saving, exit
     // Parsing player names from a TextArea
     const playerNames = modal.value
       .split('\n')
@@ -662,6 +664,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     }
 
     try {
+      setIsSaving(true); // ENABLE LOCK
       //  We use `newTeamName` and `selectedScenarioForNewTeam` from  states
       await addTeamWithPlayersAction(newTeamName.trim(), selectedScenarioForNewTeam, playerNames);
 
@@ -675,6 +678,8 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     } catch (error) {
       console.error(error);
       triggerModal('alert', ModalMode.IDLE, loc.msg_modal_saveerror);
+    } finally {
+      setIsSaving(false); // DISABLE THE LOCK in any case
     }
   };
 
@@ -871,17 +876,17 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     });
   };
 
-  let isProcessing = false;
+
   // Function used for save (called from a modal window)
   const executeAddSinglePlayer = async () => {
     // If the request is already being processed, we ignore the duplicate call
-    if (isProcessing) return;
+    if (isSaving || !modal.value.trim()) return;
 
     if (modal.value.trim() && adminTeamFilter.startsWith('team:')) {
       const targetTeamId = parseInt(adminTeamFilter.split(':')[1]);
 
       try {
-        isProcessing = true; // Block
+        setIsSaving(true); // Block
         await addSinglePlayerAction(targetTeamId, modal.value);
         // Updating the list of results
         const freshResults = await getResultsAction();
@@ -891,7 +896,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
       } catch (error) {
         console.error(error);
       } finally {
-        isProcessing = false; // We'll unlock it anyway
+        setIsSaving(false); // We'll unlock it anyway
       }
     }
   };
@@ -1063,6 +1068,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     setIsAutoRefresh,
     setIsCopied,
     isCopied,
+    isSaving ,
 
     // --- 7. ADMIN FORM DATA ---
     newTeamName,
@@ -1113,6 +1119,5 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     isTimerRunning,
     startTimer,
     stopTimer,
-    
   };
 };

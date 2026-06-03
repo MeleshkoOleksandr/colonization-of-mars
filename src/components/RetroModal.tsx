@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ModalType, Localization, ModalMode } from '../logic';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, RefreshCcw } from 'lucide-react';
 
 /**
  * Universal Modal UI used for Alerts, Confirms, and Admin Prompts.
@@ -13,16 +13,17 @@ import { Eye, EyeOff } from 'lucide-react';
 interface RetroModalProps {
   isOpen: boolean;
   type: ModalType;
-  mode: ModalMode; 
+  mode: ModalMode;
   message: string;
   value?: string;
   onClose: () => void;
   onConfirm: () => void;
   onChange?: (val: string) => void;
   loc: Localization;
+  isSaving?: boolean;
 }
 
-export const RetroModal = ({ isOpen, type, mode, message, value, onClose, onConfirm, onChange, loc }: RetroModalProps) => {
+export const RetroModal = ({ isOpen, type, mode, message, value, onClose, onConfirm, onChange, loc, isSaving }: RetroModalProps) => {
   // For password hide
   const [showPassword, setShowPassword] = React.useState(false);
   // Reset visibility when modal closes
@@ -46,7 +47,7 @@ export const RetroModal = ({ isOpen, type, mode, message, value, onClose, onConf
   }, [isOpen, onConfirm, onClose, type]);
 
   if (!isOpen) return null;
-  const isPasswordField = mode === ModalMode.ADMIN_AUTH || (message && message.toLowerCase().includes("password"));
+  const isPasswordField = mode === ModalMode.ADMIN_AUTH || (message && message.toLowerCase().includes('password'));
 
   return (
     <div className="fixed inset-0 z-300 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
@@ -105,12 +106,26 @@ export const RetroModal = ({ isOpen, type, mode, message, value, onClose, onConf
           {type !== 'alert' && (
             <button
               onClick={onClose}
+              disabled={isSaving} // Disable the “Cancel” button when saving
               className="px-4 py-2 border border-[#00ff41]/50 text-[#00ff41]/50 hover:text-[#00ff41] uppercase text-xs font-bold">
               {loc.msg_modal_cancel || 'Annulla'}
             </button>
           )}
-          <button onClick={onConfirm} className="px-6 py-2 bg-[#00ff41] text-black font-black uppercase text-xs hover:bg-white transition-colors">
-            {type === 'confirm' ? loc.msg_modal_confirm || 'Conferma' : loc.msg_modal_exit || 'Esegui'}
+          <button
+            onClick={onConfirm}
+            disabled={isSaving} // Disable the confirmation button
+            className="px-6 py-2 bg-[#00ff41] text-black font-black uppercase text-xs hover:bg-white transition-colors disabled:bg-gray-600 disabled:cursor-wait min-w-25">
+            {/* 3. Change the text to “Processing...” while saving */}
+            {isSaving ? (
+              <div className="flex items-center gap-2">
+                <RefreshCcw size={12} className="animate-spin" />
+                <span>{loc.modal_status_busy || '...'}</span>
+              </div>
+            ) : type === 'confirm' ? (
+              loc.btn_confirm || 'Conferma'
+            ) : (
+              loc.btn_execute || 'Esegui'
+            )}
           </button>
         </div>
       </motion.div>

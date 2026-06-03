@@ -251,6 +251,7 @@ export default function MarsSurvivalGame() {
         }}
         onChange={val => app.setModal(prev => ({ ...prev, value: val }))}
         loc={app.loc}
+        isSaving={app.isSaving} 
       />
 
       {/* QR ACCESS MODAL */}
