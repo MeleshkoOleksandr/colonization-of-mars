@@ -5,6 +5,12 @@
     "name": "Sopravvivenza su Marte (It)",
     "language": "it" 
   },
+    {
+    "id": "mars_en",
+    "file": "story_mars_en.xml",
+    "name": "Survival on Mars (En)",
+    "language": "en" 
+  },
   {
     "id": "mars_de",
     "file": "story_mars_de.xml",

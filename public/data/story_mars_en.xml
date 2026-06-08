@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Mission>
+    <Story>
+        <Language>en</Language>
+        <Logo>logo_mars.png</Logo>
+        <Title>Survival in Valles Marineris on Mars</Title>
+        <Plot>You are members of an advanced colony crew heading toward the main dome of the "Ares-1" base on Mars. During descent, your cargo rover was hit by a violent dust storm and flipped over 150 kilometers away from your destination. The rover's life support systems are down, and communications with the base are cut off. Your objective: travel 150 km across the Martian desert to reach the base. You are wearing spacesuits, but resources are limited.</Plot>
+    </Story>
+    <Evaluations>
+        <Rank threshold="20">EXCELLENT. Elon Musk would be proud of you. You are the elite of space colonization!</Rank>
+        <Rank threshold="35">GOOD. You will make it to the base, though with some minor frostbite.</Rank>
+        <Rank threshold="50">ACCEPTABLE. You will probably get stuck halfway with dead batteries.</Rank>
+        <Rank threshold="70">POOR. This indicates relying too heavily on Earth-bound logic.</Rank>
+        <Rank threshold="999">DISASTER. You have become part of the Martian landscape. Your remains will serve as fertilizer.</Rank>
+    </Evaluations>
+    <Items>
+        <Item id="o2">
+            <Name>Compressed oxygen tanks</Name>
+            <Photo>item_o2.jpg</Photo>
+            <Position>1</Position>
+            <Description>The most critical item of all. The Martian atmosphere is unbreathable. Without oxygen, death is immediate.</Description>
+        </Item>
+        <Item id="rtg">
+            <Name>Thermal generator (RTG)</Name>
+            <Photo>item_rtg.jpg</Photo>
+            <Position>2</Position>
+            <Description>Essential to prevent freezing. Mars is extremely cold (down to -60°C). This device provides constant heat for you and your suits.</Description>
+        </Item>
+        <Item id="nav">
+            <Name>Navigation unit (Gyroscope)</Name>
+            <Photo>item_nav.jpg</Photo>
+            <Position>3</Position>
+            <Description>Your electronic compass. There are no GPS satellites on Mars. Without this tool, you would get lost in the desert instantly.</Description>
+        </Item>
+        <Item id="water">
+            <Name>Water supply (20 liters)</Name>
+            <Photo>item_water20.jpg</Photo>
+            <Position>4</Position>
+            <Description>Essential for life. Walking 150 kilometers requires massive physical effort, and you will need water for several days of travel.</Description>
+        </Item>
+        <Item id="seal">
+            <Name>Liquid sealant spray</Name>
+            <Photo>item_seal.jpg</Photo>
+            <Position>5</Position>
+            <Description>A "band-aid" for spacesuits. If your suit scratches or punctures against sharp rocks, this fluid seals the hole instantly.</Description>
+        </Item>
+        <Item id="food">
+            <Name>High-calorie protein paste tubes</Name>
+            <Photo>item_food.jpg</Photo>
+            <Position>6</Position>
+            <Description>Nutritious food that is light to carry. It will provide the energy needed for the estimated 3 to 5 days of walking.</Description>
+        </Item>
+        <Item id="tent">
+            <Name>Airtight inflatable tent</Name>
+            <Photo>item_tent.jpg</Photo>
+            <Position>7</Position>
+            <Description>A small mobile shelter. It allows you to create a safe air bubble to take off your suit, eat, and rest.</Description>
+        </Item>
+        <Item id="solar">
+            <Name>Flexible solar panels</Name>
+            <Photo>item_solar.jpg</Photo>
+            <Position>8</Position>
+            <Description>Useful for recharging suit systems during the day, although dust kicked up by the storm will reduce their efficiency.</Description>
+        </Item>
+        <Item id="med">
+            <Name>First aid kit</Name>
+            <Photo>item_med.jpg</Photo>
+            <Position>9</Position>
+            <Description>Standard medicines and bandages. Necessary to treat cuts, wounds, or minor injuries that might occur during the trek.</Description>
+        </Item>
+        <Item id="rope">
+            <Name>Kevlar rope (30m)</Name>
+            <Photo>item_rope.jpg</Photo>
+            <Position>10</Position>
+            <Description>Very strong and lightweight. Used to overcome slopes, climb down canyons, or tie yourselves together so you don't get lost if visibility drops.</Description>
+        </Item>
+        <Item id="shovel">
+            <Name>Titanium folding shovel</Name>
+            <Photo>item_shovel.jpg</Photo>
+            <Position>11</Position>
+            <Description>A practical tool. After dust storms, it will be highly useful to shovel away sand and clear out shelter entrances or base airlocks.</Description>
+        </Item>
+        <Item id="laser">
+            <Name>Powerful laser pointer</Name>
+            <Photo>item_laser.jpg</Photo>
+            <Position>12</Position>
+            <Description>An excellent visual signaling device. The light beam can be seen very far in the thin Martian air. Useful to get noticed by rescue teams.</Description>
+        </Item>
+        <Item id="n2">
+            <Name>Compressed nitrogen tank</Name>
+            <Photo>item_n2.jpg</Photo>
+            <Position>13</Position>
+            <Description>Nearly useless. It is unbreathable, and the tank's pressure is too weak to push or move a person on the surface.</Description>
+        </Item>
+        <Item id="comp">
+            <Name>Magnetic compass</Name>
+            <Photo>item_comp.jpg</Photo>
+            <Position>14</Position>
+            <Description>Useless. Mars lacks a global magnetic field like Earth, so the compass needle will just spin aimlessly without showing any direction.</Description>
+        </Item>
+        <Item id="fire">
+            <Name>Plasma lighter</Name>
+            <Photo>item_fire.jpg</Photo>
+            <Position>15</Position>
+            <Description>Useless. The Martian atmosphere consists of carbon dioxide and lacks oxygen. Lighting a fire or flame is physically impossible.</Description>
+        </Item>
+    </Items>
+</Mission>
