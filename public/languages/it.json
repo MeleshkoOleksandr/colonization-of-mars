@@ -157,6 +157,8 @@
   "timer_control_label": "DURATA",
   "timer_btn_start": " INIZIA",
   "timer_btn_stop": " INTERROMPI",
+  "timer_expand": "Espandi",
+  "timer_minimize": "Riduci",
 
   "/* --- SENERGY --- */": "",
   "lb_synergy_avg": "Media Squadra:",

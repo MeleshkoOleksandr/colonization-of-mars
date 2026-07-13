@@ -411,6 +411,8 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
   };
 
   // Timer logic
+  const [isTimerMinimized, setIsTimerMinimized] = useState(false);
+
   useEffect(() => {
     let interval: NodeJS.Timeout;
 
@@ -435,15 +437,16 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     if (totalSeconds <= 0) return;
     setActiveTimerDuration(totalSeconds);
     setTimeLeft(totalSeconds);
-    setIsAutoRefresh(false); // Disable automatic database updates so as not to interfere
+    //setIsAutoRefresh(false); // Disable automatic database updates so as not to interfere
     setIsTimerRunning(true);
   };
 
   const stopTimer = () => {
     setIsTimerRunning(false);
     setTimeLeft(null);
-    // restore auto update
-    setIsAutoRefresh(true);
+   
+    //setIsAutoRefresh(true);  // restore auto update
+    setIsTimerMinimized(false); // reset on timer end
   };
 
   /**
@@ -1119,5 +1122,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     isTimerRunning,
     startTimer,
     stopTimer,
+    isTimerMinimized,
+    setIsTimerMinimized
   };
 };

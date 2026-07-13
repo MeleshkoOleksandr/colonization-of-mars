@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { ArrowLeft, RefreshCcw, Info, Clock, Play, Square } from 'lucide-react';
+import { ArrowLeft, RefreshCcw, Maximize2, Minimize2, Clock, Play, Square } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GameResult, Team, Localization, ModalMode } from '../logic';
 
@@ -37,6 +37,8 @@ interface DiscussionListViewProps {
   startTimer: () => void;
   stopTimer: () => void;
   activeTimerDuration: number;
+  isTimerMinimized: boolean;
+  setIsTimerMinimized: (val: boolean) => void;
 }
 
 export const DiscussionListView = ({
@@ -71,6 +73,8 @@ export const DiscussionListView = ({
   startTimer,
   stopTimer,
   activeTimerDuration,
+  isTimerMinimized,
+  setIsTimerMinimized,
 }: DiscussionListViewProps) => {
   const uniqueTeamIds: number[] = Array.from(new Set(discussionResults.map(r => r.team_id))).sort((a, b) => a - b);
   const isCommander = username.startsWith('Commander');
@@ -127,36 +131,72 @@ export const DiscussionListView = ({
 
   return (
     <>
-      {/* TIMER: A MASSIVE VISUAL EFFECT */}
+      {/* TIMER VISUAL EFFECT */}
       <AnimatePresence>
         {isTimerRunning && timeLeft !== null && (
           <motion.div
-            initial={{ opacity: 0, y: -50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -50 }}
-            className="fixed inset-0 flex items-center justify-center z-100 pointer-events-none">
-            {/* A very wide, translucent band across the entire screen */}
-            <div className="w-full bg-[#00ff41]/5 border-y-2 border-[#00ff41]/20 backdrop-blur-md py-12 flex flex-col items-center justify-center shadow-[0_0_100px_rgba(0,0,0,0.9)]">
-              <div className="text-[#00ff41] font-black uppercase tracking-[0.8em] text-[10px] md:text-sm mb-4 animate-pulse opacity-70">
-                — {loc.timer_overlay_title || 'DEBRIEFING COUNTDOWN'} —
+            className="fixed top-0 left-0 w-full z-150 flex flex-col items-center overflow-hidden border-[#00ff41]/30 backdrop-blur-md pointer-events-none"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{
+              height: isTimerMinimized ? '70px' : '100vh',
+              borderBottomWidth: isTimerMinimized ? '2px' : '0px',
+              backgroundColor: isTimerMinimized ? 'rgba(0,0,0,0.95)' : 'rgba(0,0,0,0.85)',
+              opacity: 1,
+            }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}>
+            {/* Timer content*/}
+            <div
+              className={`relative w-full h-full flex flex-col items-center pointer-events-auto ${isTimerMinimized ? 'justify-center' : 'justify-center'}`}>
+              {/* MINIMIZE / MAXIMIZE BUTTON */}
+              <button
+                onClick={() => setIsTimerMinimized(!isTimerMinimized)}
+                className="absolute top-4 right-4 z-160 text-[#00ff41]/50 hover:text-[#00ff41] p-2 transition-all active:scale-90"
+                title={isTimerMinimized ? loc.timer_expand || 'Expand' : loc.timer_minimize || 'Minimize'}>
+                {isTimerMinimized ? <Maximize2 size={20} /> : <Minimize2 size={24} />}
+              </button>
+
+              {/* MAIN BLOCK : NUMBER AND TEXT */}
+              <div
+                className={`flex flex-col items-center transition-all duration-500 ${isTimerMinimized ? 'scale-[0.4] md:scale-[0.5]' : 'scale-100'}`}>
+                {!isTimerMinimized && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.7 }}
+                    className="text-[#00ff41] font-black uppercase tracking-[0.8em] text-[10px] md:text-sm mb-4 animate-pulse text-center">
+                    — {loc.timer_overlay_title || 'MISSION DEBRIEFING COUNTDOWN'} —
+                  </motion.div>
+                )}
+
+                <div
+                  className={`font-black font-mono text-[#00ff41] leading-none drop-shadow-[0_0_20px_#00ff41] flex items-center gap-4 ${
+                    isTimerMinimized ? 'text-8xl' : 'text-8xl md:text-[12rem]'
+                  }`}>
+                  <span className="tabular-nums">
+                    {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
+                  </span>
+                </div>
+
+                {!isTimerMinimized && (
+                  <div className="w-full max-w-2xl h-1 bg-[#00ff41]/10 mt-8 relative overflow-hidden">
+                    <motion.div
+                      initial={{ width: '100%' }}
+                      animate={{ width: '0%' }}
+                      transition={{ duration: activeTimerDuration, ease: 'linear' }}
+                      className="absolute inset-0 bg-[#00ff41] shadow-[0_0_15px_#00ff41]"
+                    />
+                  </div>
+                )}
               </div>
 
-              {/* GIANT NUMBERS */}
-              <div className="text-8xl md:text-[12rem] font-black font-mono text-[#00ff41] leading-none drop-shadow-[0_0_30px_#00ff41] flex items-center gap-4">
-                <span className="tabular-nums">
-                  {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
-                </span>
-              </div>
-
-              {/* Decorative progress bar below the numbers */}
-              <div className="w-full max-w-2xl h-1 bg-[#00ff41]/10 mt-8 relative overflow-hidden">
-                <motion.div
-                  initial={{ width: '100%' }}
-                  animate={{ width: '0%' }}
-                  transition={{ duration: activeTimerDuration, ease: 'linear' }}
-                  className="absolute inset-0 bg-[#00ff41] shadow-[0_0_15px_#00ff41]"
-                />
-              </div>
+              {/* Доп. текст только в маленьком режиме */}
+              {isTimerMinimized && (
+                <div className="absolute left-6 top-1/2 -translate-y-1/2 hidden lg:block">
+                  <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[#00ff41]/40 animate-pulse">
+                    {loc.timer_overlay_title || 'MISSION DEBRIEFING COUNTDOWN'}
+                  </span>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
@@ -286,18 +326,20 @@ export const DiscussionListView = ({
                 </div>
               </div>
             </div>
-            
+
             {!isTimerRunning ? (
               <button
                 onClick={startTimer}
                 className="px-6 md:px-10 bg-[#00ff41] text-black font-black uppercase text-[12px] hover:bg-white transition-all flex items-center justify-center active:scale-95 shrink-0">
-                 <Play size={12} fill="currentColor" />{loc.timer_btn_start || 'Start'}
+                <Play size={12} fill="currentColor" />
+                {loc.timer_btn_start || 'Start'}
               </button>
             ) : (
               <button
                 onClick={stopTimer}
                 className="px-6 md:px-10 bg-red-600 text-white font-black uppercase text-[12px] hover:bg-red-500 transition-all flex items-center justify-center active:scale-95 shrink-0">
-                 <Square size={12} fill="currentColor" />{loc.timer_btn_stop || 'Abort'}
+                <Square size={12} fill="currentColor" />
+                {loc.timer_btn_stop || 'Abort'}
               </button>
             )}
           </div>

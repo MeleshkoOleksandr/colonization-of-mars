@@ -112,6 +112,8 @@ export default function MarsSurvivalGame() {
         startTimer={app.startTimer}
         stopTimer={app.stopTimer}
         activeTimerDuration={app.activeTimerDuration}
+        isTimerMinimized={app.isTimerMinimized}
+        setIsTimerMinimized={app.setIsTimerMinimized}
       />
     );
   } else if (app.view === 'results') {

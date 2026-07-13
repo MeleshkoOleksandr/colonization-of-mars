@@ -157,6 +157,8 @@
   "timer_control_label": "MISSION DURATION",
   "timer_btn_start": " INITIATE",
   "timer_btn_stop": " ABORT",
+  "timer_expand": "Expand",
+  "timer_minimize": "Minimize",
 
   "/* --- SENERGY --- */": "",
   "lb_synergy_avg": "Team Average:",
