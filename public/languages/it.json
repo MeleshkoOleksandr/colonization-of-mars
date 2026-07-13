@@ -46,6 +46,9 @@
   "result_lb_newmiss": "Concludi Missione",
   "result_lb_atten": "Il terminale verrà scollegato и la sessione chiusa",
   "filter_all": "TUTTI I RISULTATI",
+  "lb_nasa_reference": "Riferimenti degli esperti",
+  "preview_mode_msg": "> Logica di sopravvivenza per lo scenario selezionato < ",
+  "lb_bk_admin": "Torna all'Admin",
 
   "/* --- ADMIN TERMINAL --- */": "",
   "admin_lb_terminal": "Terminale di amministrazione",
@@ -68,6 +71,7 @@
   "admin_lb_nodata": "Nessun dato.",
   "admin_btn_results": "Registro Risultati (Con Punteggi)",
   "admin_btn_dicusion": "Avvia Modalità Discussione (Senza Punteggi)",
+  "admin_btn_preview_scen": "Anteprima Scenario",
 
   "/* --- MODALS & MESSAGES --- */": "",
   "modal_title_confirm": "> Richiesta Conferma",

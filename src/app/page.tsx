@@ -128,6 +128,7 @@ export default function MarsSurvivalGame() {
         setView={app.setView}
         teamId={app.teamId}
         getTeamSynergy={app.getTeamSynergy}
+        isPreviewMode={app.isPreviewMode}
       />
     );
   } else if (app.view === 'leaderboard') {
@@ -191,6 +192,7 @@ export default function MarsSurvivalGame() {
         handleWipeEverything={app.handleWipeEverything}
         handleDeleteResult={app.handleDeleteResult}
         handleAddSinglePlayer={app.handleAddSinglePlayer}
+        handlePreviewScenario={app.handlePreviewScenario}
         isRefreshing={app.isRefreshing}
         setIsRefreshing={app.setIsRefreshing}
         isAutoRefresh={app.isAutoRefresh}

@@ -46,6 +46,9 @@
   "result_lb_newmiss": "Mission beenden",
   "result_lb_atten": "Das Terminal wird getrennt und die Sitzung beendet",
   "filter_all": "ALLE ERGEBNISSE",
+  "lb_nasa_reference": "Expertenreferenz",
+  "preview_mode_msg": "> Überlebenslogik für das ausgewählte Szenario <",
+  "lb_bk_admin": "Zurück zur Admin-Seite",
 
   "/* --- ADMIN TERMINAL --- */": "",
   "admin_lb_terminal": "Administrations-Terminal",
@@ -68,6 +71,7 @@
   "admin_lb_nodata": "Keine Daten.",
   "admin_btn_results": "Ergebnisprotokoll (mit Punkten)",
   "admin_btn_dicusion": "Diskussionsmodus starten (ohne Punkte)",
+  "admin_btn_preview_scen": "Szenario-Vorschau",
 
   "/* --- MODALS & MESSAGES --- */": "",
   "modal_title_confirm": "> Bestätigungsanforderung",

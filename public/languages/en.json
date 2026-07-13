@@ -46,6 +46,9 @@
   "result_lb_newmiss": "Conclude Mission",
   "result_lb_atten": "The terminal will disconnect and the session will close",
   "filter_all": "ALL RESULTS",
+  "lb_nasa_reference": "Experts Reference",
+  "preview_mode_msg": "> Survival logic for the selected scenario <",
+  "lb_bk_admin": "Return to admin page",
 
   "/* --- ADMIN TERMINAL --- */": "",
   "admin_lb_terminal": "Administration Terminal",
@@ -68,6 +71,7 @@
   "admin_lb_nodata": "No data.",
   "admin_btn_results": "Results Log (With Scores)",
   "admin_btn_dicusion": "Start Discussion Mode (Without Scores)",
+  "admin_btn_preview_scen": "Scenario Preview",
 
   "/* --- MODALS & MESSAGES --- */": "",
   "modal_title_confirm": "> Confirmation Request",

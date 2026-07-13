@@ -110,7 +110,34 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     });
   };
 
-  //                                                -----   ALL useEffect (Init, Auto-sync, ...)   -----
+  // PreviewMode
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
+  // PreviewM func
+  const handlePreviewScenario = async () => {
+    // Find current scenario
+    const config = scenarios.find(s => s.id === selectedScenarioForNewTeam);
+    if (!config) return;
+
+    try {
+      console.log(`SYSTEM: Previewing scenario [${config.name}]`);
+      const response = await fetch(`/data/${config.file}`);
+      const parsedData = parseStoryXml(await response.text());
+
+      // Load the data into “static” variables
+      setStory(parsedData.story);
+      setStaticItems(parsedData.items);
+      setEvaluations(parsedData.evaluations);
+
+      // Turn on preview mode and go to the results screen
+      setIsPreviewMode(true);
+      setPrevView('admin');
+      setView('results');
+    } catch (e) {
+      console.error('Preview failed', e);
+    }
+  };
+
+  //                                               -----   ALL useEffect (Init, Auto-sync, ...)   -----
 
   /**
    * INITIALIZATION
@@ -444,7 +471,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
   const stopTimer = () => {
     setIsTimerRunning(false);
     setTimeLeft(null);
-   
+
     //setIsAutoRefresh(true);  // restore auto update
     setIsTimerMinimized(false); // reset on timer end
   };
@@ -553,6 +580,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     setCurrentScore(totalScore);
     // Starting analysis animation
     setIsAnalyzing(true);
+    setIsPreviewMode(false);
 
     const resultData = {
       username,
@@ -879,7 +907,6 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     });
   };
 
-
   // Function used for save (called from a modal window)
   const executeAddSinglePlayer = async () => {
     // If the request is already being processed, we ignore the duplicate call
@@ -1021,6 +1048,8 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     openAdminLogin,
     isInitialized,
     handleFinishMission,
+    isPreviewMode,
+    handlePreviewScenario,
 
     // --- 2. USER & SESSION INFO ---
     username,
@@ -1071,7 +1100,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     setIsAutoRefresh,
     setIsCopied,
     isCopied,
-    isSaving ,
+    isSaving,
 
     // --- 7. ADMIN FORM DATA ---
     newTeamName,
@@ -1123,6 +1152,6 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     startTimer,
     stopTimer,
     isTimerMinimized,
-    setIsTimerMinimized
+    setIsTimerMinimized,
   };
 };

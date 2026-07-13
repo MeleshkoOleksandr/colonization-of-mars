@@ -15,6 +15,7 @@ import {
   Save,
   ArchiveRestore,
   Archive,
+  Eye,
 } from 'lucide-react';
 import { Team, GameResult, Language, Localization, ModalMode, ModalType, PRIMARY_LANG } from '../logic';
 
@@ -43,6 +44,7 @@ interface AdminViewProps {
   handleAddSinglePlayer: () => void;
   handleLogout: () => void;
   handlePasswordChangeRequest: () => void;
+  handlePreviewScenario: () => void;
 
   // UI States
   isRefreshing: boolean;
@@ -89,6 +91,7 @@ export const AdminView = (props: AdminViewProps) => {
     handleWipeEverything,
     handleDeleteResult,
     handleAddSinglePlayer,
+    handlePreviewScenario,
     isRefreshing,
     setIsRefreshing,
     isAutoRefresh,
@@ -335,7 +338,7 @@ export const AdminView = (props: AdminViewProps) => {
           </div>
           {/*Add Team area */}
           <div className="flex flex-col sm:flex-row gap-2 border-t border-[#00ff41]/20 pt-4">
-            {/* 1. Selecting a scenario */}
+            {/*Selecting a scenario */}
             <select
               className="flex-1 bg-black text-[#00ff41] text-sm border border-[#00ff41]/40 p-2 outline-none cursor-pointer min-h-9.5"
               value={selectedScenarioForNewTeam}
@@ -347,7 +350,15 @@ export const AdminView = (props: AdminViewProps) => {
               ))}
             </select>
 
-            {/* 2. Entering a command name  */}
+            {/* Preview scenario button */}
+            <button
+              onClick={handlePreviewScenario}
+              className="p-2 border border-[#00ff41]/30 text-[#00ff41]/60 hover:text-[#00ff41] hover:border-[#00ff41] transition-all shrink-0"
+              title={loc.admin_btn_preview_scen || 'Anteprima Scenario'}>
+              <Eye size={18} />
+            </button>
+
+            {/* Entering a command name  */}
             <input
               type="text"
               placeholder={loc.admin_lb_teamname}
@@ -356,7 +367,7 @@ export const AdminView = (props: AdminViewProps) => {
               onChange={e => setNewTeamName(e.target.value)}
             />
 
-            {/* 3. Create button  */}
+            {/* Create button  */}
             <button
               onClick={handleAddTeam}
               className="whitespace-nowrap border-2 border-dashed border-[#00ff41]/30 px-4 py-2 text-[12px] uppercase font-bold hover:bg-[#00ff41]/10 transition-colors sm:w-auto w-full">

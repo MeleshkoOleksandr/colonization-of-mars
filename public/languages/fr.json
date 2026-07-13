@@ -43,9 +43,12 @@
   "lb_classific": "Classement des équipes",
   "lb_statuscol": "Statut",
   "lb_detals": "Détails",
-"result_lb_newmiss": "Terminer la mission",
+  "result_lb_newmiss": "Terminer la mission",
   "result_lb_atten": "Le terminal sera déconnecté et la session sera fermée",
   "filter_all": "TOUS LES RÉSULTATS",
+  "lb_nasa_reference": "Référence des experts",
+  "preview_mode_msg": "> Logique de survie pour le scénario sélectionné <",
+  "lb_bk_admin": " Retour à la page d'administration",
 
   "/* --- ADMIN TERMINAL --- */": "",
   "admin_lb_terminal": "Terminal d'administration",
@@ -68,6 +71,7 @@
   "admin_lb_nodata": "Aucune donnée.",
   "admin_btn_results": "Journal des résultats (avec scores)",
   "admin_btn_dicusion": "Lancer le mode discussion (sans scores)",
+  "admin_btn_preview_scen": "Aperçu du scénario",
 
   "/* --- MODALS & MESSAGES --- */": "",
   "modal_title_confirm": "> Demande de confirmation",
