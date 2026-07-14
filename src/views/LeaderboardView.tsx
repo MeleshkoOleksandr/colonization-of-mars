@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { ArrowLeft, RefreshCcw, FileDown, ChevronRight, CircleSlash } from 'lucide-react';
+import { ArrowLeft, RefreshCcw, FileDown, ChevronRight, CircleSlash, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { GameResult, Localization, ModalMode } from '../logic';
 
@@ -155,19 +155,20 @@ export const LeaderboardView = ({
         </button>
       ) : (
         /* 2. PLAYER OPTION: NEW MISSION button */
-        <>
-          <div className="w-full flex flex-col items-center">
-            <button        
-              onClick={handleFinishMission}
-              className="w-full bg-[#00ff41] text-black py-4 font-black uppercase text-xl hover:bg-white transition-colors flex items-center justify-center gap-3 active:scale-[0.98] shadow-[0_0_20px_rgba(0,255,65,0.3)]">
-              <RefreshCcw size={24} />
-              {loc.result_lb_newmiss || 'Concludi Missione'}
-            </button>
-            <p className="text-[10px] text-center mt-4 opacity-50 uppercase tracking-widest w-full">
-              {loc.result_lb_atten || 'Il terminale verrà scollegato и la sessione chiusa'}
-            </p>
-          </div>
-        </>
+        <div className="flex flex-col gap-3">
+          {/* Show sceanrio order and player results*/}
+          <button
+            onClick={() => {
+              // set page for return Leaderboard
+              setPrevView('leaderboard');
+              setView('results');
+            }}
+            className="w-full border-2 border-[#00ff41] text-[#00ff41] py-4 font-black uppercase text-lg hover:bg-[#00ff41] hover:text-black transition-all flex items-center justify-center gap-3 active:scale-[0.98]">
+            <Info size={24} />
+            {loc.btn_view_nasa_report || 'Visualizza Logica NASA'}
+          </button>
+          <p className="text-[9px] text-center opacity-40 uppercase tracking-widest">{loc.result_lb_exit_hint || 'Il terminale verrà scollegato'}</p>
+        </div>
       )}
     </div>
   </>

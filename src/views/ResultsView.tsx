@@ -27,8 +27,7 @@ export const ResultsView = ({
   teamId,
   getTeamSynergy,
   isPreviewMode,
-}: ResultsViewProps) => 
-  {
+}: ResultsViewProps) => {
   // --- Load animation if localization is not ready
   if (!loc || Object.keys(loc).length === 0) {
     return (
@@ -117,7 +116,7 @@ export const ResultsView = ({
         <button
           onClick={() => (isPreviewMode ? setView('admin') : setView('leaderboard'))}
           className="w-full border-2 border-[#00ff41] py-3 hover:bg-[#00ff41] hover:text-black uppercase font-bold">
-          {isPreviewMode ? loc.lb_bk_admin || "Torna all'Admin++" : loc.lb_classific}
+          {isPreviewMode ? loc.lb_bk_admin || "Torna all'Admin" : loc.lb_classific}
         </button>
       </div>
     </>

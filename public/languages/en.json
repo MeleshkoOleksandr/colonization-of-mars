@@ -49,6 +49,7 @@
   "lb_nasa_reference": "Experts Reference",
   "preview_mode_msg": "> Survival logic for the selected scenario <",
   "lb_bk_admin": "Return to admin page",
+  "btn_view_nasa_report": "View Experts Logic",
 
   "/* --- ADMIN TERMINAL --- */": "",
   "admin_lb_terminal": "Administration Terminal",

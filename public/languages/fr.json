@@ -49,6 +49,7 @@
   "lb_nasa_reference": "Référence des experts",
   "preview_mode_msg": "> Logique de survie pour le scénario sélectionné <",
   "lb_bk_admin": " Retour à la page d'administration",
+  "btn_view_nasa_report": "Afficher Experts Logic",
 
   "/* --- ADMIN TERMINAL --- */": "",
   "admin_lb_terminal": "Terminal d'administration",

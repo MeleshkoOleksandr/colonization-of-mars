@@ -72,6 +72,7 @@
   "admin_btn_results": "Ergebnisprotokoll (mit Punkten)",
   "admin_btn_dicusion": "Diskussionsmodus starten (ohne Punkte)",
   "admin_btn_preview_scen": "Szenario-Vorschau",
+  "btn_view_nasa_report": "Expertenlogik anzeigen",
 
   "/* --- MODALS & MESSAGES --- */": "",
   "modal_title_confirm": "> Bestätigungsanforderung",
