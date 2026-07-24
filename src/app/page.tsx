@@ -114,6 +114,8 @@ export default function MarsSurvivalGame() {
         activeTimerDuration={app.activeTimerDuration}
         isTimerMinimized={app.isTimerMinimized}
         setIsTimerMinimized={app.setIsTimerMinimized}
+        updateTeamCommUnlockAction={app.updateTeamCommUnlockAction}
+        setModal={app.setModal}
       />
     );
   } else if (app.view === 'results') {
@@ -210,6 +212,7 @@ export default function MarsSurvivalGame() {
         showArchivedTeams={app.showArchivedTeams}
         handleLogout={app.handleLogout}
         handlePasswordChangeRequest={app.handlePasswordChangeRequest}
+        updateTeamCommUnlockAction={app.updateTeamCommUnlockAction}
       />
     );
   }

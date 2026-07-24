@@ -45,6 +45,7 @@ interface AdminViewProps {
   handleLogout: () => void;
   handlePasswordChangeRequest: () => void;
   handlePreviewScenario: () => void;
+  updateTeamCommUnlockAction: (id: number, status: boolean) => Promise<void>;
 
   // UI States
   isRefreshing: boolean;
@@ -92,6 +93,7 @@ export const AdminView = (props: AdminViewProps) => {
     handleDeleteResult,
     handleAddSinglePlayer,
     handlePreviewScenario,
+    updateTeamCommUnlockAction,
     isRefreshing,
     setIsRefreshing,
     isAutoRefresh,
@@ -220,14 +222,19 @@ export const AdminView = (props: AdminViewProps) => {
                     <LockOpen size={14} className="mx-auto" />
                   </th>
 
-                  {/* Header 2: Commander Status  */}
+                  {/* Header 2: Commander Lock  */}
+                  <th className="p-2 border border-black w-9 text-center cursor-help" title="Abilita Comandante">
+                    <UserPlus size={14} className="mx-auto" />
+                  </th>
+
+                  {/* Header 3: Commander Status  */}
                   <th className="p-2 border border-black w-9 text-center cursor-help" title={loc.admin_msg_chkcomander}>
                     <UserCheck size={14} className="mx-auto" />
                   </th>
 
                   <th className="p-2 border border-black overflow-hidden">{loc.admin_lb_teamname}</th>
 
-                  {/* Header 3: Scenario  */}
+                  {/* Header : Scenario  */}
                   <th className="p-2 border border-black w-15 md:w-60">{loc.admin_lb_scename}</th>
 
                   <th className="p-2 border border-black w-20 text-center">CMD</th>
@@ -254,8 +261,20 @@ export const AdminView = (props: AdminViewProps) => {
                             className="appearance-none w-4 h-4 border border-[#00ff41]/40 bg-black checked:bg-[#00ff41] cursor-pointer relative"
                           />
                         </td>
+                        {/* Checkbox 2: Commander lock */}
+                        <td className="p-2 text-center">
+                          <input
+                            type="checkbox"
+                            checked={t.is_comm_unlocked}
+                            onChange={async () => {
+                              await updateTeamCommUnlockAction(t.id, !t.is_comm_unlocked);
+                              setTeamsList(await getTeamsAction());
+                            }}
+                            className="appearance-none w-4 h-4 border border-[#00ff41]/40 bg-black checked:bg-[#00ff41] cursor-pointer relative"
+                          />
+                        </td>
 
-                        {/* Checkbox 2: Commander */}
+                        {/* Checkbox 3: Commander */}
                         <td className="p-2 text-center">
                           <input
                             type="checkbox"

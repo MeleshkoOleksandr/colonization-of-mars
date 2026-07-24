@@ -19,6 +19,7 @@ CREATE TABLE mars_mission.teams (
   current_scenario VARCHAR(255) DEFAULT 'mars_01',
   -- Logic Flags
   is_unlocked BOOLEAN DEFAULT false,    -- Results visible for players
+  is_comm_unlocked  BOOLEAN DEFAULT false, -- Players can select commander
   has_commander BOOLEAN DEFAULT false,  -- Team already has a leader
   is_archived BOOLEAN DEFAULT false,    -- Hidden from active mission list
   -- Security: Unique token for team-based links

@@ -159,3 +159,16 @@ export async function updateAdminPasswordAction(newPassword: string) {
   await db.updateSetting('admin_password', hash);
   revalidatePath('/');
 }
+
+/**
+ * SERVER ACTION: Toggle the Commander Selection lock for a team
+ */
+export async function updateTeamCommUnlockAction(teamId: number, status: boolean) {
+  try {
+    // This calls the DB logic
+    await db.setTeamCommUnlockStatus(teamId, status);
+    revalidatePath("/");
+  } catch (error) {
+    console.error("Action Error [updateTeamCommUnlock]:", error);
+  }
+}

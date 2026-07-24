@@ -54,6 +54,7 @@ export interface Team {
   id: number;
   name: string;
   is_unlocked: boolean; // Lock result from player
+  is_comm_unlocked: boolean; // Lock commander selection
   has_commander: boolean;
   is_archived: boolean;
   current_scenario: string;

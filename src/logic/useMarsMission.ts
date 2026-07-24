@@ -20,6 +20,7 @@ import {
   updateTeamArchiveStatusAction,
   verifyAdminPasswordAction,
   updateAdminPasswordAction,
+  updateTeamCommUnlockAction,
 } from '../app/actions';
 
 export const useMarsMission = (ADMIN_PASSWORD: string) => {
@@ -654,7 +655,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
       isOpen: true,
       type: 'confirm',
       mode: ModalMode.IDLE,
-      message: loc.msg_modal_teamdelete,
+      message: loc.msg_modal_teamdelete || "Are you sure you want to delete this team?",
       value: '',
       action: async () => {
         await deleteTeamAction(id);
@@ -820,7 +821,13 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
 
   // Action for team member becoming Commander
   const handleBecomeCommander = async () => {
-    // 1. CHECK: Have all the players on the team finished the test?
+    // 1 CHECK: Admin gave pemision to select commander
+    const currentTeam = teamsList.find(t => t.id === teamId);
+    if (!currentTeam?.is_comm_unlocked) {
+      return triggerModal('alert', ModalMode.IDLE, loc.msg_comm_locked || 'Accesso negato: In attesa di autorizzazione.');
+    }
+
+    // 2 CHECK: Have all the players on the team finished the test?
     // We're looking for players on your team with a score of -1 in the overall results list
     const missingPlayers = allResults.filter(r => r.team_id === teamId && r.score === -1);
 
@@ -1022,6 +1029,14 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     return a.score - b.score;
   });
 
+  // Lock/unlock becom commander option
+  const updateTeamCommUnlock = async (teamId: number, status: boolean) => {
+    await updateTeamCommUnlockAction(teamId, status);
+    // Refresh teams list from DB to update the UI
+    const freshTeams = await getTeamsAction();
+    setTeamsList(freshTeams);
+  };
+
   /**
    * FINISH MISSION & EXIT
    * Clears the local session and redirects to the clean domain (Standby).
@@ -1140,6 +1155,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
     selectedUserDetail,
     showArchivedTeams,
     setShowArchivedTeams,
+    updateTeamCommUnlockAction: updateTeamCommUnlock,
 
     // --- Timer ---
     timerInputMin,

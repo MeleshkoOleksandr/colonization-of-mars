@@ -50,6 +50,10 @@
   "preview_mode_msg": "> Logica di sopravvivenza per lo scenario selezionato < ",
   "lb_bk_admin": "Torna all'Admin",
   "btn_view_nasa_report": "Visualizza Logica degli esperti",
+  "msg_conduct_discussion": "Prima di sbloccare i risultati, condurre la discussione di gruppo.",
+  "msg_comm_locked": "ACCESSO NEGATO: In attesa di autorizzazione per la nomina del Comandante.",
+  "btn_allow_commander": "Abilita selezione Comandante",
+  "msg_modal_teamdelete": "Sei sicuro di voler eliminare questa squadra?", 
 
   "/* --- ADMIN TERMINAL --- */": "",
   "admin_lb_terminal": "Terminale di amministrazione",

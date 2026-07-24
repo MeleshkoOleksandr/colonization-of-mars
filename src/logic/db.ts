@@ -206,3 +206,10 @@ export async function updateSetting(key: string, value: string) {
     ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
   `, [key, value]);
 }
+
+/**
+ * Lock/unlock commander selection
+ */
+export async function setTeamCommUnlockStatus(teamId: number, status: boolean) {
+  await query('UPDATE mars_mission.teams SET is_unlocked_comm = $1 WHERE id = $2', [status, teamId]);
+}

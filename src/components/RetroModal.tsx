@@ -26,6 +26,10 @@ interface RetroModalProps {
 export const RetroModal = ({ isOpen, type, mode, message, value, onClose, onConfirm, onChange, loc, isSaving }: RetroModalProps) => {
   // For password hide
   const [showPassword, setShowPassword] = React.useState(false);
+
+  //For system message
+  const isSystemMessage = message?.includes('> > MESSAGGIO SISTEMA') ?? false;
+
   // Reset visibility when modal closes
   React.useEffect(() => {
     if (!isOpen) setShowPassword(false);
@@ -54,11 +58,12 @@ export const RetroModal = ({ isOpen, type, mode, message, value, onClose, onConf
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="w-full max-w-md border-4 border-[#00ff41] bg-black p-6 shadow-[0_0_50px_rgba(0,255,65,0.3)] relative">
+        className={`w-full max-w-md border-4 bg-black p-6 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative ${isSystemMessage ? 'border-red-600 shadow-red-900/40' : 'border-[#00ff41] shadow-[#00ff41]/20'}`}>
         {/* The scanning line effect */}
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-size-[100%_2px,3px_100%] opacity-20"></div>
 
-        <h3 className="text-[#00ff41] font-black uppercase tracking-tighter mb-4 text-xl italic border-b border-[#00ff41]/30 pb-2">
+        <h3
+          className={`uppercase tracking-tighter mb-4 text-xl italic border-b pb-2 ${isSystemMessage ? 'text-red-600 border-red-600/30' : 'text-[#00ff41] border-[#00ff41]/30'}`}>
           {type === 'confirm'
             ? `> ${loc.modal_title_confirm || 'Richiesta Conferma'}`
             : type === 'prompt' || type === 'prompt-area'

@@ -1,8 +1,8 @@
 'use client';
 import React from 'react';
-import { ArrowLeft, RefreshCcw, Maximize2, Minimize2, Clock, Play, Square } from 'lucide-react';
+import { ArrowLeft, RefreshCcw, Maximize2, Minimize2, Clock, Play, Square, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GameResult, Team, Localization, ModalMode } from '../logic';
+import { GameResult, Team, Localization, ModalMode, ModalType } from '../logic';
 
 interface DiscussionListViewProps {
   loc: Localization;
@@ -23,7 +23,7 @@ interface DiscussionListViewProps {
   updateTeamStatusAction: (id: number, status: boolean) => Promise<void>;
   getTeamsAction: () => Promise<Team[]>;
   setTeamsList: (teams: Team[]) => void;
-  triggerModal: (type: any, mode: any, msg: string) => void;
+  triggerModal: (type: ModalType, mode: ModalMode, message: string, action?: () => void) => void;
   checkTeamStatusAction: (id: number) => Promise<boolean>;
   handleBecomeCommander: () => void;
   BUTTON_STYLES: any;
@@ -39,6 +39,9 @@ interface DiscussionListViewProps {
   activeTimerDuration: number;
   isTimerMinimized: boolean;
   setIsTimerMinimized: (val: boolean) => void;
+
+  updateTeamCommUnlockAction: (id: number, status: boolean) => Promise<void>;
+  setModal: (val: any) => void;
 }
 
 export const DiscussionListView = ({
@@ -75,22 +78,36 @@ export const DiscussionListView = ({
   activeTimerDuration,
   isTimerMinimized,
   setIsTimerMinimized,
+  updateTeamCommUnlockAction,
+  setModal,
 }: DiscussionListViewProps) => {
   const uniqueTeamIds: number[] = Array.from(new Set(discussionResults.map(r => r.team_id))).sort((a, b) => a - b);
   const isCommander = username.startsWith('Commander');
+  const allAnswered = discussionResults.length > 0 && discussionResults.every(r => r.score !== -1);
 
-  const getCurrentTeamName = () => {
+  // Get the list of teams that are currently visible based on the admin filter
+  const activeTeamsInFilter = teamsList.filter(t => {
     if (isAdmin) {
-      if (adminTeamFilter.startsWith('team:')) {
-        const id = parseInt(adminTeamFilter.split(':')[1]);
-        return teamsList.find(t => t.id === id)?.name;
-      }
-      if (adminTeamFilter.startsWith('scen:')) {
-        return adminTeamFilter.split(':')[1].toUpperCase();
-      }
-      return 'Global';
+      if (adminTeamFilter.startsWith('team:')) return t.id === parseInt(adminTeamFilter.split(':')[1]);
+      if (adminTeamFilter.startsWith('scen:')) return t.current_scenario === adminTeamFilter.split(':')[1];
+      return false;
     }
-    return teamsList.find(t => t.id === teamId)?.name;
+    return t.id === teamId;
+  });
+
+  //  Check if the "Commander" feature is enabled for ALL teams in the current selection
+  const isAllCommUnlocked = activeTeamsInFilter.length > 0 && activeTeamsInFilter.every(t => t.is_comm_unlocked);
+
+  const handleUnlockWithSystemAlert = () => {
+    triggerModal(
+      'confirm',
+      ModalMode.IDLE,
+      `> > MESSAGGIO SISTEMA\n\nMISSION COMPLETE: I RISULTATI FINALI SONO ORA ACCESSIBILI PER TUTTA LA SQUADRA.\n\nSicuro di voler procedere con la decriptazione dei dati?`,
+      async () => {
+        await handleUnlockResults();
+        setModal((prev: any) => ({ ...prev, isOpen: false }));
+      }
+    );
   };
 
   // --- Unlock Logic ---
@@ -126,6 +143,25 @@ export const DiscussionListView = ({
       }
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  /**
+   * HANDLER: Toggle Commander Lock
+   */
+  const handleToggleCommanderLock = async () => {
+    try {
+      const newState = !isAllCommUnlocked;
+
+      for (const t of activeTeamsInFilter) {
+        await updateTeamCommUnlockAction(t.id, newState);
+      }
+
+      setTeamsList(await getTeamsAction());
+
+      console.log(`SYSTEM: Commander selection ${newState ? 'ENABLED' : 'DISABLED'} for all target units.`);
+    } catch (e) {
+      console.error('Failed to toggle commander lock:', e);
     }
   };
 
@@ -345,23 +381,46 @@ export const DiscussionListView = ({
           </div>
         )}
 
-        {/* 1. LOGIC FOR ADMINISTRATORS ONLY */}
+        {/* Pulsing text */}
+        {isAdmin && allAnswered && (
+          <div className="text-center py-2 border border-red-600 bg-red-950 animate-pulse">
+            <span className="text-[14px] text-red-600 font-black uppercase tracking-widest">
+              {loc.msg_conduct_discussion || 'Conduct group discussion before unlocking results'}
+            </span>
+          </div>
+        )}
+
+        {/* --- ADMIN COMMAND PANEL --- */}
         {isAdmin ? (
           <div className="flex flex-col gap-3 w-full">
-            {/* UNLOCK button: Now only the admin can use it */}
+            {/* 1. ENABLE COMMANDER BUTTON */}
             <button
-              onClick={handleUnlockResults}
-              className="w-full bg-[#00ff41] text-black py-3 font-black uppercase text-lg hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,255,65,0.4)]">
+              onClick={handleToggleCommanderLock}
+              className="w-full bg-amber-500 text-black py-3 font-black uppercase text-lg hover:bg-white transition-colors shadow-[0_0_15px_rgba(245,158,11,0.4)]">
+              {adminTeamFilter.startsWith('scen:')
+                ? isAllCommUnlocked
+                  ? 'Disabilita Comandanti Scenario'
+                  : 'Abilita Comandanti Scenario'
+                : isAllCommUnlocked
+                  ? 'Blocca selezione Comandante'
+                  : 'Abilita selezione Comandante'}
+            </button>
+
+            {/* 2. UNLOCK RESULTS (Calls your confirmation modal logic) */}
+            <button
+              onClick={handleUnlockWithSystemAlert} // Use the version with the RED modal
+              className="w-full bg-amber-500 text-black py-3 font-black uppercase text-lg hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,255,65,0.4)]">
               {loc.btn_unblock || 'Sblocca Risultati NASA'}
             </button>
 
-            {/* “Go to Leaderboard” button */}
+            {/* 3. LEADERBOARD ACCESS */}
             <button
               onClick={() => {
                 setPrevView('admin');
                 setView('leaderboard');
               }}
-              className="w-full bg-[#00ff41] text-black py-3 font-black uppercase text-lg hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,255,65,0.4)] flex items-center justify-center gap-2">
+              className="w-full bg-[#00ff41] text-black py-3 font-black uppercase text-lg hover:bg-white transition-colors flex items-center justify-center gap-2">
+              <Info size={20} />
               {loc.admin_btn_results || 'Visualizza Classifica'}
             </button>
           </div>
