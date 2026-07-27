@@ -50,6 +50,15 @@
   "preview_mode_msg": "> Überlebenslogik für das ausgewählte Szenario <",
   "lb_bk_admin": "Zurück zur Admin-Seite",
 
+  "msg_conduct_discussion": "Führen Sie die Teamdiskussion durch, bevor Sie die Ergebnisse freischalten.",
+  "msg_comm_locked": "ZUGRIFF VERWEIGERT: Warten auf die Freigabe zur Ernennung des Kommandanten.",
+  "btn_allow_commander": "Kommandanten-Auswahl aktivieren",
+  "msg_modal_teamdelete": "Möchten Sie dieses Team wirklich löschen?",
+  "msg_comm_unlocked_success": "Freigabe erteilt. Die Kolonisten können nun einen Kommandanten ernennen.",
+  "btn_comm_assigned": "Kommandant zugewiesen",
+  "btn_comm_waiting": "Warten auf Auswahl...",
+  "btn_results_unlocked": "Ergebnisse freigeschaltet",
+
   "/* --- ADMIN TERMINAL --- */": "",
   "admin_lb_terminal": "Administrations-Terminal",
   "admin_lb_LOGOUT": "ABMELDEN",
@@ -121,7 +130,7 @@
   "btn_admin": "Admin",
   "btn_report": "Bericht: ",
 
-    "/* --- CSV EXPORT --- */": "",
+  "/* --- CSV EXPORT --- */": "",
   "csv_h_operator": "Operator",
   "csv_h_team": "Einheit (Team)",
   "csv_h_score": "NASA-Punktzahl",
@@ -132,7 +141,7 @@
   "msg_export_success": "BERICHT ERSTELLT: Die CSV-Datei wurde heruntergeladen. Sie können sie mit Excel öffnen.",
   "csv_btn_export": "Missionsbericht exportieren (CSV)",
 
-   "/* --- Archive --- */": "",
+  "/* --- Archive --- */": "",
   "msg_confirm_restore": "Einheit wiederherstellen",
   "msg_confirm_archive": "Einheit archivieren",
   "msg_archive_hint": "Sie wird im Spieler-Login ausgeblendet und ins Archiv verschoben.",
@@ -165,11 +174,11 @@
   "timer_expand": " Erweitern",
   "timer_minimize": " Minimieren",
 
-   "/* --- SENERGY --- */": "",
+  "/* --- SENERGY --- */": "",
   "lb_synergy_avg": "Teamdurchschnitt:",
   "lb_synergy_gain": "Synergie:",
   "lb_synergy_result": "Kollektive Effizienz",
   "lb_synergy_positive": "VERBESSERUNG",
   "lb_synergy_negative": "VERSCHLECHTERUNG",
-   "lb_synergy_aveg": "Avg:"
+  "lb_synergy_aveg": "Avg:"
 }

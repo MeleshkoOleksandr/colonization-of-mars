@@ -51,6 +51,15 @@
   "lb_bk_admin": "Return to admin page",
   "btn_view_nasa_report": "View Experts Logic",
 
+  "msg_conduct_discussion": "Conduct the team discussion before unlocking the results.",
+  "msg_comm_locked": "ACCESS DENIED: Awaiting authorization to appoint the Commander.",
+  "btn_allow_commander": "Enable Commander Selection",
+  "msg_modal_teamdelete": "Are you sure you want to delete this team?",
+  "msg_comm_unlocked_success": "Authorization granted. Colonists may now appoint a Commander.",
+  "btn_comm_assigned": "Commander Assigned",
+  "btn_comm_waiting": "Waiting for selection...",
+  "btn_results_unlocked": "Results Unlocked",
+
   "/* --- ADMIN TERMINAL --- */": "",
   "admin_lb_terminal": "Administration Terminal",
   "admin_lb_LOGOUT": "LOGOUT",

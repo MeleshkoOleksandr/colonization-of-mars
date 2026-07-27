@@ -50,10 +50,15 @@
   "preview_mode_msg": "> Logica di sopravvivenza per lo scenario selezionato < ",
   "lb_bk_admin": "Torna all'Admin",
   "btn_view_nasa_report": "Visualizza Logica degli esperti",
+
   "msg_conduct_discussion": "Prima di sbloccare i risultati, condurre la discussione di gruppo.",
   "msg_comm_locked": "ACCESSO NEGATO: In attesa di autorizzazione per la nomina del Comandante.",
   "btn_allow_commander": "Abilita selezione Comandante",
-  "msg_modal_teamdelete": "Sei sicuro di voler eliminare questa squadra?", 
+  "msg_modal_teamdelete": "Sei sicuro di voler eliminare questa squadra?",
+  "msg_comm_unlocked_success": "Autorizzazione concessa. I coloni possono ora nominare un Comandante.",
+  "btn_comm_assigned": "Comandante Assegnato",
+  "btn_comm_waiting": "In attesa di selezione...",
+  "btn_results_unlocked": "Risultati Sbloccati",
 
   "/* --- ADMIN TERMINAL --- */": "",
   "admin_lb_terminal": "Terminale di amministrazione",
@@ -110,7 +115,7 @@
   "msg_saveplayer": "Errore nel salvataggio del giocatore.",
   "msg_selectteam": "Selezionare una squadra specifica.",
   "msg_confirm_wipe_system": "PERICOLO CRITICO: Questa azione cancellerà TUTTE le squadre e TUTTI i risultati. Sei assolutamente sicuro?",
-  "msg_confirm_quit" : "ATTENZIONE: Sei sicuro di voler uscire dalla missione? I tuoi progressi attuali andranno persi.",
+  "msg_confirm_quit": "ATTENZIONE: Sei sicuro di voler uscire dalla missione? I tuoi progressi attuali andranno persi.",
 
   "/* --- TOOLTIPS & ACCESS --- */": "",
   "admin_msg_chkresults": "Status Risultati: Sblocca per permettere ai coloni di vedere il rapporto",
@@ -137,13 +142,13 @@
   "csv_btn_export": "Esporta Report Missione (CSV)",
 
   "/* --- Archive --- */": "",
-  "msg_confirm_restore" : "Ripristinare l'unità",
-  "msg_confirm_archive" : "Archiviare l'unità",
+  "msg_confirm_restore": "Ripristinare l'unità",
+  "msg_confirm_archive": "Archiviare l'unità",
   "msg_archive_hint": "Verrà nascosta dal login giocatori и spostata in archivio.",
-  "btn_archive_arch" : "Archivio",
-  "btn_archive_active" : "Unità attive",
-  "btn_archive_restore" : "Ripristina Unità",
-  "btn_archive_save" : "Archivia Unità", 
+  "btn_archive_arch": "Archivio",
+  "btn_archive_active": "Unità attive",
+  "btn_archive_restore": "Ripristina Unità",
+  "btn_archive_save": "Archivia Unità",
 
   "admin_lb_wipe_active": "Svuota Team Attivi",
   "admin_lb_wipe_archive": "Svuota Archivio",
@@ -151,9 +156,9 @@
   "msg_confirm_wipe_archive": "PERICOLO: Cancellare TUTTE le squadre archiviate?",
 
   "/* --- StandBy --- */": "",
-  "tooltip_admin_access" : "Accesso Amministratore",
-  "standby_msg" : "> In attesa di Mission Link <",
-  "standby_header" : "Terminale in StandBy",
+  "tooltip_admin_access": "Accesso Amministratore",
+  "standby_msg": "> In attesa di Mission Link <",
+  "standby_header": "Terminale in StandBy",
 
   "/* --- Password change --- */": "",
   "admin_btn_change_pass": "Modifica Password Amministratore",

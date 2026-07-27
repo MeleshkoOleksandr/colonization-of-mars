@@ -51,6 +51,15 @@
   "lb_bk_admin": " Retour à la page d'administration",
   "btn_view_nasa_report": "Afficher Experts Logic",
 
+  "msg_conduct_discussion": "Menez la discussion de groupe avant de déverrouiller les résultats.",
+  "msg_comm_locked": "ACCÈS REFUSÉ : En attente de l'autorisation de désigner le commandant.",
+  "btn_allow_commander": "Autoriser la sélection du commandant",
+  "msg_modal_teamdelete": "Êtes-vous sûr de vouloir supprimer cette équipe ?",
+  "msg_comm_unlocked_success": "Autorisation accordée. Les colons peuvent désormais désigner un commandant.",
+  "btn_comm_assigned": "Commandant assigné",
+  "btn_comm_waiting": "En attente de la sélection...",
+  "btn_results_unlocked": "Résultats déverrouillés",
+
   "/* --- ADMIN TERMINAL --- */": "",
   "admin_lb_terminal": "Terminal d'administration",
   "admin_lb_LOGOUT": "DÉCONNEXION",
@@ -121,7 +130,7 @@
   "btn_admin": "Admin",
   "btn_report": "Rapport : ",
 
-    "/* --- CSV EXPORT --- */": "",
+  "/* --- CSV EXPORT --- */": "",
   "csv_h_operator": "Opérateur",
   "csv_h_team": "Unité (Équipe)",
   "csv_h_score": "Score NASA",
