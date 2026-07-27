@@ -42,6 +42,7 @@ interface DiscussionListViewProps {
 
   updateTeamCommUnlockAction: (id: number, status: boolean) => Promise<void>;
   setModal: (val: any) => void;
+  showArchivedTeams: boolean;
 }
 
 export const DiscussionListView = ({
@@ -80,13 +81,18 @@ export const DiscussionListView = ({
   setIsTimerMinimized,
   updateTeamCommUnlockAction,
   setModal,
+  showArchivedTeams,
 }: DiscussionListViewProps) => {
   const uniqueTeamIds: number[] = Array.from(new Set(discussionResults.map(r => r.team_id))).sort((a, b) => a - b);
   const isCommander = username.startsWith('Commander');
 
   // Get the list of teams that are currently visible based on the admin filter
   const activeTeamsInFilter = teamsList.filter(t => {
+    // RULE #1: The command must match the current mode (Active/Archive)
+    if (isAdmin && t.is_archived !== showArchivedTeams) return false;
+    // RULE #2: Compatibility with the selector
     if (isAdmin) {
+      if (adminTeamFilter === 'all') return true;
       if (adminTeamFilter.startsWith('team:')) return t.id === parseInt(adminTeamFilter.split(':')[1]);
       if (adminTeamFilter.startsWith('scen:')) return t.current_scenario === adminTeamFilter.split(':')[1];
       return false;
@@ -95,9 +101,9 @@ export const DiscussionListView = ({
   });
 
   //  Check if the "Commander" feature is enabled for ALL teams in the current selection
-  const isAllCommUnlocked = activeTeamsInFilter.length > 0 && activeTeamsInFilter.every(t => t.is_comm_unlocked);
+  const isAllCommUnlocked = activeTeamsInFilter.length > 0 && activeTeamsInFilter.every(t => !!t.is_comm_unlocked);
   //  Check whether there is at least one designated commander in the selected teams
-  const anyTeamHasCommander = activeTeamsInFilter.some(t => t.has_commander);
+  const anyTeamHasCommander = activeTeamsInFilter.some(t => !!t.has_commander);
   // Activate/diactivale commander button
   const isCommBtnDisabled = isAllCommUnlocked || anyTeamHasCommander;
 
@@ -107,6 +113,8 @@ export const DiscussionListView = ({
   const isTargetUnlocked = activeTeamsInFilter.length > 0 && activeTeamsInFilter.every(t => t.is_unlocked);
   // FINAL WARNING FLAG
   const showDiscussionWarning = isAdmin && allAnswered && !isTargetUnlocked;
+  // Unlock results button activity
+  const isUnlockBtnDisabled = isTargetUnlocked;
 
   const handleUnlockWithSystemAlert = () => {
     triggerModal(
@@ -239,7 +247,7 @@ export const DiscussionListView = ({
                 )}
               </div>
 
-              {/* Доп. текст только в маленьком режиме */}
+              {/* Additional text */}
               {isTimerMinimized && (
                 <div className="absolute left-6 top-1/2 -translate-y-1/2 hidden lg:block">
                   <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[#00ff41]/40 animate-pulse">
@@ -428,9 +436,15 @@ export const DiscussionListView = ({
 
             {/* 2. UNLOCK RESULTS (Calls your confirmation modal logic) */}
             <button
-              onClick={handleUnlockWithSystemAlert} // Use the version with the RED modal
-              className="w-full bg-amber-500 text-black py-3 font-black uppercase text-lg hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,255,65,0.4)]">
-              {loc.btn_unblock || 'Sblocca Risultati NASA'}
+              onClick={handleUnlockWithSystemAlert}
+              disabled={isUnlockBtnDisabled} // Lock the button
+              className={`w-full py-3 font-black uppercase text-lg transition-all shadow-[0_0_15px_rgba(0,0,0,0.3)] ${
+                isUnlockBtnDisabled
+                  ? 'bg-gray-600 text-gray-400 cursor-not-allowed opacity-50' // Inctive
+                  : 'bg-amber-500 text-black py-3  hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,255,65,0.4)]' // Active
+              }`}>
+              {/* Динамический текст */}
+              {isTargetUnlocked ? loc.btn_results_unlocked || 'Risultati Sbloccati' : loc.btn_unblock || 'Sblocca Risultati NASA'}
             </button>
 
             {/* 3. LEADERBOARD ACCESS */}

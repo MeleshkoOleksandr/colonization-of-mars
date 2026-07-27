@@ -116,6 +116,7 @@ export default function MarsSurvivalGame() {
         setIsTimerMinimized={app.setIsTimerMinimized}
         updateTeamCommUnlockAction={app.updateTeamCommUnlockAction}
         setModal={app.setModal}
+        showArchivedTeams={app.showArchivedTeams} 
       />
     );
   } else if (app.view === 'results') {
