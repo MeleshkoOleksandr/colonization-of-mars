@@ -211,5 +211,5 @@ export async function updateSetting(key: string, value: string) {
  * Lock/unlock commander selection
  */
 export async function setTeamCommUnlockStatus(teamId: number, status: boolean) {
-  await query('UPDATE mars_mission.teams SET is_unlocked_comm = $1 WHERE id = $2', [status, teamId]);
+  await query('UPDATE mars_mission.teams SET is_comm_unlocked = $1 WHERE id = $2', [status, teamId]);
 }
