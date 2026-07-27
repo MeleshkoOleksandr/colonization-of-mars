@@ -172,3 +172,8 @@ export async function updateTeamCommUnlockAction(teamId: number, status: boolean
     console.error("Action Error [updateTeamCommUnlock]:", error);
   }
 }
+
+//  Checks if a specific team has allowed commander selection
+export async function checkCommanderLockAction(teamId: number) {
+  return await db.getCommanderLockStatus(teamId);
+}

@@ -213,3 +213,11 @@ export async function updateSetting(key: string, value: string) {
 export async function setTeamCommUnlockStatus(teamId: number, status: boolean) {
   await query('UPDATE mars_mission.teams SET is_comm_unlocked = $1 WHERE id = $2', [status, teamId]);
 }
+
+/**
+ * Checks if a specific team has allowed commander selection
+ */
+export async function getCommanderLockStatus(teamId: number): Promise<boolean> {
+  const result = await query('SELECT is_comm_unlocked FROM mars_mission.teams WHERE id = $1', [teamId]);
+  return result[0]?.is_comm_unlocked || false;
+}

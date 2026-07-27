@@ -21,6 +21,7 @@ import {
   verifyAdminPasswordAction,
   updateAdminPasswordAction,
   updateTeamCommUnlockAction,
+  checkCommanderLockAction,
 } from '../app/actions';
 
 export const useMarsMission = (ADMIN_PASSWORD: string) => {
@@ -655,7 +656,7 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
       isOpen: true,
       type: 'confirm',
       mode: ModalMode.IDLE,
-      message: loc.msg_modal_teamdelete || "Are you sure you want to delete this team?",
+      message: loc.msg_modal_teamdelete || 'Are you sure you want to delete this team?',
       value: '',
       action: async () => {
         await deleteTeamAction(id);
@@ -821,27 +822,27 @@ export const useMarsMission = (ADMIN_PASSWORD: string) => {
 
   // Action for team member becoming Commander
   const handleBecomeCommander = async () => {
-    // 1 CHECK: Admin gave pemision to select commander
-    const currentTeam = teamsList.find(t => t.id === teamId);
-    if (!currentTeam?.is_comm_unlocked) {
-      return triggerModal('alert', ModalMode.IDLE, loc.msg_comm_locked || 'Accesso negato: In attesa di autorizzazione.');
+    
+    // 1 CHECK: Get data from DB for live check. Admin gave pemision to select commander
+    const isUnlockedNow = await checkCommanderLockAction(teamId);
+    if (!isUnlockedNow) {
+      return triggerModal('alert', ModalMode.IDLE, loc.msg_comm_locked || 'ACCESSO NEGATO: In attesa di autorizzazione.');
     }
 
     // 2 CHECK: Have all the players on the team finished the test?
     // We're looking for players on your team with a score of -1 in the overall results list
     const missingPlayers = allResults.filter(r => r.team_id === teamId && r.score === -1);
-
     if (missingPlayers.length > 0) {
-      // If there is even one person who hasn't finished, we stop the process
       const names = missingPlayers.map(p => p.username).join(', ');
-
-      return triggerModal(
-        'alert',
-        ModalMode.IDLE,
-        `${loc.msg_team_not_ready}: 
-       ${loc.msg_waiting_for}: ${names}`
-      );
+      return triggerModal('alert', ModalMode.IDLE,  `${loc.msg_team_not_ready}: ${loc.msg_waiting_for}: ${names}`);
     }
+
+    // 3. CHECK: Team doesnt have other commander
+    const alreadyHas = await checkCommanderStatusAction(teamId);
+    if (alreadyHas) {
+      return triggerModal('alert', ModalMode.IDLE, loc.msg_modal_commError);
+    }
+
     // 2. If everyone is ready, let's show the standard confirmation procedure
     triggerModal('confirm', ModalMode.IDLE, loc.msg_modal_commander, async () => {
       //  Check the database to see if the slot is available

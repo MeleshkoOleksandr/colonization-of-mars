@@ -83,7 +83,6 @@ export const DiscussionListView = ({
 }: DiscussionListViewProps) => {
   const uniqueTeamIds: number[] = Array.from(new Set(discussionResults.map(r => r.team_id))).sort((a, b) => a - b);
   const isCommander = username.startsWith('Commander');
-  const allAnswered = discussionResults.length > 0 && discussionResults.every(r => r.score !== -1);
 
   // Get the list of teams that are currently visible based on the admin filter
   const activeTeamsInFilter = teamsList.filter(t => {
@@ -97,6 +96,17 @@ export const DiscussionListView = ({
 
   //  Check if the "Commander" feature is enabled for ALL teams in the current selection
   const isAllCommUnlocked = activeTeamsInFilter.length > 0 && activeTeamsInFilter.every(t => t.is_comm_unlocked);
+  //  Check whether there is at least one designated commander in the selected teams
+  const anyTeamHasCommander = activeTeamsInFilter.some(t => t.has_commander);
+  // Activate/diactivale commander button
+  const isCommBtnDisabled = isAllCommUnlocked || anyTeamHasCommander;
+
+  // Have all the participants on the current list responded?
+  const allAnswered = discussionResults.length > 0 && discussionResults.every(r => r.score !== -1);
+  // Have the results been released yet
+  const isTargetUnlocked = activeTeamsInFilter.length > 0 && activeTeamsInFilter.every(t => t.is_unlocked);
+  // FINAL WARNING FLAG
+  const showDiscussionWarning = isAdmin && allAnswered && !isTargetUnlocked;
 
   const handleUnlockWithSystemAlert = () => {
     triggerModal(
@@ -151,15 +161,19 @@ export const DiscussionListView = ({
    */
   const handleToggleCommanderLock = async () => {
     try {
-      const newState = !isAllCommUnlocked;
-
+      const newState = true;
       for (const t of activeTeamsInFilter) {
         await updateTeamCommUnlockAction(t.id, newState);
       }
-
       setTeamsList(await getTeamsAction());
+      // show you the confirmation
+      triggerModal(
+        'alert',
+        ModalMode.IDLE,
+        loc.msg_comm_unlocked_success || 'Autorizzazione concessa. I coloni могут теперь номинировать одного Командира.'
+      );
 
-      console.log(`SYSTEM: Commander selection ${newState ? 'ENABLED' : 'DISABLED'} for all target units.`);
+      console.log(`SYSTEM: Commander selection ENABLED.`);
     } catch (e) {
       console.error('Failed to toggle commander lock:', e);
     }
@@ -382,7 +396,7 @@ export const DiscussionListView = ({
         )}
 
         {/* Pulsing text */}
-        {isAdmin && allAnswered && (
+        {showDiscussionWarning && (
           <div className="text-center py-2 border border-red-600 bg-red-950 animate-pulse">
             <span className="text-[14px] text-red-600 font-black uppercase tracking-widest">
               {loc.msg_conduct_discussion || 'Conduct group discussion before unlocking results'}
@@ -396,14 +410,20 @@ export const DiscussionListView = ({
             {/* 1. ENABLE COMMANDER BUTTON */}
             <button
               onClick={handleToggleCommanderLock}
-              className="w-full bg-amber-500 text-black py-3 font-black uppercase text-lg hover:bg-white transition-colors shadow-[0_0_15px_rgba(245,158,11,0.4)]">
-              {adminTeamFilter.startsWith('scen:')
-                ? isAllCommUnlocked
-                  ? 'Disabilita Comandanti Scenario'
-                  : 'Abilita Comandanti Scenario'
+              disabled={isCommBtnDisabled} // Block the button
+              className={`w-full py-3 font-black uppercase text-lg transition-all shadow-[0_0_15px_rgba(0,0,0,0.3)] ${
+                isCommBtnDisabled
+                  ? 'bg-gray-600 text-gray-400 cursor-not-allowed opacity-50' // Inctive
+                  : 'bg-amber-500 text-black hover:bg-white transition-colors shadow-[0_0_15px_rgba(245,158,11,0.4)]' // Active
+              }`}>
+              {/* Text*/}
+              {anyTeamHasCommander
+                ? loc.btn_comm_assigned || 'Comandante Assegnato'
                 : isAllCommUnlocked
-                  ? 'Blocca selezione Comandante'
-                  : 'Abilita selezione Comandante'}
+                  ? loc.btn_comm_waiting || 'In attesa di selezione...'
+                  : adminTeamFilter.startsWith('scen:')
+                    ? 'Abilita Comandanti Scenario'
+                    : 'Abilita selezione Comandante'}
             </button>
 
             {/* 2. UNLOCK RESULTS (Calls your confirmation modal logic) */}
