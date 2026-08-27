@@ -60,7 +60,7 @@ cd colonization-of-mars
 In the terminal window, type the following command and press **Enter**:
 ```bash
 npm install
-npm install framer-motion lucide-react.
+npm install framer-motion lucide-react
 npm install qrcode.react
 npm install bcryptjs
 npm install -D @types/bcryptjs
